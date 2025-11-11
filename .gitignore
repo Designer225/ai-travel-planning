@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
 
 # debug
@@ -39,3 +40,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE/editor
+.vscode/
+.idea/
+
+# caches
+.eslintcache
+.turbo
+.cache
+
+# docs: ignore all markdown except root README.md and TEAM_NOTES.md
+*.md
+**/*.md
+!/README.md
+!/TEAM_NOTES.md
