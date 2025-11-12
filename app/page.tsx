@@ -23,7 +23,22 @@ export default function Home() {
           </div>
 
           {/* Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8">
+            <Link
+              href="/chat"
+              className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-green-300 hover:shadow-lg"
+            >
+              <div className="flex flex-col items-center gap-4">
+                <div className="rounded-full bg-green-100 p-4 group-hover:bg-green-200 transition-colors">
+                  <Sparkles className="w-8 h-8 text-green-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900">AI Chatbot</h2>
+                <p className="text-sm text-gray-600 text-center">
+                  Chat with AI to plan your perfect trip and get personalized recommendations
+                </p>
+              </div>
+            </Link>
+
             <Link
               href="/itinerary-builder"
               className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-blue-300 hover:shadow-lg"
