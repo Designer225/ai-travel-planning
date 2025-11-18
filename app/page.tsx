@@ -1,65 +1,127 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from "react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { Box, Container, Typography, CssBaseline, Snackbar, Alert } from "@mui/material";
+import { Header } from "./components/Header";
+import { ProfileSection } from "./components/ProfileSection";
+import { AccountSettings } from "./components/AccountSettings";
+import { TravelPreferences } from "./components/TravelPreferences";
+import { MyTrips } from "./components/MyTrips";
+import { PaymentSettings } from "./components/PaymentSettings";
+
+// Create MUI theme with custom colors
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#155dfc",
+    },
+    secondary: {
+      main: "#9810fa",
+    },
+  },
+  shape: {
+    borderRadius: 16,
+  },
+  typography: {
+    fontFamily: "'Inter', sans-serif",
+  },
+});
+
+export type ToastType = {
+  open: boolean;
+  message: string;
+  description?: string;
+  severity: "success" | "error" | "info" | "warning";
+};
+
+export default function App() {
+  const [profileData, setProfileData] = useState({
+    firstName: "John",
+    lastName: "Smith",
+    bio: "Travel Enthusiast",
+    email: "john.smith@email.com",
+    location: "San Francisco, CA",
+    avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400"
+  });
+
+  const [toast, setToast] = useState<ToastType>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showToast = (message: string, severity: "success" | "error" | "info" | "warning", description?: string) => {
+    setToast({ open: true, message, description, severity });
+  };
+
+  const handleCloseToast = () => {
+    setToast({ ...toast, open: false });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box 
+        sx={{ 
+          minHeight: "100vh",
+          background: "linear-gradient(147.631deg, rgb(239, 246, 255) 0%, rgb(255, 255, 255) 50%, rgb(250, 245, 255) 100%)",
+        }}
+      >
+        <Header />
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h4" sx={{ color: "neutral.950", mb: 1 }}>
+              My Account
+            </Typography>
+            <Typography variant="body1" sx={{ color: "#4a5565" }}>
+              Manage your profile and travel preferences
+            </Typography>
+          </Box>
+          
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 2fr" }, gap: 3 }}>
+            <Box>
+              <ProfileSection 
+                profileData={profileData}
+                setProfileData={setProfileData}
+                showToast={showToast}
+              />
+            </Box>
+            
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <AccountSettings 
+                profileData={profileData}
+                setProfileData={setProfileData}
+                showToast={showToast}
+              />
+              <PaymentSettings showToast={showToast} />
+              <MyTrips />
+              <TravelPreferences showToast={showToast} />
+            </Box>
+          </Box>
+        </Container>
+
+        <Snackbar 
+          open={toast.open} 
+          autoHideDuration={4000} 
+          onClose={handleCloseToast}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert 
+            onClose={handleCloseToast} 
+            severity={toast.severity} 
+            sx={{ width: "100%" }}
+            variant="filled"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <Typography variant="body2">{toast.message}</Typography>
+            {toast.description && (
+              <Typography variant="caption" display="block">
+                {toast.description}
+              </Typography>
+            )}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </ThemeProvider>
   );
 }
