@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { TripCard } from '@/components/TripCard';
-import { Box, Container, Typography, Button, TextField, InputAdornment, Grid } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Plus, Search } from 'lucide-react';
 
 const mockTrips = [
   {
@@ -62,68 +62,56 @@ export default function MyTrips() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.paper' }}>
+    <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      <Container maxWidth="xl" sx={{ py: 6 }}>
-        <Box sx={{ mb: 6 }}>
-          <Typography variant="h2" sx={{ mb: 4 }}>
-            My Trips
-          </Typography>
+      <main id="main-content" className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl mb-6">My Trips</h1>
           
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleCreateTrip}
-              sx={{
-                bgcolor: 'primary.main',
-                '&:hover': { bgcolor: 'primary.dark' },
-              }}
-            >
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <Button onClick={handleCreateTrip} className="bg-blue-600 hover:bg-blue-700" aria-label="Create a new trip">
+              <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
               Create new trip
             </Button>
             
-            <TextField
-              placeholder="Search trips..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={{ flex: { sm: 1 }, maxWidth: { sm: 400 } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
-        </Box>
+            <div className="relative flex-1 sm:max-w-md">
+              <label htmlFor="search-trips" className="sr-only">Search trips</label>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" />
+              <Input
+                id="search-trips"
+                type="search"
+                placeholder="Search trips..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+                aria-label="Search your trips by title or location"
+              />
+            </div>
+          </div>
+        </div>
         
         {filteredTrips.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 6 }}>
-            <Typography variant="h5" color="text.secondary">
-              No trips found
-            </Typography>
-          </Box>
+          <div className="text-center py-12" role="status">
+            <p className="text-xl text-gray-600">No trips found</p>
+          </div>
         ) : (
-          <Grid container spacing={4}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list">
             {filteredTrips.map(trip => (
-              <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={trip.id}>
-                <TripCard
-                  id={trip.id}
-                  image={trip.image}
-                  title={trip.title}
-                  location={trip.location}
-                  date={trip.date}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              </Grid>
+              <TripCard
+                key={trip.id}
+                id={trip.id}
+                image={trip.image}
+                title={trip.title}
+                location={trip.location}
+                date={trip.date}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
-          </Grid>
+          </div>
         )}
-      </Container>
-    </Box>
+      </main>
+    </div>
   );
 }

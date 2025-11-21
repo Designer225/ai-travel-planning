@@ -1,27 +1,23 @@
 import Link from 'next/link';
-import { AppBar, Toolbar, Box, Button, Container } from '@mui/material';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import { Plane } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function Navigation() {
   return (
-    <AppBar position="static" color="default" elevation={1} sx={{ bgcolor: 'white' }}>
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <FlightTakeoffIcon sx={{ fontSize: 32, color: 'primary.main', mr: 1 }} />
-            <Box component="span" sx={{ fontSize: 20, fontWeight: 500 }}>
-              TripCraft
-            </Box>
+    <nav className="border-b bg-white" aria-label="Main navigation">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded-md" aria-label="TripCraft home">
+          <Plane className="w-8 h-8 text-blue-600" aria-hidden="true" />
+          <span className="text-xl">TripCraft</span>
+        </Link>
+        
+        <div className="flex items-center gap-6">
+          <Link href="/my-trips" className="text-gray-700 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded-md px-2 py-1">
+            My trips
           </Link>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Link href="/my-trips" style={{ textDecoration: 'none', color: '#374151', transition: 'color 0.2s' }}>
-              My trips
-            </Link>
-            <Button variant="outlined">Sign in</Button>
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
+          <Button variant="outline" aria-label="Sign in to your account">Sign in</Button>
+        </div>
+      </div>
+    </nav>
   );
 }

@@ -1,216 +1,104 @@
 import { Navigation } from '@/components/Navigation';
-import { Box, Container, Typography, Button, Grid } from '@mui/material';
+import { Button } from '@/components/ui/button';
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import Link from 'next/link';
-import MapIcon from '@mui/icons-material/Map';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import GroupIcon from '@mui/icons-material/Group';
+import { MapPin, Calendar, Users } from 'lucide-react';
 
 export default function Home() {
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'white' }}>
+    <div className="min-h-screen bg-white">
       <Navigation />
       
-      {/* Hero Section */}
-      <Box
-        sx={{
-          position: 'relative',
-          height: 600,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        <Box
-          component="img"
-          src="https://images.unsplash.com/photo-1669986480140-2c90b8edb443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBhZHZlbnR1cmUlMjBtb3VudGFpbnxlbnwxfHx8fDE3NjI5MzUwNjJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
-          alt="Travel adventure"
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-          }}
-        />
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            bgcolor: 'rgba(0, 0, 0, 0.4)',
-            zIndex: 1,
-          }}
-        />
-        
-        <Container
-          maxWidth="md"
-          sx={{
-            position: 'relative',
-            zIndex: 2,
-            textAlign: 'center',
-            color: 'white',
-          }}
-        >
-          <Typography variant="h1" sx={{ fontSize: { xs: '3rem', md: '3.75rem' }, mb: 3 }}>
-            Craft Your Perfect Trip, Instantly.
-          </Typography>
-          <Typography variant="h5" sx={{ mb: 4, maxWidth: 800, mx: 'auto' }}>
-            Plan, organize, and discover your dream destinations with ease
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Button
-              variant="contained"
-              size="large"
-              sx={{
-                bgcolor: 'primary.main',
-                '&:hover': { bgcolor: 'primary.dark' },
-              }}
-            >
-              Plan your next adventure
-            </Button>
-            <Link href="/my-trips" style={{ textDecoration: 'none' }}>
-              <Button
-                variant="outlined"
-                size="large"
-                sx={{
-                  color: 'white',
-                  borderColor: 'white',
-                  bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(4px)',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.2)',
-                    borderColor: 'white',
-                  },
-                }}
-              >
-                My trips
-              </Button>
-            </Link>
-          </Box>
-        </Container>
-      </Box>
-      
-      {/* Description Section */}
-      <Box sx={{ py: 10, px: 2 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 8 }}>
-            <Typography variant="h2" sx={{ mb: 2 }}>
-              Everything you need to plan your journey
-            </Typography>
-            <Typography variant="h5" color="text.secondary">
-              TripCraft makes travel planning effortless with powerful tools to organize every detail
-            </Typography>
-          </Box>
+      <main id="main-content">
+        {/* Hero Section */}
+        <section className="relative h-[600px] flex items-center justify-center overflow-hidden" aria-label="Hero section">
+          <div className="absolute inset-0 z-0" aria-hidden="true">
+            <ImageWithFallback
+              src="https://images.unsplash.com/photo-1669986480140-2c90b8edb443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBhZHZlbnR1cmUlMjBtb3VudGFpbnxlbnwxfHx8fDE3NjI5MzUwNjJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+              alt="Mountain landscape representing travel adventure"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40" />
+          </div>
           
-          <Grid container spacing={8}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box sx={{ textAlign: 'center' }}>
-                <Box
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor: 'primary.light',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mx: 'auto',
-                    mb: 2,
-                  }}
-                >
-                  <MapIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-                </Box>
-                <Typography variant="h3" sx={{ mb: 1.5 }}>
-                  Discover Destinations
-                </Typography>
-                <Typography color="text.secondary">
-                  Explore amazing places around the world and create detailed itineraries for each location
-                </Typography>
-              </Box>
-            </Grid>
-            
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box sx={{ textAlign: 'center' }}>
-                <Box
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor: 'primary.light',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mx: 'auto',
-                    mb: 2,
-                  }}
-                >
-                  <CalendarMonthIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-                </Box>
-                <Typography variant="h3" sx={{ mb: 1.5 }}>
-                  Organize Your Schedule
-                </Typography>
-                <Typography color="text.secondary">
-                  Keep track of dates, bookings, and activities all in one place for stress-free travel
-                </Typography>
-              </Box>
-            </Grid>
-            
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box sx={{ textAlign: 'center' }}>
-                <Box
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor: 'primary.light',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mx: 'auto',
-                    mb: 2,
-                  }}
-                >
-                  <GroupIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-                </Box>
-                <Typography variant="h3" sx={{ mb: 1.5 }}>
-                  Share with Friends
-                </Typography>
-                <Typography color="text.secondary">
-                  Collaborate on trip plans and share your adventures with travel companions
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+          <div className="relative z-10 text-center text-white px-4">
+            <h1 className="text-5xl md:text-6xl mb-6">
+              Craft Your Perfect Trip, Instantly.
+            </h1>
+            <p className="text-xl mb-8 max-w-2xl mx-auto">
+              Plan, organize, and discover your dream destinations with ease
+            </p>
+            <div className="flex gap-4 justify-center flex-wrap">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Start planning your next adventure">
+                Plan your next adventure
+              </Button>
+              <Link href="/my-trips">
+                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white hover:bg-white/20">
+                  My trips
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
       
-      {/* CTA Section */}
-      <Box sx={{ py: 10, px: 2, bgcolor: 'primary.light' }}>
-        <Container maxWidth="md" sx={{ textAlign: 'center' }}>
-          <Typography variant="h2" sx={{ mb: 2 }}>
-            Ready to start planning?
-          </Typography>
-          <Typography variant="h5" color="text.secondary" sx={{ mb: 4 }}>
-            Join thousands of travelers who trust TripCraft to organize their adventures
-          </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              bgcolor: 'primary.main',
-              '&:hover': { bgcolor: 'primary.dark' },
-            }}
-          >
-            Get started for free
-          </Button>
-        </Container>
-      </Box>
-    </Box>
+        {/* Description Section */}
+        <section className="py-20 px-4" aria-labelledby="features-heading">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-16">
+              <h2 id="features-heading" className="text-4xl mb-4">Everything you need to plan your journey</h2>
+              <p className="text-xl text-gray-600">
+                TripCraft makes travel planning effortless with powerful tools to organize every detail
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-12" role="list">
+              <div className="text-center" role="listitem">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+                  <MapPin className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl mb-3">Discover Destinations</h3>
+              <p className="text-gray-600">
+                Explore amazing places around the world and create detailed itineraries for each location
+              </p>
+            </div>
+            
+              <div className="text-center" role="listitem">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+                  <Calendar className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl mb-3">Organize Your Schedule</h3>
+              <p className="text-gray-600">
+                Keep track of dates, bookings, and activities all in one place for stress-free travel
+              </p>
+            </div>
+            
+              <div className="text-center" role="listitem">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+                  <Users className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl mb-3">Share with Friends</h3>
+              <p className="text-gray-600">
+                Collaborate on trip plans and share your adventures with travel companions
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+        {/* CTA Section */}
+        <section className="py-20 px-4 bg-blue-50" aria-labelledby="cta-heading">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h2 id="cta-heading" className="text-4xl mb-4">Ready to start planning?</h2>
+            <p className="text-xl text-gray-600 mb-8">
+              Join thousands of travelers who trust TripCraft to organize their adventures
+            </p>
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Get started with TripCraft for free">
+              Get started for free
+            </Button>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }
 
