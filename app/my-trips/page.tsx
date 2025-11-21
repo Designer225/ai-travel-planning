@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Navigation } from '@/components/Navigation';
-import { TripCard } from '@/components/TripCard';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
+import { Navigation } from '@/components/layout/Navigation';
+import { TripsHeader } from '@/components/trips/TripsHeader';
+import { TripsGrid, type Trip } from '@/components/trips/TripsGrid';
 
-const mockTrips = [
+const mockTrips: Trip[] = [
   {
     id: '1',
     title: 'Paris Adventure',
@@ -66,51 +64,17 @@ export default function MyTrips() {
       <Navigation />
       
       <main id="main-content" className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl mb-6">My Trips</h1>
-          
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <Button onClick={handleCreateTrip} className="bg-blue-600 hover:bg-blue-700" aria-label="Create a new trip">
-              <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
-              Create new trip
-            </Button>
-            
-            <div className="relative flex-1 sm:max-w-md">
-              <label htmlFor="search-trips" className="sr-only">Search trips</label>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" />
-              <Input
-                id="search-trips"
-                type="search"
-                placeholder="Search trips..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                aria-label="Search your trips by title or location"
-              />
-            </div>
-          </div>
-        </div>
+        <TripsHeader
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onCreateTrip={handleCreateTrip}
+        />
         
-        {filteredTrips.length === 0 ? (
-          <div className="text-center py-12" role="status">
-            <p className="text-xl text-gray-600">No trips found</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list">
-            {filteredTrips.map(trip => (
-              <TripCard
-                key={trip.id}
-                id={trip.id}
-                image={trip.image}
-                title={trip.title}
-                location={trip.location}
-                date={trip.date}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        )}
+        <TripsGrid
+          trips={filteredTrips}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </main>
     </div>
   );
