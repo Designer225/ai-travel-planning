@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/app/components/ui/scroll-area';
+import { Button } from '@/app/components/ui/button';
 import { Sparkles, Search } from 'lucide-react';
 import { TripPlan } from '@/types';
 import { DestinationSearch } from './DestinationSearch';
@@ -470,4 +470,6 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     </>
   );
 }
+
+
 

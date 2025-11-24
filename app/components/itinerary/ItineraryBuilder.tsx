@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/app/components/ui/button';
+import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { EditableTripHeader } from './EditableTripHeader';
 import { EditableDayCard } from './EditableDayCard';
 import { TripPlan, DayActivity, TripDay } from '@/types';
@@ -326,5 +326,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     </DndProvider>
   );
 }
+
+
 
 

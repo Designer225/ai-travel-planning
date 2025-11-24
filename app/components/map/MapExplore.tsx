@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Map, Marker } from "pigeon-maps";
 import { MapPin, UtensilsCrossed, Bed, Compass, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/app/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/app/components/ui/dialog";
+import { Badge } from "@/app/components/ui/badge";
 
 export type DestinationType = "attraction" | "food" | "lodging";
 

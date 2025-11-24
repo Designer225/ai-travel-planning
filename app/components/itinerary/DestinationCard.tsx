@@ -1,11 +1,11 @@
 ﻿'use client';
 
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card } from '@/app/components/ui/card';
+import { Badge } from '@/app/components/ui/badge';
+import { Button } from '@/app/components/ui/button';
 import { MapPin, DollarSign, Calendar, Sparkles } from 'lucide-react';
 import { Destination } from '@/data/destinations';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
 
 interface DestinationCardProps {
   destination: Destination;

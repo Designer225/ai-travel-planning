@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-const MapExplore = dynamic(() => import('@/components/map/MapExplore').then(m => m.MapExplore), {
+const MapExplore = dynamic(() => import('@/app/components/map/MapExplore').then(m => m.MapExplore), {
   ssr: false,
 });
 

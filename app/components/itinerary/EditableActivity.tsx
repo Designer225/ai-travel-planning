@@ -1,10 +1,10 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
+import { Textarea } from '@/app/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Edit2, Check, X, Trash2, MapPin, GripVertical } from 'lucide-react';
 import { Plane, Utensils, Hotel, Navigation } from 'lucide-react';
 import { DayActivity } from '@/types';

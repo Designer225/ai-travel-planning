@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useState, KeyboardEvent } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
 import { Send } from 'lucide-react';
 
 interface ChatInputProps {
@@ -48,3 +48,6 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     </div>
   );
 }
+
+
+

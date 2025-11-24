@@ -1,14 +1,14 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
-import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/app/components/ui/dialog';
+import { Input } from '@/app/components/ui/input';
+import { ScrollArea } from '@/app/components/ui/scroll-area';
+import { Badge } from '@/app/components/ui/badge';
+import { Button } from '@/app/components/ui/button';
+import { Checkbox } from '@/app/components/ui/checkbox';
+import { Slider } from '@/app/components/ui/slider';
+import { Separator } from '@/app/components/ui/separator';
 import { 
   Search, 
   MapPin, 
@@ -21,7 +21,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { destinations, activityTypes, vibeTypes, climateTypes, budgetRanges, Destination } from '@/data/destinations';
-import { DestinationCard } from '@/components/itinerary/DestinationCard';
+import { DestinationCard } from './DestinationCard';
 
 interface DestinationSearchProps {
   open: boolean;
@@ -349,4 +349,3 @@ export function DestinationSearch({ open, onClose, onSelectDestination }: Destin
     </Dialog>
   );
 }
-

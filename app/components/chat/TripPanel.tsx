@@ -1,8 +1,8 @@
 'use client';
 
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/app/components/ui/scroll-area';
+import { Card } from '@/app/components/ui/card';
+import { Badge } from '@/app/components/ui/badge';
 import { Calendar, MapPin, DollarSign, Users, Plane, Utensils, Hotel, Navigation } from 'lucide-react';
 import { TripPlan } from '@/types';
 
@@ -153,4 +153,6 @@ export function TripPanel({ tripPlan }: TripPanelProps) {
     </>
   );
 }
+
+
 
