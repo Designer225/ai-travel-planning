@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
-import { Button } from './ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
+import { Button } from '../ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,10 +8,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
+} from '../ui/dialog';
 import { Calendar, Clock, MapPin, Pencil, Trash2, Copy } from 'lucide-react';
-import { Badge } from './ui/badge';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Badge } from '../ui/badge';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 import type { Trip } from './TripsList';
 
 interface TripCardProps {
