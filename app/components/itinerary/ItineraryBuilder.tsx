@@ -10,6 +10,7 @@ import { EditableTripHeader } from './EditableTripHeader';
 import { EditableDayCard } from './EditableDayCard';
 import { TripPlan, DayActivity, TripDay } from '@/types';
 import { toast, Toaster } from 'sonner';
+import { Navigation } from '../layout/Navigation';
 
 interface ItineraryBuilderProps {
   onBack?: () => void;
@@ -238,6 +239,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
       <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
         {/* Header */}
         <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm">
+          <Navigation />
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">

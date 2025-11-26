@@ -32,7 +32,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
       <Input
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyPress}
         placeholder="Ask me anything about travel..."
         disabled={disabled}
         className="flex-1"

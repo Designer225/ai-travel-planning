@@ -6,6 +6,7 @@ import { MapPin, UtensilsCrossed, Bed, Compass, X } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/app/components/ui/dialog";
 import { Badge } from "@/app/components/ui/badge";
+import { Navigation } from "../layout/Navigation";
 
 export type DestinationType = "attraction" | "food" | "lodging";
 
@@ -245,6 +246,7 @@ export function MapExplore() {
     <div className="h-screen w-full flex flex-col">
       {/* Header with filters */}
       <div className="bg-white border-b p-4 shadow-sm">
+        <Navigation />
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">

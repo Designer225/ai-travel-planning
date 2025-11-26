@@ -435,7 +435,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
         <p className="text-sm text-gray-600">Describe your dream trip and I'll plan it for you</p>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4 overflow-auto">
         <div className="space-y-4 max-w-2xl">
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />

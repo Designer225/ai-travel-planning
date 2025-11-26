@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Button } from '../ui/button';
 
 export function CTASection() {
@@ -8,9 +9,12 @@ export function CTASection() {
         <p className="text-xl text-gray-600 mb-8">
           Join thousands of travelers who trust TripCraft to organize their adventures
         </p>
-        <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Get started with TripCraft for free">
-          Get started for free
-        </Button>
+        {/* TODO: redirect to login page or dashboard as appropriate */}
+        <Link href="/dashboard">
+          <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Get started with TripCraft for free">
+            Get started for free
+          </Button>
+        </Link>
       </div>
     </section>
   );

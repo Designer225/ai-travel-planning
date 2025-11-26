@@ -5,6 +5,7 @@ import { ChatPanel } from './ChatPanel';
 import { TripPanel } from './TripPanel';
 import { MapPin, Sparkles } from 'lucide-react';
 import { TripPlan } from '@/types';
+import { Navigation } from '../layout/Navigation';
 
 export default function AIChatbot() {
   const [tripPlan, setTripPlan] = useState<TripPlan | null>(null);
@@ -13,6 +14,7 @@ export default function AIChatbot() {
     <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm">
+        <Navigation />
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
