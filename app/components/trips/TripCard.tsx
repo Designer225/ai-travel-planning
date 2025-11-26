@@ -86,9 +86,9 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
 
         <CardHeader>
           <div>
-            <h3 className="text-gray-900 truncate">
-              {trip.title || trip.destination}
-            </h3>
+            <h1 className="text-gray-900 truncate text-xl">
+              {trip.title}
+            </h1>
             {trip.title && (
               <div className="flex items-center gap-1 mt-1 text-gray-600">
                 <MapPin className="h-3 w-3 flex-shrink-0" />
