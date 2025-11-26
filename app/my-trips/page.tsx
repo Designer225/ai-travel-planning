@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Navigation } from '@/components/layout/Navigation';
-import { TripsHeader } from '@/components/trips/TripsHeader';
-import { TripsGrid, type Trip } from '@/components/trips/TripsGrid';
+import { Navigation } from '../components/layout/Navigation';
+import { TripsHeader } from '../components/trips/TripsHeader';
+import { TripsGrid, type Trip } from '../components/trips/TripsGrid';
 
 const mockTrips: Trip[] = [
   {

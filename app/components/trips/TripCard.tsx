@@ -1,9 +1,9 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import { MapPin, Calendar, Edit, Trash2 } from 'lucide-react';
-import { ImageWithFallback } from '@/components/ui/image-with-fallback';
+import { ImageWithFallback } from '../ui/image-with-fallback';
 
 interface TripCardProps {
   id: string;

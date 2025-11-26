@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
-import { ImageWithFallback } from '@/components/ui/image-with-fallback';
+import { Button } from '../ui/button';
+import { ImageWithFallback } from '../ui/image-with-fallback';
 import Link from 'next/link';
 
 export function HeroSection() {
