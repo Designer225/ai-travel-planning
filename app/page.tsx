@@ -1,16 +1,10 @@
 'use client';
 
-import { useState } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { Box, Container, Typography, CssBaseline, Snackbar, Alert } from "@mui/material";
-import { Header } from "./components/Header";
-import { ProfileSection } from "./components/ProfileSection";
-import { AccountSettings } from "./components/AccountSettings";
-import { TravelPreferences } from "./components/TravelPreferences";
-import { MyTrips } from "./components/MyTrips";
-import { PaymentSettings } from "./components/PaymentSettings";
+import { Box, Container, Typography, CssBaseline, Grid, Paper, Button } from "@mui/material";
+import Link from "next/link";
+import { Navigation } from "./components/layout/Navigation";
 
-// Create MUI theme with custom colors
 const theme = createTheme({
   palette: {
     primary: {
@@ -28,37 +22,20 @@ const theme = createTheme({
   },
 });
 
-export type ToastType = {
-  open: boolean;
-  message: string;
-  description?: string;
-  severity: "success" | "error" | "info" | "warning";
-};
+const routes = [
+  {
+    title: "Account",
+    description: "Manage your profile, preferences, and payment methods.",
+    href: "/account",
+  },
+  {
+    title: "Checkout",
+    description: "Confirm booking details and complete payment.",
+    href: "/checkout",
+  },
+];
 
-export default function App() {
-  const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Smith",
-    bio: "Travel Enthusiast",
-    email: "john.smith@email.com",
-    location: "San Francisco, CA",
-    avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400"
-  });
-
-  const [toast, setToast] = useState<ToastType>({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-
-  const showToast = (message: string, severity: "success" | "error" | "info" | "warning", description?: string) => {
-    setToast({ open: true, message, description, severity });
-  };
-
-  const handleCloseToast = () => {
-    setToast({ ...toast, open: false });
-  };
-
+export default function HomePage() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -68,59 +45,60 @@ export default function App() {
           background: "linear-gradient(147.631deg, rgb(239, 246, 255) 0%, rgb(255, 255, 255) 50%, rgb(250, 245, 255) 100%)",
         }}
       >
-        <Header />
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" sx={{ color: "neutral.950", mb: 1 }}>
-              My Account
+        <Navigation />
+        <Container maxWidth="lg" sx={{ py: 6 }}>
+          <Box sx={{ textAlign: "center", mb: 6 }}>
+            <Typography variant="h3" sx={{ color: "neutral.950", mb: 2 }}>
+              Welcome to TripAI
             </Typography>
-            <Typography variant="body1" sx={{ color: "#4a5565" }}>
-              Manage your profile and travel preferences
+            <Typography variant="body1" sx={{ color: "#4a5565", maxWidth: 640, mx: "auto" }}>
+              Plan, book, and manage every part of your travel journey. Choose a page below to get started.
             </Typography>
           </Box>
-          
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 2fr" }, gap: 3 }}>
-            <Box>
-              <ProfileSection 
-                profileData={profileData}
-                setProfileData={setProfileData}
-                showToast={showToast}
-              />
-            </Box>
-            
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <AccountSettings 
-                profileData={profileData}
-                setProfileData={setProfileData}
-                showToast={showToast}
-              />
-              <PaymentSettings showToast={showToast} />
-              <MyTrips />
-              <TravelPreferences showToast={showToast} />
-            </Box>
-          </Box>
-        </Container>
 
-        <Snackbar 
-          open={toast.open} 
-          autoHideDuration={4000} 
-          onClose={handleCloseToast}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert 
-            onClose={handleCloseToast} 
-            severity={toast.severity} 
-            sx={{ width: "100%" }}
-            variant="filled"
-          >
-            <Typography variant="body2">{toast.message}</Typography>
-            {toast.description && (
-              <Typography variant="caption" display="block">
-                {toast.description}
-              </Typography>
-            )}
-          </Alert>
-        </Snackbar>
+          <Grid container spacing={3}>
+            {routes.map((route) => (
+              <Grid item xs={12} md={6} key={route.href}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    border: "1px solid rgba(0,0,0,0.1)",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                >
+                  <Box>
+                    <Typography variant="h6">{route.title}</Typography>
+                    <Typography variant="body2" sx={{ color: "#4a5565", mt: 1 }}>
+                      {route.description}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ mt: "auto" }}>
+                    <Button
+                      component={Link}
+                      href={route.href}
+                      variant="contained"
+                      fullWidth
+                      sx={{
+                        background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
+                        "&:hover": {
+                          background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
+                          opacity: 0.9,
+                        },
+                      }}
+                    >
+                      Go to {route.title}
+                    </Button>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
       </Box>
     </ThemeProvider>
   );

@@ -3,7 +3,7 @@
 import { AppBar, Toolbar, Box, Typography, Container } from "@mui/material";
 import { Flight, Explore } from "@mui/icons-material";
 
-export function Header() {
+export function Navigation() {
   return (
     <AppBar 
       position="static" 
