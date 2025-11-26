@@ -190,6 +190,19 @@ html {
   font-size: var(--font-size);
 }
 
+.gradient-background, .gradient-button {
+  background: linear-gradient(135deg, #155dfc 0%, #9810fa 100%);
+}
+
+.gradient-button:hover {
+  background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)";
+  opacity: 0.9;
+}
+
+.gradient-button:disabled {
+  opacity: 0.5;
+}
+
 /* * {
   border-color: var(--color-border);
 }

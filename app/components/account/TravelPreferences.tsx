@@ -91,14 +91,10 @@ export function TravelPreferences({ showToast }: TravelPreferencesProps) {
           label={item}
           icon={<Check sx={{ fontSize: 16, color: "white !important" }} />}
           onClick={onClick}
+          className="gradient-button"
           sx={{
-            background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
             color: "white",
             border: "none",
-            "&:hover": {
-              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-              opacity: 0.9,
-            },
             "& .MuiChip-icon": {
               color: "white",
             },
@@ -236,16 +232,7 @@ export function TravelPreferences({ showToast }: TravelPreferencesProps) {
             onClick={handleSave}
             disabled={!hasChanges()}
             variant="contained"
-            sx={{
-              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-              "&:hover": {
-                background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-                opacity: 0.9,
-              },
-              "&:disabled": {
-                opacity: 0.5,
-              },
-            }}
+            className="gradient-button"
           >
             Save Preferences
           </Button>

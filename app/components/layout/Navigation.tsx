@@ -19,6 +19,7 @@ export function Navigation() {
         <Toolbar disableGutters sx={{ py: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Box 
+              className="gradient-background"
               sx={{ 
                 position: "relative", 
                 width: 40, 
@@ -27,7 +28,6 @@ export function Navigation() {
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: 2,
-                background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
               }}
             >
               <Flight sx={{ color: "white", fontSize: 24 }} />

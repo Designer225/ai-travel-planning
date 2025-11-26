@@ -118,10 +118,10 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
           <Box sx={{ position: "relative", mb: 2 }}>
             <Avatar
               src={profileData.avatarUrl}
+              className="gradient-background"
               sx={{
                 width: 120,
                 height: 120,
-                background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
               }}
             >
               {profileData.firstName[0]}{profileData.lastName[0]}
@@ -172,12 +172,8 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
             onClick={handleOpenDialog}
             fullWidth
             variant="contained"
+            className="gradient-button"
             sx={{
-              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-              "&:hover": {
-                background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-                opacity: 0.9,
-              },
               borderRadius: 2,
             }}
           >
@@ -210,11 +206,11 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
             <Avatar
               src={editData.avatarUrl}
+              className="gradient-background"
               sx={{
                 width: 100,
                 height: 100,
                 mb: 2,
-                background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
               }}
             >
               {editData.firstName[0]}{editData.lastName[0]}
@@ -316,13 +312,7 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
             onClick={handleSave}
             variant="contained"
             fullWidth
-            sx={{
-              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-              "&:hover": {
-                background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-                opacity: 0.9,
-              },
-            }}
+            className="gradient-button"
           >
             Save Changes
           </Button>

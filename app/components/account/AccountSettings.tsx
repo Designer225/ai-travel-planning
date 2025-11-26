@@ -228,16 +228,7 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
           onClick={handleSave}
           disabled={!hasChanges}
           variant="contained"
-          sx={{
-            background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-            "&:hover": {
-              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-              opacity: 0.9,
-            },
-            "&:disabled": {
-              opacity: 0.5,
-            },
-          }}
+          className="gradient-button"
         >
           Save Changes
         </Button>

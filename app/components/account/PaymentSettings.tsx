@@ -109,13 +109,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
           onClick={() => setIsAddDialogOpen(true)}
           variant="contained"
           startIcon={<Add />}
-          sx={{
-            background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-            "&:hover": {
-              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-              opacity: 0.9,
-            },
-          }}
+          className="gradient-button"
         >
           Add Card
         </Button>
@@ -156,8 +150,8 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
                       <Chip
                         label="Default"
                         size="small"
+                        className="gradient-background"
                         sx={{
-                          background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
                           color: "white",
                           height: 20,
                           fontSize: "0.7rem",
@@ -210,7 +204,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
             value={newCard.number}
             onChange={(e) => setNewCard({ ...newCard, number: e.target.value })}
             fullWidth
-            inputProps={{ maxLength: 16 }}
+            slotProps={{ htmlInput: { maxLength: 16 }}}
             sx={{ 
               mb: 2,
               "& .MuiOutlinedInput-root": { 
@@ -241,7 +235,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
               placeholder="MM/YY"
               value={newCard.expiry}
               onChange={(e) => setNewCard({ ...newCard, expiry: e.target.value })}
-              inputProps={{ maxLength: 5 }}
+              slotProps={{ htmlInput: { maxLength: 5 }}}
               sx={{ 
                 "& .MuiOutlinedInput-root": { 
                   bgcolor: "#f3f3f5",
@@ -255,7 +249,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
               type="password"
               value={newCard.cvv}
               onChange={(e) => setNewCard({ ...newCard, cvv: e.target.value })}
-              inputProps={{ maxLength: 3 }}
+              slotProps={{ htmlInput: { maxLength: 3 }}}
               sx={{ 
                 "& .MuiOutlinedInput-root": { 
                   bgcolor: "#f3f3f5",
@@ -278,13 +272,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
             variant="contained"
             fullWidth
             disabled={!newCard.number || !newCard.name || !newCard.expiry || !newCard.cvv}
-            sx={{
-              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-              "&:hover": {
-                background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-                opacity: 0.9,
-              },
-            }}
+            className="gradient-button"
           >
             Add Card
           </Button>

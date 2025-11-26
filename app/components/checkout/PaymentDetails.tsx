@@ -174,12 +174,12 @@ export function PaymentDetails({ showToast }: Props) {
                         </Typography>
                         {index === 0 && (
                           <Chip
+                            className="gradient-background"
                             label="Default"
                             size="small"
                             sx={{
                               height: 22,
                               fontSize: "0.7rem",
-                              background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
                               color: "white",
                             }}
                           />
@@ -292,12 +292,8 @@ export function PaymentDetails({ showToast }: Props) {
         <Button
         variant="contained"
         fullWidth
+        className="gradient-button"
         sx={{
-          background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-          "&:hover": {
-            background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-            opacity: 0.9,
-          },
           py: 1.2,
         }}
         onClick={handleComplete}

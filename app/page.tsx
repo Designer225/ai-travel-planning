@@ -58,7 +58,7 @@ export default function HomePage() {
 
           <Grid container spacing={3}>
             {routes.map((route) => (
-              <Grid item xs={12} md={6} key={route.href}>
+              <Grid size={{ xs: 12, md: 6 }} key={route.href}>
                 <Paper
                   elevation={0}
                   sx={{
@@ -83,13 +83,7 @@ export default function HomePage() {
                       href={route.href}
                       variant="contained"
                       fullWidth
-                      sx={{
-                        background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-                        "&:hover": {
-                          background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)",
-                          opacity: 0.9,
-                        },
-                      }}
+                      className="gradient-button"
                     >
                       Go to {route.title}
                     </Button>
