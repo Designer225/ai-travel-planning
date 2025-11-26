@@ -22,9 +22,12 @@ export function HeroSection() {
           Plan, organize, and discover your dream destinations with ease
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Start planning your next adventure">
-            Plan your next adventure
-          </Button>
+          {/* TODO: redirect to login page or dashboard as appropriate */}
+          <Link href="/dashboard">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Start planning your next adventure">
+              Plan your next adventure
+            </Button>
+          </Link>
           <Link href="/my-trips">
             <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white hover:bg-white">
               My trips
