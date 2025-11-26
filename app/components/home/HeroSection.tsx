@@ -26,7 +26,7 @@ export function HeroSection() {
             Plan your next adventure
           </Button>
           <Link href="/my-trips">
-            <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white hover:bg-white/20">
+            <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white hover:bg-white">
               My trips
             </Button>
           </Link>

@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 export interface Trip {
   id: string;
-  title?: string;
+  title: string;
   destination: string;
   dateRange?: string;
   tripTime: string;
@@ -20,6 +20,7 @@ interface TripsListProps {
 const MOCK_UPCOMING_TRIPS: Trip[] = [
   {
     id: '1',
+    title: 'Paris, France',
     destination: 'Paris, France',
     dateRange: 'Dec 15 - Dec 22, 2025',
     tripTime: '7 days',
@@ -28,6 +29,7 @@ const MOCK_UPCOMING_TRIPS: Trip[] = [
   },
   {
     id: '2',
+    title: 'Tokyo, Japan',
     destination: 'Tokyo, Japan',
     dateRange: 'Jan 10 - Jan 20, 2026',
     tripTime: '10 days',
@@ -36,6 +38,7 @@ const MOCK_UPCOMING_TRIPS: Trip[] = [
   },
   {
     id: '3',
+    title: 'New York, USA',
     destination: 'New York, USA',
     dateRange: 'Nov 20 - Nov 25, 2025',
     tripTime: '5 days',
@@ -47,6 +50,7 @@ const MOCK_UPCOMING_TRIPS: Trip[] = [
 const MOCK_PAST_TRIPS: Trip[] = [
   {
     id: '4',
+    title: 'Barcelona, Spain',
     destination: 'Barcelona, Spain',
     dateRange: 'Aug 5 - Aug 12, 2025',
     tripTime: '7 days',
@@ -55,6 +59,7 @@ const MOCK_PAST_TRIPS: Trip[] = [
   },
   {
     id: '5',
+    title: 'Rome, Italy',
     destination: 'Rome, Italy',
     dateRange: 'Jun 1 - Jun 8, 2025',
     tripTime: '7 days',
@@ -63,6 +68,7 @@ const MOCK_PAST_TRIPS: Trip[] = [
   },
   {
     id: '6',
+    title: 'London, UK',
     destination: 'London, UK',
     dateRange: 'Apr 15 - Apr 19, 2025',
     tripTime: '4 days',
@@ -145,16 +151,14 @@ export function TripsList({ tripType, searchQuery }: TripsListProps) {
 
   if (filteredTrips.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">
-          {searchQuery ? 'No trips found matching your search' : `No ${tripType} trips yet`}
-        </p>
-      </div>
+      <p className="text-gray-500 text-center py-12">
+        {searchQuery ? 'No trips found matching your search' : `No ${tripType} trips yet`}
+      </p>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {filteredTrips.map((trip) => (
         <TripCard
           key={trip.id}
