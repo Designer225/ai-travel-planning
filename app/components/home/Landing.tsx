@@ -1,9 +1,9 @@
 `use client`;
 
 import { Navigation } from '../layout/Navigation';
-import { HeroSection } from '../home/HeroSection';
-import { FeaturesSection } from '../home/FeaturesSection';
-import { CTASection } from '../home/CTASection';
+import { HeroSection } from './HeroSection';
+import { FeaturesSection } from './FeaturesSection';
+import { CTASection } from './CTASection';
 import { Box, CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles'
 import { theme } from '@/app/lib/themes';

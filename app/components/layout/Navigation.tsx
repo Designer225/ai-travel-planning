@@ -1,10 +1,38 @@
 'use client';
 
-import { AppBar, Toolbar, Box, Typography, Container } from "@mui/material";
+import { AppBar, Toolbar, Box, Typography, Container, Button } from "@mui/material";
 import { Flight, Explore } from "@mui/icons-material";
 import Link from "next/link";
+import { startTransition, useEffect, useState } from "react";
+import SiteUser from "@/app/lib/user";
+import { tryEnterDashboard, tryGetCurrentUser, tryLogout } from "@/app/lib/clientUserGate";
+import { useRouter } from "next/navigation";
 
 export function Navigation() {
+  const router = useRouter();
+  const [showButtons, setShowButtons] = useState(false);
+  const [user, setUser] = useState<SiteUser | null>(null);
+
+  useEffect(() => {
+    startTransition(async () => {
+      const siteUser = await tryGetCurrentUser(router);
+      setUser(siteUser);
+      setShowButtons(true);
+    });
+  }, []);
+
+  const handleDashboard = () => {
+    startTransition(async () => {
+      await tryEnterDashboard(router);
+    })
+  }
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await tryLogout(router);
+    })
+  }
+
   return (
     <AppBar 
       position="sticky" 
@@ -18,60 +46,72 @@ export function Navigation() {
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ py: 1 }}>
-          <Link href='/'>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Box 
-                className="gradient-background"
-                sx={{ 
-                  position: "relative", 
-                  width: 40, 
-                  height: 40,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 2,
-                }}
-              >
-                <Flight sx={{ color: "white", fontSize: 24 }} />
-                <Explore 
+          <Box className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <Link href='/'>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Box 
+                  className="gradient-background"
                   sx={{ 
-                    position: "absolute",
-                    top: -4,
-                    right: -4,
-                    color: "#AD46FF",
-                    bgcolor: "white",
-                    borderRadius: "50%",
-                    fontSize: 16,
-                    padding: "2px",
-                  }} 
-                />
-              </Box>
-              <Box>
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: "text.primary",
-                    fontSize: "20px",
-                    lineHeight: "28px",
-                    letterSpacing: "-0.4492px",
+                    position: "relative", 
+                    width: 40, 
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 2,
                   }}
                 >
-                  TripAI
-                </Typography>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: "#4a5565",
-                    fontSize: "14px",
-                    lineHeight: "20px",
-                    letterSpacing: "-0.1504px",
-                  }}
-                >
-                  Your AI Travel Planning Assistant
-                </Typography>
+                  <Flight sx={{ color: "white", fontSize: 24 }} />
+                  <Explore 
+                    sx={{ 
+                      position: "absolute",
+                      top: -4,
+                      right: -4,
+                      color: "#AD46FF",
+                      bgcolor: "white",
+                      borderRadius: "50%",
+                      fontSize: 16,
+                      padding: "2px",
+                    }} 
+                  />
+                </Box>
+                <Box>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: "text.primary",
+                      fontSize: "20px",
+                      lineHeight: "28px",
+                      letterSpacing: "-0.4492px",
+                    }}
+                  >
+                    TripAI
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: "#4a5565",
+                      fontSize: "14px",
+                      lineHeight: "20px",
+                      letterSpacing: "-0.1504px",
+                    }}
+                  >
+                    Your AI Travel Planning Assistant
+                  </Typography>
+                </Box>
               </Box>
+            </Link>
+            <Box>
+              { showButtons && (
+                user === null
+                ? <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Login</Button>
+                : <Box>
+                    <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Dashboard</Button>
+                    <Button variant="outlined" onClick={handleLogout}>Log out</Button>
+                  </Box>
+              )}
             </Box>
-          </Link>
+          </Box>
         </Toolbar>
       </Container>
     </AppBar>

@@ -1,9 +1,12 @@
 'use client'
 
-import Link from 'next/link';
+import { tryEnterDashboard } from '@/app/lib/clientUserGate';
 import { Box, Button, Grid, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 export function CTASection() {
+  const router = useRouter();
+
   return (
     <Box paddingBlock={20} paddingInline={4} bgcolor="#eff6ff" aria-labelledby='cta-heading'>
       <Grid container columns={1} marginInline='auto' maxWidth='56rem' textAlign='center' justifyContent='center'>
@@ -17,7 +20,7 @@ export function CTASection() {
         </Grid>
         <Grid>
           {/* TODO: redirect to login page or dashboard as appropriate */}
-          <Button component={Link} href='/dashboard' variant='contained' className="gradient-button" aria-label="Get started with TripAI for free">
+          <Button onClick={() => tryEnterDashboard(router)} variant='contained' className="gradient-button" aria-label="Get started with TripAI for free">
             Get started for free
           </Button>
         </Grid>
