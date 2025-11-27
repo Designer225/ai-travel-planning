@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -132,8 +131,11 @@
   }
 }
 
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
 @layer base {
-  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
     h1 {
       font-size: var(--text-2xl);
       font-weight: var(--font-weight-medium);
@@ -186,6 +188,57 @@
 
 html {
   font-size: var(--font-size);
+}
+
+.feature-subtitle {
+  color: #6a7282
+}
+
+.feature-subtitle-darker {
+  color: #4a5565
+}
+
+.gradient-background, .gradient-button {
+  background: linear-gradient(135deg, #155dfc 0%, #9810fa 100%);
+}
+
+.gradient-button {}
+
+.gradient-button:hover {
+  background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)";
+  opacity: 0.9;
+}
+
+.gradient-button:disabled {
+  opacity: 0.5;
+}
+
+.gradient-light {
+  background: linear-gradient(135deg, #eff6ff, #faf5ff)
+}
+
+.gradient-white {
+  background: linear-gradient(135deg, #f9fafb, #eff6ff)
+}
+
+.gradient-chat {
+  background: linear-gradient(90deg, #155dfc, #9810fa);
+}
+
+.chat-icon-outer {
+  width: 32;
+  height: 32;
+}
+
+.chat-icon-inner {
+  width: 16;
+  height: 16;
+}
+
+.chat-pending-ball {
+  width: 8;
+  height: 8;
+  background-color: #99a1af;
 }
 
 /* * {

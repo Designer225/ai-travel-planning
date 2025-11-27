@@ -2,7 +2,7 @@
 
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
-import { Button } from '@/app/components/ui/button';
+import { Button } from '@mui/material';
 import { MapPin, DollarSign, Calendar, Sparkles } from 'lucide-react';
 import { Destination } from '@/data/destinations';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
@@ -86,6 +86,7 @@ export function DestinationCard({ destination, onSelect }: DestinationCardProps)
         </div>
 
         <Button 
+          variant='contained'
           onClick={onSelect}
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
         >

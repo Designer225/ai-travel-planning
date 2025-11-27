@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TripCraft - Plan Your Perfect Trip",
+  title: "TripAI - Plan Your Perfect Trip",
   description: "Plan, organize, and discover your dream destinations with ease",
 };
 

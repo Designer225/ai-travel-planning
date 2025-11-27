@@ -1,21 +1,27 @@
+'use client'
+
 import Link from 'next/link';
-import { Button } from '../ui/button';
+import { Box, Button, Grid, Typography } from '@mui/material';
 
 export function CTASection() {
   return (
-    <section className="py-20 px-4 bg-blue-50" aria-labelledby="cta-heading">
-      <div className="container mx-auto max-w-4xl text-center">
-        <h2 id="cta-heading" className="text-4xl mb-4">Ready to start planning?</h2>
-        <p className="text-xl text-gray-600 mb-8">
-          Join thousands of travelers who trust TripCraft to organize their adventures
-        </p>
-        {/* TODO: redirect to login page or dashboard as appropriate */}
-        <Link href="/dashboard">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700" aria-label="Get started with TripCraft for free">
+    <Box paddingBlock={20} paddingInline={4} bgcolor="#eff6ff" aria-labelledby='cta-heading'>
+      <Grid container columns={1} marginInline='auto' maxWidth='56rem' textAlign='center' justifyContent='center'>
+        <Grid>
+          <Typography variant='h2' id='cta-heading' marginBottom={4} fontSize='2.25rem' lineHeight='calc(2.5/2.25)'>Reading to start planning?</Typography>
+        </Grid>
+        <Grid size={1} marginBottom={4}>
+          <Typography variant='body1' fontSize='1.125rem' lineHeight='calc(1.75/1.25)' className='feature-subtitle'>
+            Join thousands of travelers who trust TripAI to organize their adventures
+          </Typography>
+        </Grid>
+        <Grid>
+          {/* TODO: redirect to login page or dashboard as appropriate */}
+          <Button component={Link} href='/dashboard' variant='contained' className="gradient-button" aria-label="Get started with TripAI for free">
             Get started for free
           </Button>
-        </Link>
-      </div>
-    </section>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

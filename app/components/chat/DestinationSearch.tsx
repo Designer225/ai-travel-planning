@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/app/components/ui/input';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { Badge } from '@/app/components/ui/badge';
-import { Button } from '@/app/components/ui/button';
+import { Button } from '@mui/material';
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { Slider } from '@/app/components/ui/slider';
 import { Separator } from '@/app/components/ui/separator';
@@ -150,8 +150,7 @@ export function DestinationSearch({ open, onClose, onSelectDestination }: Destin
                 <h3 className="font-medium">Filters</h3>
                 {activeFilterCount > 0 && (
                   <Button 
-                    variant="ghost" 
-                    size="sm"
+                    variant="text"
                     onClick={clearAllFilters}
                     className="h-auto py-1 px-2 text-xs"
                   >
@@ -309,8 +308,7 @@ export function DestinationSearch({ open, onClose, onSelectDestination }: Destin
                   )}
                 </div>
                 <Button
-                  variant="outline"
-                  size="icon"
+                  variant="outlined"
                   className="md:hidden"
                   onClick={() => setShowFilters(!showFilters)}
                 >

@@ -4,20 +4,25 @@ import { Navigation } from '../layout/Navigation';
 import { HeroSection } from '../home/HeroSection';
 import { FeaturesSection } from '../home/FeaturesSection';
 import { CTASection } from '../home/CTASection';
-import { ScrollArea } from '@radix-ui/react-scroll-area';
+import { Box, CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles'
+import { theme } from '@/app/lib/themes';
 
 export default function Landing() {
   return (
-    <div className="h-screen w-full flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <header><Navigation /></header>
-      
-      <main id="main-content" className="flex-1 overflow-hidden">
-        <ScrollArea className='h-full overflow-auto'>
-            <HeroSection />
-            <FeaturesSection />
-            <CTASection />
-        </ScrollArea>
-      </main>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box minHeight="100vh"
+        sx={{
+          background: "linear-gradient(147.631deg, rgb(239, 246, 255) 0%, rgb(255, 255, 255) 50%, rgb(250, 245, 255) 100%)",
+        }}
+      >
+        <Navigation />
+        
+        <HeroSection />
+        <FeaturesSection />
+        <CTASection />
+      </Box>
+    </ThemeProvider>
   );
 }
