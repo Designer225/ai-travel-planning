@@ -6,10 +6,10 @@ import { Flight, Explore } from "@mui/icons-material";
 export function Navigation() {
   return (
     <AppBar 
-      position="static" 
+      position="sticky" 
       elevation={1}
       sx={{ 
-        bgcolor: "rgba(255,255,255,0.8)", 
+        bgcolor: "rgba(255,255,255,1)", 
         backdropFilter: "blur(10px)",
         borderBottom: "1px solid rgba(0,0,0,0.1)",
         boxShadow: "0px 1px 3px 0px rgba(0,0,0,0.1), 0px 1px 2px -1px rgba(0,0,0,0.1)",

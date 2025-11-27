@@ -1,28 +1,12 @@
 'use client';
 
 import { useState } from "react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import { Box, Container, Typography, CssBaseline, Snackbar, Alert, Grid } from "@mui/material";
 import { Navigation } from "../components/layout/Navigation";
 import { TripSummary } from "../components/checkout/TripSummary";
 import { PaymentDetails } from "../components/checkout/PaymentDetails";
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#155dfc",
-    },
-    secondary: {
-      main: "#9810fa",
-    },
-  },
-  shape: {
-    borderRadius: 16,
-  },
-  typography: {
-    fontFamily: "'Inter', sans-serif",
-  },
-});
+import { theme } from "@/app/lib/themes";
 
 type ToastType = {
   open: boolean;

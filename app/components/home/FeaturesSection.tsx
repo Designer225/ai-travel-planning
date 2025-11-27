@@ -1,5 +1,6 @@
 import { MapPin, Calendar, Users } from 'lucide-react';
 import { FeatureCard } from './FeatureCard';
+import { Box, Grid, Typography } from '@mui/material';
 
 export function FeaturesSection() {
   const features = [
@@ -21,28 +22,50 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section className="py-20 px-4" aria-labelledby="features-heading">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
-          <h2 id="features-heading" className="text-4xl mb-4">
-            Everything you need to plan your journey
-          </h2>
-          <p className="text-xl text-gray-600">
-            TripCraft makes travel planning effortless with powerful tools to organize every detail
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-12" role="list">
-          {features.map((feature) => (
-            <FeatureCard
+    <Box paddingBlock={20} paddingInline={4} aria-labelledby='features-heading'>
+      <Box textAlign='center' marginBottom={16}>
+        <Typography variant='h2' id='features-heading' fontSize="2.25rem" lineHeight="calc(2.5/2.25)" marginBottom={4}>
+          Everything you need to plan your journey
+        </Typography>
+        <Typography variant='body1' fontSize="1.25rem" lineHeight={1.4} className='feature-subtitle'>
+          TripCraft makes travel planning effortless with powerful tools to organize every detail
+        </Typography>
+      </Box>
+      <Grid container columns={{ xs: 1, md: 3 }} gap={12} justifyContent="center">
+        {features.map((feature) => (
+          <Grid key={feature.title}>
+            <FeatureCard 
               key={feature.title}
               icon={feature.icon}
               title={feature.title}
               description={feature.description}
             />
-          ))}
-        </div>
-      </div>
-    </section>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+    // <section className="py-20 px-4" aria-labelledby="features-heading">
+    //   <div className="container mx-auto max-w-6xl">
+    //     <div className="text-center mb-16">
+    //       <h2 id="features-heading" className="text-4xl mb-4">
+    //         Everything you need to plan your journey
+    //       </h2>
+    //       <p className="text-xl text-gray-600">
+    //         TripCraft makes travel planning effortless with powerful tools to organize every detail
+    //       </p>
+    //     </div>
+        
+    //     <div className="grid md:grid-cols-3 gap-12" role="list">
+    //       {features.map((feature) => (
+    //         <FeatureCard
+    //           key={feature.title}
+    //           icon={feature.icon}
+    //           title={feature.title}
+    //           description={feature.description}
+    //         />
+    //       ))}
+    //     </div>
+    //   </div>
+    // </section>
   );
 }

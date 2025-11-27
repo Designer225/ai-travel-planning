@@ -190,9 +190,15 @@ html {
   font-size: var(--font-size);
 }
 
+.feature-subtitle {
+  color: #6a7282
+}
+
 .gradient-background, .gradient-button {
   background: linear-gradient(135deg, #155dfc 0%, #9810fa 100%);
 }
+
+.gradient-button {}
 
 .gradient-button:hover {
   background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)";
