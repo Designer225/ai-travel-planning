@@ -15,8 +15,8 @@ export function FeatureCard({ icon: Icon, title, description }: FeatureCardProps
     }}>
       <CardContent>
         <Box textAlign='center'>
-          <Box width={64} height={64} bgcolor="#dbeafe" borderRadius="calc(infinity * 1px)"
-            flex alignItems="center" justifyContent='center' marginInline="auto" marginBottom={4} aria-hidden={true}>
+          <Box width={64} height={64} bgcolor="#dbeafe" borderRadius="calc(infinity * 1px)" display={'flex'}
+            alignItems="center" justifyContent='center' marginInline="auto" marginBottom={4} aria-hidden={true}>
             <Icon style={{
               width: 32,
               height: 64,

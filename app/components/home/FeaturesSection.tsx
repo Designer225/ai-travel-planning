@@ -28,7 +28,7 @@ export function FeaturesSection() {
           Everything you need to plan your journey
         </Typography>
         <Typography variant='body1' fontSize="1.25rem" lineHeight={1.4} className='feature-subtitle'>
-          TripCraft makes travel planning effortless with powerful tools to organize every detail
+          TripAI makes travel planning effortless with powerful tools to organize every detail
         </Typography>
       </Box>
       <Grid container columns={{ xs: 1, md: 3 }} gap={12} justifyContent="center">
@@ -44,28 +44,5 @@ export function FeaturesSection() {
         ))}
       </Grid>
     </Box>
-    // <section className="py-20 px-4" aria-labelledby="features-heading">
-    //   <div className="container mx-auto max-w-6xl">
-    //     <div className="text-center mb-16">
-    //       <h2 id="features-heading" className="text-4xl mb-4">
-    //         Everything you need to plan your journey
-    //       </h2>
-    //       <p className="text-xl text-gray-600">
-    //         TripCraft makes travel planning effortless with powerful tools to organize every detail
-    //       </p>
-    //     </div>
-        
-    //     <div className="grid md:grid-cols-3 gap-12" role="list">
-    //       {features.map((feature) => (
-    //         <FeatureCard
-    //           key={feature.title}
-    //           icon={feature.icon}
-    //           title={feature.title}
-    //           description={feature.description}
-    //         />
-    //       ))}
-    //     </div>
-    //   </div>
-    // </section>
   );
 }

@@ -12,12 +12,12 @@ export function CTASection() {
         </Grid>
         <Grid size={1} marginBottom={4}>
           <Typography variant='body1' fontSize='1.125rem' lineHeight='calc(1.75/1.25)' className='feature-subtitle'>
-            Join thousands of travelers who trust TripCraft to organize their adventures
+            Join thousands of travelers who trust TripAI to organize their adventures
           </Typography>
         </Grid>
         <Grid>
           {/* TODO: redirect to login page or dashboard as appropriate */}
-          <Button component={Link} href='/dashboard' variant='contained' className="gradient-button" aria-label="Get started with TripCraft for free">
+          <Button component={Link} href='/dashboard' variant='contained' className="gradient-button" aria-label="Get started with TripAI for free">
             Get started for free
           </Button>
         </Grid>

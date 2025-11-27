@@ -11,6 +11,8 @@ import { EditableDayCard } from './EditableDayCard';
 import { TripPlan, DayActivity, TripDay } from '@/types';
 import { toast, Toaster } from 'sonner';
 import { Navigation } from '../layout/Navigation';
+import { ThemeProvider } from '@mui/material';
+import { theme } from '@/app/lib/themes';
 
 interface ItineraryBuilderProps {
   onBack?: () => void;
@@ -237,93 +239,95 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     <DndProvider backend={HTML5Backend}>
       <Toaster position="top-right" richColors />
       <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        {/* Header */}
-        <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm">
-          <Navigation />
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {onBack && (
-                  <Button variant="ghost" size="sm" className="gap-2" onClick={onBack}>
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Chat
-                  </Button>
-                )}
-                {onBack && <div className="h-6 w-px bg-gray-300" />}
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <MapPin className="w-8 h-8 text-blue-600" />
-                    <Sparkles className="w-4 h-4 text-purple-500 absolute -top-1 -right-1" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl">Itinerary Builder</h1>
-                    <p className="text-sm text-gray-600">Edit and organize your trip</p>
+        <ThemeProvider theme={theme}>
+          {/* Header */}
+          <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm">
+            <Navigation />
+            <div className="container mx-auto px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {onBack && (
+                    <Button variant="ghost" size="sm" className="gap-2" onClick={onBack}>
+                      <ArrowLeft className="w-4 h-4" />
+                      Back to Chat
+                    </Button>
+                  )}
+                  {onBack && <div className="h-6 w-px bg-gray-300" />}
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <MapPin className="w-8 h-8 text-blue-600" />
+                      <Sparkles className="w-4 h-4 text-purple-500 absolute -top-1 -right-1" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl">Itinerary Builder</h1>
+                      <p className="text-sm text-gray-600">Edit and organize your trip</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
-                  <Share2 className="w-4 h-4" />
-                  Share
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleExport} className="gap-2">
-                  <Download className="w-4 h-4" />
-                  Export PDF
-                </Button>
-                <Button 
-                  size="sm" 
-                  onClick={handleSave}
-                  className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExport} className="gap-2">
+                    <Download className="w-4 h-4" />
+                    Export PDF
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleSave}
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </Button>
+                </div>
               </div>
             </div>
+          </header>
+
+          {/* Main Content */}
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="container mx-auto px-6 py-8 max-w-5xl">
+                {/* Editable Trip Header */}
+                <EditableTripHeader tripPlan={tripPlan} onUpdate={handleUpdateTrip} />
+
+                {/* Days List */}
+                <div className="space-y-6 mt-8">
+                  {tripPlan.days.map((day, index) => (
+                    <EditableDayCard
+                      key={day.day}
+                      day={day}
+                      dayIndex={index}
+                      onUpdateDay={(updates) => handleUpdateDay(index, updates)}
+                      onUpdateActivity={(activityId, updates) => handleUpdateActivity(index, activityId, updates)}
+                      onDeleteActivity={(activityId) => handleDeleteActivity(index, activityId)}
+                      onMoveActivity={handleMoveActivity}
+                      onAddActivity={() => handleAddActivity(index)}
+                    />
+                  ))}
+                </div>
+
+                {/* Add Day Button */}
+                <div className="mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={handleAddDay}
+                    className="w-full border-dashed border-2 h-16 gap-2 hover:bg-blue-50 hover:border-blue-300"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add Another Day
+                  </Button>
+                </div>
+
+                {/* Bottom Padding */}
+                <div className="h-20" />
+              </div>
+            </ScrollArea>
           </div>
-        </header>
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="container mx-auto px-6 py-8 max-w-5xl">
-              {/* Editable Trip Header */}
-              <EditableTripHeader tripPlan={tripPlan} onUpdate={handleUpdateTrip} />
-
-              {/* Days List */}
-              <div className="space-y-6 mt-8">
-                {tripPlan.days.map((day, index) => (
-                  <EditableDayCard
-                    key={day.day}
-                    day={day}
-                    dayIndex={index}
-                    onUpdateDay={(updates) => handleUpdateDay(index, updates)}
-                    onUpdateActivity={(activityId, updates) => handleUpdateActivity(index, activityId, updates)}
-                    onDeleteActivity={(activityId) => handleDeleteActivity(index, activityId)}
-                    onMoveActivity={handleMoveActivity}
-                    onAddActivity={() => handleAddActivity(index)}
-                  />
-                ))}
-              </div>
-
-              {/* Add Day Button */}
-              <div className="mt-6">
-                <Button
-                  variant="outline"
-                  onClick={handleAddDay}
-                  className="w-full border-dashed border-2 h-16 gap-2 hover:bg-blue-50 hover:border-blue-300"
-                >
-                  <Plus className="w-5 h-5" />
-                  Add Another Day
-                </Button>
-              </div>
-
-              {/* Bottom Padding */}
-              <div className="h-20" />
-            </div>
-          </ScrollArea>
-        </div>
+        </ThemeProvider>
       </div>
     </DndProvider>
   );

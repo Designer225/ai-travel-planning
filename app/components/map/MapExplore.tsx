@@ -7,6 +7,8 @@ import { Button } from "@/app/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/app/components/ui/dialog";
 import { Badge } from "@/app/components/ui/badge";
 import { Navigation } from "../layout/Navigation";
+import { ThemeProvider } from "@mui/material";
+import { theme } from "@/app/lib/themes";
 
 export type DestinationType = "attraction" | "food" | "lodging";
 
@@ -244,151 +246,153 @@ export function MapExplore() {
 
   return (
     <div className="h-screen w-full flex flex-col">
-      {/* Header with filters */}
-      <div className="bg-white border-b p-4 shadow-sm">
-        <Navigation />
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-6 w-6 text-blue-600" />
-              <h1 className="text-2xl">Explore Destinations</h1>
+      <ThemeProvider theme={theme}>
+        {/* Header with filters */}
+        <div className="bg-white border-b p-4 shadow-sm">
+          <Navigation />
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-6 w-6 text-blue-600" />
+                <h1 className="text-2xl">Explore Destinations</h1>
+              </div>
+              <Badge variant="outline" className="text-sm">
+                {filteredDestinations.length} locations
+              </Badge>
             </div>
-            <Badge variant="outline" className="text-sm">
-              {filteredDestinations.length} locations
-            </Badge>
-          </div>
-          
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant={selectedType === "all" ? "default" : "outline"}
-              onClick={() => setSelectedType("all")}
-              size="sm"
-            >
-              All Destinations
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setSelectedType("attraction")}
-              size="sm"
-              className={`gap-2 transition-all ${
-                selectedType === "attraction" 
-                  ? "bg-[#FF6B6B] text-white border-[#FF6B6B] hover:bg-[#FF5252] hover:text-white" 
-                  : "border-[#FF6B6B]/30 text-[#FF6B6B] hover:bg-[#FF6B6B]/10 hover:border-[#FF6B6B]"
-              }`}
-            >
-              <Compass className="h-4 w-4" />
-              Attractions
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setSelectedType("food")}
-              size="sm"
-              className={`gap-2 transition-all ${
-                selectedType === "food" 
-                  ? "bg-[#4ECDC4] text-white border-[#4ECDC4] hover:bg-[#3EBDB4] hover:text-white" 
-                  : "border-[#4ECDC4]/30 text-[#4ECDC4] hover:bg-[#4ECDC4]/10 hover:border-[#4ECDC4]"
-              }`}
-            >
-              <UtensilsCrossed className="h-4 w-4" />
-              Food & Dining
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setSelectedType("lodging")}
-              size="sm"
-              className={`gap-2 transition-all ${
-                selectedType === "lodging" 
-                  ? "bg-[#FFD93D] text-gray-900 border-[#FFD93D] hover:bg-[#FFC91D] hover:text-gray-900" 
-                  : "border-[#FFD93D]/30 text-[#FFD93D] hover:bg-[#FFD93D]/10 hover:border-[#FFD93D]"
-              }`}
-            >
-              <Bed className="h-4 w-4" />
-              Lodging
-            </Button>
+            
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant={selectedType === "all" ? "default" : "outline"}
+                onClick={() => setSelectedType("all")}
+                size="sm"
+              >
+                All Destinations
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedType("attraction")}
+                size="sm"
+                className={`gap-2 transition-all ${
+                  selectedType === "attraction" 
+                    ? "bg-[#FF6B6B] text-white border-[#FF6B6B] hover:bg-[#FF5252] hover:text-white" 
+                    : "border-[#FF6B6B]/30 text-[#FF6B6B] hover:bg-[#FF6B6B]/10 hover:border-[#FF6B6B]"
+                }`}
+              >
+                <Compass className="h-4 w-4" />
+                Attractions
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedType("food")}
+                size="sm"
+                className={`gap-2 transition-all ${
+                  selectedType === "food" 
+                    ? "bg-[#4ECDC4] text-white border-[#4ECDC4] hover:bg-[#3EBDB4] hover:text-white" 
+                    : "border-[#4ECDC4]/30 text-[#4ECDC4] hover:bg-[#4ECDC4]/10 hover:border-[#4ECDC4]"
+                }`}
+              >
+                <UtensilsCrossed className="h-4 w-4" />
+                Food & Dining
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedType("lodging")}
+                size="sm"
+                className={`gap-2 transition-all ${
+                  selectedType === "lodging" 
+                    ? "bg-[#FFD93D] text-gray-900 border-[#FFD93D] hover:bg-[#FFC91D] hover:text-gray-900" 
+                    : "border-[#FFD93D]/30 text-[#FFD93D] hover:bg-[#FFD93D]/10 hover:border-[#FFD93D]"
+                }`}
+              >
+                <Bed className="h-4 w-4" />
+                Lodging
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Map */}
-      <div className="flex-1 relative">
-        <Map 
-          center={mapCenter} 
-          zoom={zoom} 
-          onBoundsChanged={({ center, zoom }) => {
-            setMapCenter(center);
-            setZoom(zoom);
-          }}
-          provider={(x, y, z) => {
-            // Using Carto Voyager tiles for a cleaner, Google Maps-like appearance
-            return `https://a.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}@2x.png`;
-          }}
-          attribution={false}
-        >
-          {filteredDestinations.map((destination) => (
-            <Marker
-              key={destination.id}
-              anchor={[destination.lat, destination.lng]}
-              offset={[0, 20]}
-            >
-              <CustomMarker
-                type={destination.type}
-                isActive={selectedDestination?.id === destination.id}
-                onClick={() => handleMarkerClick(destination)}
-              />
-            </Marker>
-          ))}
-        </Map>
-      </div>
+        {/* Map */}
+        <div className="flex-1 relative">
+          <Map 
+            center={mapCenter} 
+            zoom={zoom} 
+            onBoundsChanged={({ center, zoom }) => {
+              setMapCenter(center);
+              setZoom(zoom);
+            }}
+            provider={(x, y, z) => {
+              // Using Carto Voyager tiles for a cleaner, Google Maps-like appearance
+              return `https://a.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}@2x.png`;
+            }}
+            attribution={false}
+          >
+            {filteredDestinations.map((destination) => (
+              <Marker
+                key={destination.id}
+                anchor={[destination.lat, destination.lng]}
+                offset={[0, 20]}
+              >
+                <CustomMarker
+                  type={destination.type}
+                  isActive={selectedDestination?.id === destination.id}
+                  onClick={() => handleMarkerClick(destination)}
+                />
+              </Marker>
+            ))}
+          </Map>
+        </div>
 
-      {/* Modal Dialog */}
-      <Dialog open={!!selectedDestination} onOpenChange={() => setSelectedDestination(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <DialogTitle className="text-2xl mb-2">{selectedDestination?.name}</DialogTitle>
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge 
-                    variant="outline" 
-                    className={`gap-1 ${selectedDestination ? getTypeColor(selectedDestination.type) : ''}`}
-                  >
-                    {selectedDestination && getTypeIcon(selectedDestination.type)}
-                    {selectedDestination?.type}
-                  </Badge>
-                  <Badge variant="secondary" className="gap-1">
-                    â­ {selectedDestination?.rating}
-                  </Badge>
-                  {selectedDestination?.priceLevel && (
-                    <Badge variant="outline">{selectedDestination.priceLevel}</Badge>
-                  )}
+        {/* Modal Dialog */}
+        <Dialog open={!!selectedDestination} onOpenChange={() => setSelectedDestination(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <DialogTitle className="text-2xl mb-2">{selectedDestination?.name}</DialogTitle>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge 
+                      variant="outline" 
+                      className={`gap-1 ${selectedDestination ? getTypeColor(selectedDestination.type) : ''}`}
+                    >
+                      {selectedDestination && getTypeIcon(selectedDestination.type)}
+                      {selectedDestination?.type}
+                    </Badge>
+                    <Badge variant="secondary" className="gap-1">
+                      â­ {selectedDestination?.rating}
+                    </Badge>
+                    {selectedDestination?.priceLevel && (
+                      <Badge variant="outline">{selectedDestination.priceLevel}</Badge>
+                    )}
+                  </div>
                 </div>
               </div>
+            </DialogHeader>
+            
+            <DialogDescription className="text-base text-gray-700 leading-relaxed">
+              {selectedDestination?.description}
+            </DialogDescription>
+
+            <div className="mt-4">
+              <h4 className="text-sm font-medium mb-2">Highlights</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedDestination?.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </DialogHeader>
-          
-          <DialogDescription className="text-base text-gray-700 leading-relaxed">
-            {selectedDestination?.description}
-          </DialogDescription>
 
-          <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Highlights</h4>
-            <div className="flex flex-wrap gap-2">
-              {selectedDestination?.tags.map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
+  
+
+            <div className="flex gap-2 mt-4">
+              <Button className="flex-1">Add to Itinerary</Button>
+              <Button variant="outline" className="flex-1">Get Directions</Button>
             </div>
-          </div>
-
- 
-
-          <div className="flex gap-2 mt-4">
-            <Button className="flex-1">Add to Itinerary</Button>
-            <Button variant="outline" className="flex-1">Get Directions</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </ThemeProvider>
     </div>
   );
 }

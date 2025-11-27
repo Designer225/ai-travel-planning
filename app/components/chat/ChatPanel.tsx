@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
-import { Button } from '@/app/components/ui/button';
+import { Button } from '@mui/material';
 import { Sparkles, Search } from 'lucide-react';
 import { TripPlan } from '@/types';
 import { DestinationSearch } from './DestinationSearch';
@@ -324,7 +324,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     if (lowerMessage.includes('new trip') || lowerMessage.includes('start over')) {
       return {
         response: "Let's plan a new trip! Where would you like to go?",
-        updatePlan: null,
+        updatePlan: undefined,
       };
     }
 
@@ -423,8 +423,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
             <h2 className="text-lg">Chat with AI</h2>
           </div>
           <Button
-            variant="outline"
-            size="sm"
+            variant="outlined"
             onClick={() => setShowDestinationSearch(true)}
             className="gap-2"
           >

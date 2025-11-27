@@ -2,6 +2,7 @@
 
 import { AppBar, Toolbar, Box, Typography, Container } from "@mui/material";
 import { Flight, Explore } from "@mui/icons-material";
+import Link from "next/link";
 
 export function Navigation() {
   return (
@@ -17,58 +18,60 @@ export function Navigation() {
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ py: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Box 
-              className="gradient-background"
-              sx={{ 
-                position: "relative", 
-                width: 40, 
-                height: 40,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 2,
-              }}
-            >
-              <Flight sx={{ color: "white", fontSize: 24 }} />
-              <Explore 
+          <Link href='/'>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Box 
+                className="gradient-background"
                 sx={{ 
-                  position: "absolute",
-                  top: -4,
-                  right: -4,
-                  color: "#AD46FF",
-                  bgcolor: "white",
-                  borderRadius: "50%",
-                  fontSize: 16,
-                  padding: "2px",
-                }} 
-              />
-            </Box>
-            <Box>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  color: "text.primary",
-                  fontSize: "20px",
-                  lineHeight: "28px",
-                  letterSpacing: "-0.4492px",
+                  position: "relative", 
+                  width: 40, 
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 2,
                 }}
               >
-                TripAI
-              </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: "#4a5565",
-                  fontSize: "14px",
-                  lineHeight: "20px",
-                  letterSpacing: "-0.1504px",
-                }}
-              >
-                Your AI Travel Planning Assistant
-              </Typography>
+                <Flight sx={{ color: "white", fontSize: 24 }} />
+                <Explore 
+                  sx={{ 
+                    position: "absolute",
+                    top: -4,
+                    right: -4,
+                    color: "#AD46FF",
+                    bgcolor: "white",
+                    borderRadius: "50%",
+                    fontSize: 16,
+                    padding: "2px",
+                  }} 
+                />
+              </Box>
+              <Box>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    color: "text.primary",
+                    fontSize: "20px",
+                    lineHeight: "28px",
+                    letterSpacing: "-0.4492px",
+                  }}
+                >
+                  TripAI
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: "#4a5565",
+                    fontSize: "14px",
+                    lineHeight: "20px",
+                    letterSpacing: "-0.1504px",
+                  }}
+                >
+                  Your AI Travel Planning Assistant
+                </Typography>
+              </Box>
             </Box>
-          </Box>
+          </Link>
         </Toolbar>
       </Container>
     </AppBar>
@@ -83,9 +86,9 @@ export function Navigation() {
 //   return (
 //     <nav className="border-b bg-white" aria-label="Main navigation">
 //       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-//         <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded-md" aria-label="TripCraft home">
+//         <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded-md" aria-label="TripAI home">
 //           <Plane className="w-8 h-8 text-blue-600" aria-hidden="true" />
-//           <span className="text-xl">TripCraft</span>
+//           <span className="text-xl">TripAI</span>
 //         </Link>
         
 //         <div className="flex items-center gap-1">
