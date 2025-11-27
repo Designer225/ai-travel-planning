@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
 import { Navigation } from '../layout/Navigation';
 import { TripsHeader } from './TripsHeader';
 import { TripsList } from './TripsList';
@@ -9,14 +9,20 @@ import { TripsListHeader } from './TripsListHeader';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { ThemeProvider } from '@mui/material';
 import { theme } from '@/app/lib/themes';
+import { tryEnterItineraryBuilder } from '@/app/lib/clientUserGate';
+import { useRouter } from 'next/navigation';
 
 export default function Trips() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'saved'>('upcoming');
 
   const handleCreateTrip = () => {
     console.log('Create new trip');
     // Handle create trip functionality
+    startTransition(async () => {
+      await tryEnterItineraryBuilder(router);
+    })
   };
 
   return (

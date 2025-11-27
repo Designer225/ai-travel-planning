@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { Map, Marker } from "pigeon-maps";
 import { MapPin, UtensilsCrossed, Bed, Compass, X } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
@@ -9,20 +9,10 @@ import { Badge } from "@/app/components/ui/badge";
 import { Navigation } from "../layout/Navigation";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "@/app/lib/themes";
-
-export type DestinationType = "attraction" | "food" | "lodging";
-
-export interface Destination {
-  id: number;
-  name: string;
-  type: DestinationType;
-  lat: number;
-  lng: number;
-  description: string;
-  tags: string[];
-  rating: number;
-  priceLevel?: string;
-}
+import { Destination, DestinationType } from "@/types";
+import { toast } from "sonner";
+import { tryEnterItineraryBuilder } from "@/app/lib/clientUserGate";
+import { useRouter } from "next/navigation";
 
 // Mock data for destinations
 const mockDestinations: Destination[] = [
@@ -208,6 +198,7 @@ function CustomMarker({
 }
 
 export function MapExplore() {
+  const router = useRouter();
   const [selectedType, setSelectedType] = useState<DestinationType | "all">("all");
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
@@ -244,11 +235,20 @@ export function MapExplore() {
     }
   };
 
+  const handleAddToItinerary = () => {
+    if (selectedDestination === null) return;
+    toast.message('Adding to the current itinerary...');
+    console.log('Adding to itinerary:', selectedDestination);
+    startTransition(async () => {
+      await tryEnterItineraryBuilder(router, selectedDestination.id);
+    });
+  }
+
   return (
     <div className="h-screen w-full flex flex-col">
       <ThemeProvider theme={theme}>
         {/* Header with filters */}
-        <div className="bg-white border-b p-4 shadow-sm">
+        <header className="bg-white border-b p-4 shadow-sm">
           <Navigation />
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-4">
@@ -310,10 +310,10 @@ export function MapExplore() {
               </Button>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* Map */}
-        <div className="flex-1 relative">
+        <main className="flex-1 relative">
           <Map 
             center={mapCenter} 
             zoom={zoom} 
@@ -341,7 +341,7 @@ export function MapExplore() {
               </Marker>
             ))}
           </Map>
-        </div>
+        </main>
 
         {/* Modal Dialog */}
         <Dialog open={!!selectedDestination} onOpenChange={() => setSelectedDestination(null)}>
@@ -387,7 +387,7 @@ export function MapExplore() {
   
 
             <div className="flex gap-2 mt-4">
-              <Button className="flex-1">Add to Itinerary</Button>
+              <Button className="flex-1" onClick={handleAddToItinerary}>Add to Itinerary</Button>
               <Button variant="outline" className="flex-1">Get Directions</Button>
             </div>
           </DialogContent>

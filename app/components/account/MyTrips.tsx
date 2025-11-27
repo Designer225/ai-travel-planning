@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import {
   Paper,
   Tabs,
@@ -11,9 +11,12 @@ import {
   Button,
 } from "@mui/material";
 import { CalendarToday, AccessTime, Delete, Bookmark, LocationOn } from "@mui/icons-material";
+import { Plane } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { tryEnterMapExplorer, tryEnterMyTrips } from "@/app/lib/clientUserGate";
 
 interface Trip {
-  id: string;
+  id: number;
   destination: string;
   dates: string;
   duration: string;
@@ -21,9 +24,36 @@ interface Trip {
   image: string;
 }
 
+const UPCOMING_TRIPS: Trip[] = [
+  {
+    id: 1,
+    destination: "Bali, Indonesia",
+    dates: "Jun 20-30, 2025",
+    duration: "10 days",
+    activities: 18,
+    image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=200&fit=crop"
+  },
+  {
+    id: 2,
+    destination: "Santorini, Greece",
+    dates: "Sep 8-15, 2025",
+    duration: "7 days",
+    activities: 14,
+    image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=400&h=200&fit=crop"
+  },
+  {
+    id: 3,
+    destination: "Iceland",
+    dates: "Oct 1-10, 2025",
+    duration: "9 days",
+    activities: 16,
+    image: "https://images.unsplash.com/photo-1520769945061-0a448c463865?w=400&h=200&fit=crop"
+  }
+];
+
 const PAST_TRIPS: Trip[] = [
   {
-    id: "1",
+    id: 4,
     destination: "Tokyo, Japan",
     dates: "Mar 15-22, 2024",
     duration: "7 days",
@@ -31,7 +61,7 @@ const PAST_TRIPS: Trip[] = [
     image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=200&fit=crop"
   },
   {
-    id: "2",
+    id: 5,
     destination: "Paris, France",
     dates: "Jan 10-17, 2024",
     duration: "7 days",
@@ -39,7 +69,7 @@ const PAST_TRIPS: Trip[] = [
     image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=200&fit=crop"
   },
   {
-    id: "3",
+    id: 6,
     destination: "Barcelona, Spain",
     dates: "Dec 5-12, 2023",
     duration: "7 days",
@@ -50,7 +80,7 @@ const PAST_TRIPS: Trip[] = [
 
 const SAVED_TRIPS: Trip[] = [
   {
-    id: "4",
+    id: 7,
     destination: "Bali, Indonesia",
     dates: "Jun 20-30, 2025",
     duration: "10 days",
@@ -58,7 +88,7 @@ const SAVED_TRIPS: Trip[] = [
     image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=200&fit=crop"
   },
   {
-    id: "5",
+    id: 8,
     destination: "Santorini, Greece",
     dates: "Sep 8-15, 2025",
     duration: "7 days",
@@ -66,7 +96,7 @@ const SAVED_TRIPS: Trip[] = [
     image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=400&h=200&fit=crop"
   },
   {
-    id: "6",
+    id: 9,
     destination: "Iceland",
     dates: "Oct 1-10, 2025",
     duration: "9 days",
@@ -162,6 +192,19 @@ export function MyTrips() {
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
+  const router = useRouter();
+
+  const handleMoreTrips = () => {
+    startTransition(async () => {
+      await tryEnterMyTrips(router);
+    })
+  }
+
+  const handleMoreDestinations = () => {
+    startTransition(async () => {
+      await tryEnterMapExplorer(router);
+    })
+  }
 
   return (
     <Paper 
@@ -186,11 +229,20 @@ export function MyTrips() {
           },
         }}
       >
+        <Tab label="Upcoming Trips" sx={{ flex: 1 }} />
         <Tab label="Past Trips" sx={{ flex: 1 }} />
         <Tab label="Saved Trips" sx={{ flex: 1 }} />
       </Tabs>
 
       <TabPanel value={activeTab} index={0}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {UPCOMING_TRIPS.map((trip) => (
+            <TripCard key={trip.id} trip={trip} isPast={false} />
+          ))}
+        </Box>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={1}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {PAST_TRIPS.map((trip) => (
             <TripCard key={trip.id} trip={trip} isPast={true} />
@@ -198,30 +250,48 @@ export function MyTrips() {
         </Box>
       </TabPanel>
 
-      <TabPanel value={activeTab} index={1}>
+      <TabPanel value={activeTab} index={2}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {SAVED_TRIPS.map((trip) => (
             <TripCard key={trip.id} trip={trip} isPast={false} />
           ))}
-          <Box sx={{ pt: 2, borderTop: "1px solid rgba(0,0,0,0.1)" }}>
-            <Button
-              variant="outlined"
-              fullWidth
-              startIcon={<Bookmark />}
-              sx={{
-                color: "#4a5565",
-                borderColor: "rgba(0,0,0,0.1)",
-                "&:hover": {
-                  background: "linear-gradient(135deg, #eff6ff 0%, #faf5ff 100%)",
-                  borderColor: "rgba(0,0,0,0.1)",
-                },
-              }}
-            >
-              Browse More Destinations
-            </Button>
-          </Box>
         </Box>
       </TabPanel>
+      
+      <Box sx={{ pt: 2, borderTop: "1px solid rgba(0,0,0,0.1)" }}>
+        <Button
+          variant="outlined"
+          startIcon={<Plane />}
+          sx={{
+            width: '50%',
+            color: "#4a5565",
+            borderColor: "rgba(0,0,0,0.1)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #eff6ff 0%, #faf5ff 100%)",
+              borderColor: "rgba(0,0,0,0.1)",
+            },
+          }}
+          onClick={handleMoreTrips}
+        >
+          More Trips
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<Bookmark />}
+          sx={{
+            width: '50%',
+            color: "#4a5565",
+            borderColor: "rgba(0,0,0,0.1)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #eff6ff 0%, #faf5ff 100%)",
+              borderColor: "rgba(0,0,0,0.1)",
+            },
+          }}
+          onClick={handleMoreDestinations}
+        >
+          Browse More Destinations
+        </Button>
+      </Box>
     </Paper>
   );
 }

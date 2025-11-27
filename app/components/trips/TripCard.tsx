@@ -17,10 +17,10 @@ import type { Trip } from './TripsList';
 interface TripCardProps {
   trip: Trip;
   type: 'upcoming' | 'past' | 'saved';
-  onCancel: (tripId: string) => void;
-  onDelete: (tripId: string) => void;
-  onEdit: (tripId: string) => void;
-  onCopy: (tripId: string) => void;
+  onCancel: (tripId: number) => void;
+  onDelete: (tripId: number) => void;
+  onEdit: (tripId: number) => void;
+  onCopy: (tripId: number) => void;
 }
 
 export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: TripCardProps) {

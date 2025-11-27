@@ -8,7 +8,7 @@ import { ProfileSection } from "../components/account/ProfileSection";
 import { AccountSettings } from "../components/account/AccountSettings";
 import { TravelPreferences } from "../components/account/TravelPreferences";
 import { PaymentSettings } from "../components/account/PaymentSettings";
-import { MyTrips } from "../components/trips/MyTrips";
+import { MyTrips } from "../components/account/MyTrips";
 import { theme } from "@/app/lib/themes";
 
 type ToastType = {

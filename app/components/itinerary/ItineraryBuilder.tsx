@@ -1,9 +1,9 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft } from 'lucide-react';
+import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { EditableTripHeader } from './EditableTripHeader';
@@ -13,12 +13,16 @@ import { toast, Toaster } from 'sonner';
 import { Navigation } from '../layout/Navigation';
 import { ThemeProvider } from '@mui/material';
 import { theme } from '@/app/lib/themes';
+import { useRouter } from 'next/navigation';
+import { tryCheckout } from '@/app/lib/clientUserGate';
 
 interface ItineraryBuilderProps {
   onBack?: () => void;
 }
 
 export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {}) {
+  const router = useRouter();
+
   const [tripPlan, setTripPlan] = useState<TripPlan>({
     destination: 'Tokyo, Japan',
     startDate: '2025-04-01',
@@ -235,6 +239,15 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     console.log('Exporting itinerary:', tripPlan);
   };
 
+  const handleCheckout = () => {
+    // simulate checkout current trip
+    toast.success('Checking out current itinerary...');
+    console.log('Checking out itinerary:', tripPlan);
+    startTransition(async () => {
+      await tryCheckout(tripPlan, router);
+    });
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Toaster position="top-right" richColors />
@@ -281,6 +294,14 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                   >
                     <Save className="w-4 h-4" />
                     Save Changes
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleCheckout}
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    Checkout
                   </Button>
                 </div>
               </div>

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
 import { TripCard } from './TripCard';
 import { toast } from 'sonner';
+import { tryCopyItinerary, tryEnterItineraryBuilder } from '@/app/lib/clientUserGate';
+import { useRouter } from 'next/navigation';
 
 export interface Trip {
-  id: string;
+  id: number;
   title: string;
   destination: string;
   dateRange?: string;
@@ -19,7 +21,7 @@ interface TripsListProps {
 
 const MOCK_UPCOMING_TRIPS: Trip[] = [
   {
-    id: '1',
+    id: 1,
     title: 'Paris, France',
     destination: 'Paris, France',
     dateRange: 'Dec 15 - Dec 22, 2025',
@@ -28,7 +30,7 @@ const MOCK_UPCOMING_TRIPS: Trip[] = [
     imageUrl: 'https://images.unsplash.com/photo-1549144511-f099e773c147?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxQYXJpcyUyMEZyYW5jZXxlbnwxfHx8fDE3NjI4MTEyNjV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
   },
   {
-    id: '2',
+    id: 2,
     title: 'Tokyo, Japan',
     destination: 'Tokyo, Japan',
     dateRange: 'Jan 10 - Jan 20, 2026',
@@ -37,7 +39,7 @@ const MOCK_UPCOMING_TRIPS: Trip[] = [
     imageUrl: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxUb2t5byUyMEphcGFufGVufDF8fHx8MTc2Mjc0MDYyMXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
   },
   {
-    id: '3',
+    id: 3,
     title: 'New York, USA',
     destination: 'New York, USA',
     dateRange: 'Nov 20 - Nov 25, 2025',
@@ -49,7 +51,7 @@ const MOCK_UPCOMING_TRIPS: Trip[] = [
 
 const MOCK_PAST_TRIPS: Trip[] = [
   {
-    id: '4',
+    id: 4,
     title: 'Barcelona, Spain',
     destination: 'Barcelona, Spain',
     dateRange: 'Aug 5 - Aug 12, 2025',
@@ -58,7 +60,7 @@ const MOCK_PAST_TRIPS: Trip[] = [
     imageUrl: 'https://images.unsplash.com/photo-1593368858664-a7fe556ab936?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxCYXJjZWxvbmElMjBTcGFpbnxlbnwxfHx8fDE3NjI4NDM3ODJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
   },
   {
-    id: '5',
+    id: 5,
     title: 'Rome, Italy',
     destination: 'Rome, Italy',
     dateRange: 'Jun 1 - Jun 8, 2025',
@@ -67,7 +69,7 @@ const MOCK_PAST_TRIPS: Trip[] = [
     imageUrl: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxSb21lJTIwSXRhbHl8ZW58MXx8fHwxNzYyODExMjY1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
   },
   {
-    id: '6',
+    id: 6,
     title: 'London, UK',
     destination: 'London, UK',
     dateRange: 'Apr 15 - Apr 19, 2025',
@@ -79,7 +81,7 @@ const MOCK_PAST_TRIPS: Trip[] = [
 
 const MOCK_SAVED_TRIPS: Trip[] = [
   {
-    id: '7',
+    id: 7,
     title: 'Ultimate Beach Getaway',
     destination: 'Maldives',
     tripTime: '5 days',
@@ -87,7 +89,7 @@ const MOCK_SAVED_TRIPS: Trip[] = [
     imageUrl: 'https://images.unsplash.com/photo-1622779536320-bb5f5b501a06?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxNYWxkaXZlcyUyMGJlYWNofGVufDF8fHx8MTc2Mjg0Mzc4M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
   },
   {
-    id: '8',
+    id: 8,
     title: 'Mountain Adventure',
     destination: 'Swiss Alps',
     tripTime: '6 days',
@@ -95,7 +97,7 @@ const MOCK_SAVED_TRIPS: Trip[] = [
     imageUrl: 'https://images.unsplash.com/photo-1521292270410-a8c4d716d518?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxTd2lzcyUyMEFscHN8ZW58MXx8fHwxNzYyODQzNzgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
   },
   {
-    id: '9',
+    id: 9,
     title: 'Cultural Exploration',
     destination: 'Kyoto, Japan',
     tripTime: '8 days',
@@ -105,28 +107,35 @@ const MOCK_SAVED_TRIPS: Trip[] = [
 ];
 
 export function TripsList({ tripType, searchQuery }: TripsListProps) {
+  const router = useRouter();
   const [upcomingTrips, setUpcomingTrips] = useState(MOCK_UPCOMING_TRIPS);
   const [pastTrips, setPastTrips] = useState(MOCK_PAST_TRIPS);
   const [savedTrips, setSavedTrips] = useState(MOCK_SAVED_TRIPS);
 
-  const handleCancelTrip = (tripId: string) => {
+  const handleCancelTrip = (tripId: number) => {
     setUpcomingTrips((prev) => prev.filter((trip) => trip.id !== tripId));
     toast.success('Trip has been canceled');
   };
 
-  const handleDeleteTrip = (tripId: string) => {
+  const handleDeleteTrip = (tripId: number) => {
     setSavedTrips((prev) => prev.filter((trip) => trip.id !== tripId));
     toast.success('Trip has been deleted');
   };
 
-  const handleEditTrip = (tripId: string) => {
+  const handleEditTrip = (tripId: number) => {
     // This would open the itinerary builder
     console.log('Edit trip:', tripId);
+    startTransition(async () => {
+      await tryEnterItineraryBuilder(router, undefined, tripId);
+    })
   };
 
-  const handleCopyTrip = (tripId: string) => {
+  const handleCopyTrip = (tripId: number) => {
     // This would open the itinerary builder
     console.log('Copy trip:', tripId);
+    startTransition(async () => {
+      await tryCopyItinerary(tripId, router);
+    })
   };
 
   const getCurrentTrips = () => {

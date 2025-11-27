@@ -4,9 +4,9 @@ import { AppBar, Toolbar, Box, Typography, Container, Button } from "@mui/materi
 import { Flight, Explore } from "@mui/icons-material";
 import Link from "next/link";
 import { startTransition, useEffect, useState } from "react";
-import SiteUser from "@/app/lib/user";
 import { tryEnterDashboard, tryGetCurrentUser, tryLogout } from "@/app/lib/clientUserGate";
 import { useRouter } from "next/navigation";
+import SiteUser from "@/types";
 
 export function Navigation() {
   const router = useRouter();

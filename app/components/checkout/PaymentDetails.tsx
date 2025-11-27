@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { startTransition, useState } from "react";
 import {
   Paper,
   Box,
@@ -13,9 +13,11 @@ import {
   TextField,
 } from "@mui/material";
 import { CreditCard, Lock } from "@mui/icons-material";
+import { tryEnterItineraryBuilder, tryEnterMyTrips } from "@/app/lib/clientUserGate";
+import { useRouter } from "next/navigation";
 
 type PaymentMethod = {
-  id: string;
+  id: number;
   label: string;
   last4: string;
   expiry: string;
@@ -23,13 +25,13 @@ type PaymentMethod = {
 
 const PAYMENT_METHODS: PaymentMethod[] = [
   {
-    id: "1",
+    id: 1,
     label: "Visa",
     last4: "4242",
     expiry: "12/25",
   },
   {
-    id: "2",
+    id: 2,
     label: "Mastercard",
     last4: "8888",
     expiry: "09/26",
@@ -41,17 +43,25 @@ type Props = {
 };
 
 export function PaymentDetails({ showToast }: Props) {
+  const router = useRouter();
   const [useExisting, setUseExisting] = useState(true);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(PAYMENT_METHODS);
   const [selectedCardId, setSelectedCardId] = useState(PAYMENT_METHODS[0].id);
   const [newCard, setNewCard] = useState({ number: "", name: "", expiry: "" });
 
   const handleComplete = () => {
+    // make sure to handle payment failure, for now that's in the future
     showToast("Booking completed", "success", "Your payment has been processed securely.");
+    startTransition(async () => {
+      await tryEnterMyTrips(router);
+    });
   };
 
   const handleCancel = () => {
     showToast("Checkout canceled", "info", "You can resume whenever you're ready.");
+    startTransition(async () => {
+      await tryEnterItineraryBuilder(router, undefined, /* whatever trip is in the cart */)
+    })
   };
 
   const handleAddNewCard = () => {

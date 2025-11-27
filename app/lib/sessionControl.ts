@@ -1,6 +1,6 @@
 'use server'
 
-import SiteUser from "./user";
+import SiteUser from "@/types";
 
 let mockUser : SiteUser | null = null;
 
