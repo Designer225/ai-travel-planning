@@ -75,7 +75,7 @@ export function PaymentDetails({ showToast }: Props) {
     const type = trimmedNumber.startsWith("4") ? "Visa" : trimmedNumber.startsWith("5") ? "Mastercard" : "Card";
 
     const newMethod: PaymentMethod = {
-      id: Date.now().toString(),
+      id: Date.now(),
       label: type,
       last4,
       expiry: newCard.expiry,
@@ -141,7 +141,7 @@ export function PaymentDetails({ showToast }: Props) {
           }}
           onClick={() => {
             setUseExisting(false);
-            setSelectedCardId("");
+            setSelectedCardId(0);
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1}>

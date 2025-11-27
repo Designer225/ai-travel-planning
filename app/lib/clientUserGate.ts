@@ -2,9 +2,8 @@
 
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { getCurrentUser, login, logout } from "./sessionControl"
-import { Destination, TripPlan } from "@/types";
+import { TripPlan } from "@/types";
 
-// Use this to login, 
 export async function tryEnterDashboard(router: AppRouterInstance) {
     let currentUser = await getCurrentUser();
     if (currentUser === null) {
