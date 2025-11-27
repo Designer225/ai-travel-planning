@@ -1,7 +1,5 @@
-'use client'
-
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { getCurrentUser, login, logout } from "./sessionControl"
+import { addDestinationToCurrentItinerary, copyItinerary, getCurrentUser, login, logout, setCurrentItinerary } from "./sessionControl"
 import { TripPlan } from "@/types";
 
 export async function tryEnterDashboard(router: AppRouterInstance) {
@@ -30,7 +28,7 @@ export async function tryLogout(router: AppRouterInstance) {
 export async function tryCopyItinerary(tripId: number, router: AppRouterInstance) {
     if (await getCurrentUser() === null) await tryLogout(router);
     else {
-        // clone the itinerary and open the builder
+        copyItinerary(tripId);
         router.push('/itinerary-builder');
     }
 }
@@ -38,7 +36,13 @@ export async function tryCopyItinerary(tripId: number, router: AppRouterInstance
 export async function tryEnterItineraryBuilder(router: AppRouterInstance, destId?: number, tripId?: number) {
     if (await getCurrentUser() === null) await tryLogout(router);
     else {
-        // fetch the previous itinerary and add it, again replace this placeholder code
+        if (tripId !== undefined) {
+            setCurrentItinerary(tripId);
+        } else if (destId !== undefined) {
+            addDestinationToCurrentItinerary(destId);
+        } else {
+            // placeholder handler that checks if an itinerary is set
+        }
         router.push('/itinerary-builder')
     }
 }
