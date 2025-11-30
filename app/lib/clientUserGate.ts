@@ -4,7 +4,7 @@ import { TripPlan } from "@/types";
 
 export async function tryEnterDashboard(router: AppRouterInstance) {
     let currentUser = await getCurrentUser();
-    if (currentUser === null) {
+    if (currentUser === undefined) {
         // placeholder function, replace with login page when it exists
         await tryLogin('john.smith@gmail.com', '2ab34e1f', router);
     } else router.push('/dashboard');
@@ -26,7 +26,7 @@ export async function tryLogout(router: AppRouterInstance) {
 }
 
 export async function tryCopyItinerary(tripId: number, router: AppRouterInstance) {
-    if (await getCurrentUser() === null) await tryLogout(router);
+    if (await getCurrentUser() === undefined) await tryLogout(router);
     else {
         copyItinerary(tripId);
         router.push('/itinerary-builder');
@@ -34,7 +34,7 @@ export async function tryCopyItinerary(tripId: number, router: AppRouterInstance
 }
 
 export async function tryEnterItineraryBuilder(router: AppRouterInstance, destId?: number, tripId?: number) {
-    if (await getCurrentUser() === null) await tryLogout(router);
+    if (await getCurrentUser() === undefined) await tryLogout(router);
     else {
         if (tripId !== undefined) {
             setCurrentItinerary(tripId);
@@ -48,7 +48,7 @@ export async function tryEnterItineraryBuilder(router: AppRouterInstance, destId
 }
 
 export async function tryEnterMapExplorer(router: AppRouterInstance) {
-    if (await getCurrentUser() === null) await tryLogout(router);
+    if (await getCurrentUser() === undefined) await tryLogout(router);
     else {
         // fetch the user and open map explorer
         router.push('/map-explore');
@@ -56,7 +56,7 @@ export async function tryEnterMapExplorer(router: AppRouterInstance) {
 }
 
 export async function tryEnterMyTrips(router: AppRouterInstance) {
-    if (await getCurrentUser() === null) await tryLogout(router);
+    if (await getCurrentUser() === undefined) await tryLogout(router);
     else {
         // fetch the user and open the page for that user
         router.push('/my-trips');
@@ -64,7 +64,7 @@ export async function tryEnterMyTrips(router: AppRouterInstance) {
 }
 
 export async function tryCheckout(tripPlan: TripPlan, router: AppRouterInstance) {
-    if (await getCurrentUser() === null) await tryLogout(router);
+    if (await getCurrentUser() === undefined) await tryLogout(router);
     else {
         // upload trip data or something
         router.push('/checkout');

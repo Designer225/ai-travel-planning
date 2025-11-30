@@ -11,7 +11,7 @@ import SiteUser from "@/types";
 export function Navigation() {
   const router = useRouter();
   const [showButtons, setShowButtons] = useState(false);
-  const [user, setUser] = useState<SiteUser | null>(null);
+  const [user, setUser] = useState<SiteUser | undefined>(undefined);
 
   useEffect(() => {
     startTransition(async () => {
@@ -103,7 +103,7 @@ export function Navigation() {
             </Link>
             <Box>
               { showButtons && (
-                user === null
+                user === undefined
                 ? <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Login</Button>
                 : <Box>
                     <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Dashboard</Button>
