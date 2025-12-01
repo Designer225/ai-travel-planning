@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { startTransition, useState } from 'react';
+import { startTransition, useState, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft, ShoppingCart } from 'lucide-react';
@@ -13,8 +13,10 @@ import { toast, Toaster } from 'sonner';
 import { Navigation } from '../layout/Navigation';
 import { ThemeProvider } from '@mui/material';
 import { theme } from '@/app/lib/themes';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { tryCheckout } from '@/app/lib/clientUserGate';
+import { getTripById, saveItinerary, createTrip } from '@/app/lib/tripActions';
+import { getCurrentItineraryId, getCurrentItinerary } from '@/app/lib/itineraryActions';
 
 interface ItineraryBuilderProps {
   onBack?: () => void;
@@ -22,6 +24,9 @@ interface ItineraryBuilderProps {
 
 export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [tripId, setTripId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [tripPlan, setTripPlan] = useState<TripPlan>({
     destination: 'Tokyo, Japan',
@@ -221,10 +226,81 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     }));
   };
 
-  const handleSave = () => {
-    // Simulate save
-    toast.success('Itinerary saved successfully!');
-    console.log('Saving itinerary:', tripPlan);
+  useEffect(() => {
+    loadTripData();
+  }, []);
+
+  const loadTripData = async () => {
+    setLoading(true);
+    try {
+      // Check for tripId in URL params
+      const urlTripId = searchParams?.get('tripId');
+      if (urlTripId) {
+        const id = parseInt(urlTripId);
+        if (!isNaN(id)) {
+          const result = await getTripById(id);
+          if (result.success && result.tripPlan) {
+            setTripPlan(result.tripPlan);
+            setTripId(id);
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Check for current itinerary in session
+      const currentItineraryId = await getCurrentItineraryId();
+      if (currentItineraryId) {
+        const result = await getTripById(currentItineraryId);
+        if (result.success && result.tripPlan) {
+          setTripPlan(result.tripPlan);
+          setTripId(currentItineraryId);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // No existing trip, start with default
+      setTripId(null);
+    } catch (error) {
+      console.error('Error loading trip:', error);
+      toast.error('Failed to load trip');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      let currentTripId = tripId;
+
+      // If no tripId, create a new trip
+      if (!currentTripId) {
+        const createResult = await createTrip(
+          tripPlan.destination,
+          tripPlan.destination,
+          tripPlan.startDate,
+          tripPlan.endDate
+        );
+        if (!createResult.success || !createResult.tripId) {
+          toast.error(createResult.error || 'Failed to create trip');
+          return;
+        }
+        currentTripId = createResult.tripId;
+        setTripId(currentTripId);
+      }
+
+      // Save the itinerary
+      const result = await saveItinerary(currentTripId, tripPlan);
+      if (result.success) {
+        toast.success('Itinerary saved successfully!');
+      } else {
+        toast.error(result.error || 'Failed to save itinerary');
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error('Failed to save itinerary');
+    }
   };
 
   const handleShare = () => {
@@ -246,6 +322,14 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     startTransition(async () => {
       await tryCheckout(tripPlan, router);
     });
+  }
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <p className="text-gray-500">Loading itinerary...</p>
+      </div>
+    );
   }
 
   return (

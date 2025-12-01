@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Paper,
   Button,
@@ -15,38 +15,15 @@ import {
   Chip,
 } from "@mui/material";
 import { CreditCard, Add, Delete } from "@mui/icons-material";
-
-interface PaymentMethod {
-  id: string;
-  type: string;
-  last4: string;
-  expiry: string;
-  isDefault: boolean;
-}
-
-const INITIAL_PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: "1",
-    type: "Visa",
-    last4: "4242",
-    expiry: "12/25",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    type: "Mastercard",
-    last4: "8888",
-    expiry: "09/26",
-    isDefault: false,
-  },
-];
+import { getUserPaymentMethods, addPaymentMethod, deletePaymentMethod, setDefaultPaymentMethod, PaymentMethod } from "@/app/lib/userActions";
 
 interface PaymentSettingsProps {
   showToast: (message: string, severity: "success" | "error" | "info" | "warning", description?: string) => void;
 }
 
 export function PaymentSettings({ showToast }: PaymentSettingsProps) {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(INITIAL_PAYMENT_METHODS);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newCard, setNewCard] = useState({
     number: "",
@@ -55,43 +32,64 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
     cvv: "",
   });
 
-  const handleSetDefault = (id: string) => {
-    setPaymentMethods(
-      paymentMethods.map((method) => ({
-        ...method,
-        isDefault: method.id === id,
-      }))
-    );
-    showToast("Default payment method updated", "success");
+  useEffect(() => {
+    loadPaymentMethods();
+  }, []);
+
+  const loadPaymentMethods = async () => {
+    setLoading(true);
+    const result = await getUserPaymentMethods();
+    if (result.success && result.paymentMethods) {
+      setPaymentMethods(result.paymentMethods);
+    } else {
+      showToast("Failed to load payment methods", "error", result.error);
+    }
+    setLoading(false);
   };
 
-  const handleRemove = (id: string) => {
+  const handleSetDefault = async (id: number) => {
+    const result = await setDefaultPaymentMethod(id);
+    if (result.success) {
+      showToast("Default payment method updated", "success");
+      loadPaymentMethods();
+    } else {
+      showToast("Update failed", "error", result.error);
+    }
+  };
+
+  const handleRemove = async (id: number) => {
     const method = paymentMethods.find((m) => m.id === id);
     if (method?.isDefault && paymentMethods.length > 1) {
       showToast("Cannot remove default payment method", "error", "Please set another card as default first.");
       return;
     }
-    setPaymentMethods(paymentMethods.filter((method) => method.id !== id));
-    showToast("Payment method removed", "success");
+    const result = await deletePaymentMethod(id);
+    if (result.success) {
+      showToast("Payment method removed", "success");
+      loadPaymentMethods();
+    } else {
+      showToast("Remove failed", "error", result.error);
+    }
   };
 
-  const handleAddCard = () => {
-    // In a real app, this would integrate with a payment processor
-    const last4 = newCard.number.slice(-4);
-    const type = newCard.number.startsWith("4") ? "Visa" : "Mastercard";
-    
-    const newMethod: PaymentMethod = {
-      id: Date.now().toString(),
-      type,
-      last4,
-      expiry: newCard.expiry,
-      isDefault: paymentMethods.length === 0,
-    };
+  const handleAddCard = async () => {
+    if (!newCard.number || !newCard.expiry) {
+      showToast("Please fill in all required fields", "error");
+      return;
+    }
 
-    setPaymentMethods([...paymentMethods, newMethod]);
-    setIsAddDialogOpen(false);
-    setNewCard({ number: "", name: "", expiry: "", cvv: "" });
-    showToast("Payment method added successfully", "success");
+    const last4 = newCard.number.replace(/\s+/g, "").slice(-4);
+    const type = newCard.number.startsWith("4") ? "Visa" : newCard.number.startsWith("5") ? "Mastercard" : "Card";
+    
+    const result = await addPaymentMethod(type, last4, newCard.expiry);
+    if (result.success && result.paymentMethod) {
+      setIsAddDialogOpen(false);
+      setNewCard({ number: "", name: "", expiry: "", cvv: "" });
+      showToast("Payment method added successfully", "success");
+      loadPaymentMethods();
+    } else {
+      showToast("Add failed", "error", result.error);
+    }
   };
 
   return (
@@ -116,7 +114,12 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
       </Box>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {paymentMethods.map((method) => (
+        {loading ? (
+          <Typography variant="body2" color="text.secondary">Loading payment methods...</Typography>
+        ) : paymentMethods.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">No payment methods saved yet.</Typography>
+        ) : (
+          paymentMethods.map((method) => (
           <Paper
             key={method.id}
             elevation={0}
@@ -144,7 +147,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
                 <Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Typography variant="body1">
-                      {method.type} •••• {method.last4}
+                      {method.label} •••• {method.last4}
                     </Typography>
                     {method.isDefault && (
                       <Chip
@@ -183,7 +186,8 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
               </Box>
             </Box>
           </Paper>
-        ))}
+        ))
+        )}
       </Box>
 
       <Dialog 

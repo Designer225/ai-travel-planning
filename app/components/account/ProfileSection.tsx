@@ -16,6 +16,7 @@ import {
   Divider,
 } from "@mui/material";
 import { CameraAlt, Email, LocationOn, Upload } from "@mui/icons-material";
+import { updateUserProfile, updateUserAvatar } from "@/app/lib/userActions";
 
 interface ProfileData {
   firstName: string;
@@ -38,10 +39,21 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dialogFileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = () => {
-    setProfileData({ ...editData });
-    setIsDialogOpen(false);
-    showToast("Profile updated successfully!", "success", "Your changes have been saved.");
+  const handleSave = async () => {
+    const result = await updateUserProfile({
+      firstName: editData.firstName,
+      lastName: editData.lastName,
+      bio: editData.bio,
+      location: editData.location,
+    });
+
+    if (result.success && result.user) {
+      setProfileData(result.user);
+      setIsDialogOpen(false);
+      showToast("Profile updated successfully!", "success", "Your changes have been saved.");
+    } else {
+      showToast("Update failed", "error", result.error || "Failed to update profile");
+    }
   };
 
   const handleCancel = () => {
@@ -67,10 +79,15 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
       }
 
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const newAvatarUrl = reader.result as string;
-        setProfileData({ ...profileData, avatarUrl: newAvatarUrl });
-        showToast("Avatar updated!", "success", "Your profile picture has been changed.");
+        const result = await updateUserAvatar(newAvatarUrl);
+        if (result.success && result.user) {
+          setProfileData(result.user);
+          showToast("Avatar updated!", "success", "Your profile picture has been changed.");
+        } else {
+          showToast("Update failed", "error", result.error || "Failed to update avatar");
+        }
       };
       reader.readAsDataURL(file);
     }

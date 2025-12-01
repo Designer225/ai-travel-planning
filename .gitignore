@@ -55,3 +55,5 @@ next-env.d.ts
 **/*.md
 !/README.md
 !/TEAM_NOTES.md
+
+/app/generated/prisma
