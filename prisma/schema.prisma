@@ -76,12 +76,14 @@ model DayActivity {
   description String
   location    String?
   category    ActivityCategory
+  order       Int                @default(0)
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
   tripDay TripDay @relation(fields: [tripDayId], references: [id], onDelete: Cascade)
 
   @@index([tripDayId])
+  @@index([tripDayId, order])
 }
 
 model PaymentMethod {

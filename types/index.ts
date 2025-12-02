@@ -15,6 +15,7 @@ export interface TripDay {
 }
 
 export interface TripPlan {
+  title?: string;
   destination: string;
   startDate?: string;
   endDate?: string;

@@ -29,104 +29,20 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   const [loading, setLoading] = useState(true);
 
   const [tripPlan, setTripPlan] = useState<TripPlan>({
-    destination: 'Tokyo, Japan',
-    startDate: '2025-04-01',
-    endDate: '2025-04-05',
+    // Blank slate for new trips; other flows that load an existing trip
+    // will overwrite this state in loadTripData().
+    destination: '',
+    startDate: '',
+    endDate: '',
     days: [
       {
         day: 1,
-        date: 'April 1, 2025',
-        title: 'Arrival & Shibuya Exploration',
-        activities: [
-          {
-            id: '1',
-            time: '14:00',
-            title: 'Arrive at Narita Airport',
-            description: 'Take the Narita Express to Shibuya Station (90 min, Â¥3,250)',
-            category: 'transport',
-          },
-          {
-            id: '2',
-            time: '16:00',
-            title: 'Check-in at Hotel',
-            description: 'Hotel in Shibuya district',
-            location: 'Shibuya',
-            category: 'accommodation',
-          },
-          {
-            id: '3',
-            time: '18:00',
-            title: 'Shibuya Crossing & Hachiko Statue',
-            description: "Experience the world's busiest pedestrian crossing",
-            location: 'Shibuya',
-            category: 'activity',
-          },
-          {
-            id: '4',
-            time: '20:00',
-            title: 'Dinner at Ichiran Ramen',
-            description: 'Famous tonkotsu ramen in private booth',
-            location: 'Shibuya',
-            category: 'food',
-          },
-        ],
-      },
-      {
-        day: 2,
-        date: 'April 2, 2025',
-        title: 'Traditional Tokyo - Asakusa & Ueno',
-        activities: [
-          {
-            id: '5',
-            time: '09:00',
-            title: 'Visit Senso-ji Temple',
-            description: "Tokyo's oldest temple with traditional shopping street",
-            location: 'Asakusa',
-            category: 'activity',
-          },
-          {
-            id: '6',
-            time: '12:00',
-            title: 'Lunch at Nakamise Shopping Street',
-            description: 'Try traditional snacks and street food',
-            location: 'Asakusa',
-            category: 'food',
-          },
-          {
-            id: '7',
-            time: '14:00',
-            title: 'Ueno Park & Museums',
-            description: 'Visit museums or enjoy cherry blossoms if in season',
-            location: 'Ueno',
-            category: 'activity',
-          },
-        ],
-      },
-      {
-        day: 3,
-        date: 'April 3, 2025',
-        title: 'Modern Tokyo - Harajuku & Shinjuku',
-        activities: [
-          {
-            id: '9',
-            time: '10:00',
-            title: 'Meiji Shrine',
-            description: 'Peaceful Shinto shrine in forested area',
-            location: 'Harajuku',
-            category: 'activity',
-          },
-          {
-            id: '10',
-            time: '12:00',
-            title: 'Takeshita Street Shopping',
-            description: 'Trendy fashion and quirky shops',
-            location: 'Harajuku',
-            category: 'activity',
-          },
-        ],
+        title: 'Day 1',
+        date: '',
+        activities: [],
       },
     ],
-    budget: '$2,000 - $2,500',
+    budget: '',
     travelers: 1,
   });
 
@@ -144,15 +60,34 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   };
 
   const handleUpdateActivity = (dayIndex: number, activityId: string, updates: Partial<DayActivity>) => {
+    const parseTimeToMinutes = (time?: string | null) => {
+      if (!time) return Number.POSITIVE_INFINITY;
+      const [hourStr, minuteStr] = time.split(':');
+      const hour = parseInt(hourStr, 10);
+      const minute = parseInt(minuteStr, 10);
+      if (isNaN(hour) || isNaN(minute)) return Number.POSITIVE_INFINITY;
+      return hour * 60 + minute;
+    };
+
     setTripPlan(prev => ({
       ...prev,
       days: prev.days.map((day, idx) => {
         if (idx !== dayIndex) return day;
+
+        let updatedActivities = day.activities.map(activity =>
+          activity.id === activityId ? { ...activity, ...updates } : activity
+        );
+
+        // If time was updated, keep activities sorted chronologically
+        if (updates.time !== undefined) {
+          updatedActivities = [...updatedActivities].sort(
+            (a, b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time)
+          );
+        }
+
         return {
           ...day,
-          activities: day.activities.map(activity =>
-            activity.id === activityId ? { ...activity, ...updates } : activity
-          ),
+          activities: updatedActivities,
         };
       }),
     }));
@@ -276,9 +211,14 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
 
       // If no tripId, create a new trip
       if (!currentTripId) {
+        const titleFallback =
+          tripPlan.title ||
+          tripPlan.destination ||
+          'New Trip';
+
         const createResult = await createTrip(
-          tripPlan.destination,
-          tripPlan.destination,
+          titleFallback,
+          tripPlan.destination || 'Destination TBD',
           tripPlan.startDate,
           tripPlan.endDate
         );

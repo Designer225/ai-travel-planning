@@ -1,6 +1,6 @@
 'use client';
 
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import {
   Paper,
   Tabs,
@@ -14,8 +14,10 @@ import { CalendarToday, AccessTime, Delete, Bookmark, LocationOn } from "@mui/ic
 import { Plane } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { tryEnterMapExplorer, tryEnterMyTrips } from "@/app/lib/clientUserGate";
+import { getUserTrips } from "@/app/lib/tripActions";
+import { toast } from "sonner";
 
-interface Trip {
+interface TripCardTrip {
   id: number;
   destination: string;
   dates: string;
@@ -24,88 +26,7 @@ interface Trip {
   image: string;
 }
 
-const UPCOMING_TRIPS: Trip[] = [
-  {
-    id: 1,
-    destination: "Bali, Indonesia",
-    dates: "Jun 20-30, 2025",
-    duration: "10 days",
-    activities: 18,
-    image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=200&fit=crop"
-  },
-  {
-    id: 2,
-    destination: "Santorini, Greece",
-    dates: "Sep 8-15, 2025",
-    duration: "7 days",
-    activities: 14,
-    image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=400&h=200&fit=crop"
-  },
-  {
-    id: 3,
-    destination: "Iceland",
-    dates: "Oct 1-10, 2025",
-    duration: "9 days",
-    activities: 16,
-    image: "https://images.unsplash.com/photo-1520769945061-0a448c463865?w=400&h=200&fit=crop"
-  }
-];
-
-const PAST_TRIPS: Trip[] = [
-  {
-    id: 4,
-    destination: "Tokyo, Japan",
-    dates: "Mar 15-22, 2024",
-    duration: "7 days",
-    activities: 12,
-    image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=200&fit=crop"
-  },
-  {
-    id: 5,
-    destination: "Paris, France",
-    dates: "Jan 10-17, 2024",
-    duration: "7 days",
-    activities: 15,
-    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=200&fit=crop"
-  },
-  {
-    id: 6,
-    destination: "Barcelona, Spain",
-    dates: "Dec 5-12, 2023",
-    duration: "7 days",
-    activities: 10,
-    image: "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=400&h=200&fit=crop"
-  }
-];
-
-const SAVED_TRIPS: Trip[] = [
-  {
-    id: 7,
-    destination: "Bali, Indonesia",
-    dates: "Jun 20-30, 2025",
-    duration: "10 days",
-    activities: 18,
-    image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=200&fit=crop"
-  },
-  {
-    id: 8,
-    destination: "Santorini, Greece",
-    dates: "Sep 8-15, 2025",
-    duration: "7 days",
-    activities: 14,
-    image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=400&h=200&fit=crop"
-  },
-  {
-    id: 9,
-    destination: "Iceland",
-    dates: "Oct 1-10, 2025",
-    duration: "9 days",
-    activities: 16,
-    image: "https://images.unsplash.com/photo-1520769945061-0a448c463865?w=400&h=200&fit=crop"
-  }
-];
-
-function TripCard({ trip, isPast }: { trip: Trip; isPast: boolean }) {
+function TripCard({ trip, isPast }: { trip: TripCardTrip; isPast: boolean }) {
   return (
     <Paper
       elevation={0}
@@ -188,11 +109,77 @@ function TabPanel(props: TabPanelProps) {
 
 export function MyTrips() {
   const [activeTab, setActiveTab] = useState(0);
+  const [upcomingTrips, setUpcomingTrips] = useState<TripCardTrip[]>([]);
+  const [pastTrips, setPastTrips] = useState<TripCardTrip[]>([]);
+  const [savedTrips, setSavedTrips] = useState<TripCardTrip[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
   const router = useRouter();
+
+  const mapBackendTripToCardTrip = (trip: {
+    id: number;
+    destination: string;
+    title: string;
+    dateRange?: string;
+    tripTime: string;
+    activities: number;
+    imageUrl: string;
+  }): TripCardTrip => ({
+    id: trip.id,
+    destination: trip.title || trip.destination,
+    dates: trip.dateRange || "Dates TBD",
+    duration: trip.tripTime || "TBD",
+    activities: trip.activities,
+    image: trip.imageUrl || "https://images.unsplash.com/photo-1526779259212-939e64788e3c?w=400&h=200&fit=crop",
+  });
+
+  useEffect(() => {
+    const loadTrips = async () => {
+      setLoading(true);
+      try {
+        const [upcomingResult, pastResult, savedResult] = await Promise.all([
+          getUserTrips('upcoming'),
+          getUserTrips('past'),
+          getUserTrips('saved'),
+        ]);
+
+        if (upcomingResult.success && upcomingResult.trips) {
+          setUpcomingTrips(upcomingResult.trips.map(mapBackendTripToCardTrip));
+        } else {
+          setUpcomingTrips([]);
+        }
+
+        if (pastResult.success && pastResult.trips) {
+          setPastTrips(pastResult.trips.map(mapBackendTripToCardTrip));
+        } else {
+          setPastTrips([]);
+        }
+
+        if (savedResult.success && savedResult.trips) {
+          setSavedTrips(savedResult.trips.map(mapBackendTripToCardTrip));
+        } else {
+          setSavedTrips([]);
+        }
+
+        if (!upcomingResult.success || !pastResult.success || !savedResult.success) {
+          toast.error('Some trips could not be loaded');
+        }
+      } catch (error) {
+        console.error('Failed to load trips for account widget', error);
+        toast.error('Failed to load trips');
+        setUpcomingTrips([]);
+        setPastTrips([]);
+        setSavedTrips([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTrips();
+  }, []);
 
   const handleMoreTrips = () => {
     startTransition(async () => {
@@ -219,6 +206,12 @@ export function MyTrips() {
         My Trips
       </Typography>
 
+      {loading && (
+        <Typography variant="body2" sx={{ mb: 2, color: "#4a5565" }}>
+          Loading your trips...
+        </Typography>
+      )}
+
       <Tabs 
         value={activeTab} 
         onChange={handleTabChange}
@@ -236,7 +229,12 @@ export function MyTrips() {
 
       <TabPanel value={activeTab} index={0}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {UPCOMING_TRIPS.map((trip) => (
+          {upcomingTrips.length === 0 && !loading && (
+            <Typography variant="body2" color="text.secondary">
+              No upcoming trips yet.
+            </Typography>
+          )}
+          {upcomingTrips.map((trip) => (
             <TripCard key={trip.id} trip={trip} isPast={false} />
           ))}
         </Box>
@@ -244,7 +242,12 @@ export function MyTrips() {
 
       <TabPanel value={activeTab} index={1}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {PAST_TRIPS.map((trip) => (
+          {pastTrips.length === 0 && !loading && (
+            <Typography variant="body2" color="text.secondary">
+              No past trips yet.
+            </Typography>
+          )}
+          {pastTrips.map((trip) => (
             <TripCard key={trip.id} trip={trip} isPast={true} />
           ))}
         </Box>
@@ -252,7 +255,12 @@ export function MyTrips() {
 
       <TabPanel value={activeTab} index={2}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {SAVED_TRIPS.map((trip) => (
+          {savedTrips.length === 0 && !loading && (
+            <Typography variant="body2" color="text.secondary">
+              No saved trips yet.
+            </Typography>
+          )}
+          {savedTrips.map((trip) => (
             <TripCard key={trip.id} trip={trip} isPast={false} />
           ))}
         </Box>

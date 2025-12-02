@@ -72,6 +72,20 @@ export function EditableActivity({ activity, onUpdate, onDelete, showDragHandle 
 
   const Icon = categoryIcons[activity.category];
 
+  const formatTimeTo12Hour = (time: string) => {
+    if (!time) return '';
+    const [hourStr, minuteStr] = time.split(':');
+    const hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    if (isNaN(hour) || isNaN(minute)) return time;
+
+    const suffix = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = ((hour + 11) % 12) + 1; // 0->12, 13->1, etc.
+    const paddedMinutes = minute.toString().padStart(2, '0');
+
+    return `${hour12}:${paddedMinutes} ${suffix}`;
+  };
+
   if (isEditing) {
     return (
       <div className="bg-gray-50 rounded-lg p-4 border-2 border-blue-300">
@@ -166,7 +180,9 @@ export function EditableActivity({ activity, onUpdate, onDelete, showDragHandle 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-1">
           <h4 className="font-medium">{activity.title}</h4>
-          <span className="text-sm text-gray-500 flex-shrink-0">{activity.time}</span>
+          <span className="text-sm text-gray-500 flex-shrink-0">
+            {formatTimeTo12Hour(activity.time)}
+          </span>
         </div>
         <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
         {activity.location && (

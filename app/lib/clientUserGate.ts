@@ -1,7 +1,6 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { getCurrentUser, login, logout } from "./sessionControl";
-import { setCurrentItinerary } from "./itineraryActions";
-import { addDestinationToCurrentItinerary } from "./itineraryActions";
+import { setCurrentItinerary, clearCurrentItinerary, addDestinationToCurrentItinerary } from "./itineraryActions";
 import { TripPlan } from "@/types";
 
 export async function tryEnterDashboard(router: AppRouterInstance) {
@@ -50,7 +49,8 @@ export async function tryEnterItineraryBuilder(router: AppRouterInstance, destId
             // For now, we'll create a placeholder - this should be enhanced
             await addDestinationToCurrentItinerary(`Destination ${destId}`);
         } else {
-            // placeholder handler that checks if an itinerary is set
+            // Explicitly clear any previously selected itinerary so we start a blank trip
+            await clearCurrentItinerary();
         }
         router.push('/itinerary-builder')
     }

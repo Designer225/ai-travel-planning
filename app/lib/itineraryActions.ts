@@ -33,6 +33,12 @@ export async function getCurrentItineraryId(): Promise<number | undefined> {
     return session.currentItineraryId;
 }
 
+export async function clearCurrentItinerary(): Promise<void> {
+    const session = await getItinerarySession();
+    session.currentItineraryId = undefined;
+    await session.save();
+}
+
 export async function setCurrentItinerary(tripId: number): Promise<{ success: boolean; error?: string }> {
     try {
         const user = await getCurrentUser();

@@ -14,7 +14,13 @@ function dbTripToTripPlan(trip: any): TripPlan {
       date: day.date || undefined,
       title: day.title,
       activities: day.activities
-        .sort((a: any, b: any) => a.time.localeCompare(b.time))
+        .sort((a: any, b: any) => {
+          // First sort by order, then by time
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          return a.time.localeCompare(b.time);
+        })
         .map((activity: any) => ({
           id: activity.id.toString(),
           time: activity.time,
@@ -26,6 +32,7 @@ function dbTripToTripPlan(trip: any): TripPlan {
     }));
 
   return {
+    title: trip.title || undefined,
     destination: trip.destination,
     startDate: trip.startDate ? trip.startDate.toISOString().split('T')[0] : undefined,
     endDate: trip.endDate ? trip.endDate.toISOString().split('T')[0] : undefined,
@@ -200,11 +207,21 @@ export async function updateTrip(
     }
     if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
 
-    await prisma.trip.updateMany({
+    // First verify the trip exists and belongs to user
+    const existingTrip = await prisma.trip.findFirst({
       where: {
         id: tripId,
-        userId: user.id, // Ensure user owns the trip
+        userId: user.id,
       },
+    });
+
+    if (!existingTrip) {
+      return { success: false, error: "Trip not found" };
+    }
+
+    // Use update instead of updateMany for better error handling
+    await prisma.trip.update({
+      where: { id: tripId },
       data: updateData,
     });
 
@@ -336,6 +353,7 @@ export async function saveItinerary(
     await prisma.trip.update({
       where: { id: tripId },
       data: {
+        title: tripPlan.title || tripPlan.destination, // Use title if provided, otherwise use destination
         destination: tripPlan.destination,
         startDate: tripPlan.startDate ? new Date(tripPlan.startDate) : null,
         endDate: tripPlan.endDate ? new Date(tripPlan.endDate) : null,
@@ -360,7 +378,8 @@ export async function saveItinerary(
         },
       });
 
-      for (const activity of day.activities) {
+      for (let index = 0; index < day.activities.length; index++) {
+        const activity = day.activities[index];
         await prisma.dayActivity.create({
           data: {
             tripDayId: tripDay.id,
@@ -369,6 +388,7 @@ export async function saveItinerary(
             description: activity.description,
             location: activity.location || null,
             category: activity.category as ActivityCategory,
+            order: index, // Preserve order within day
           },
         });
       }
