@@ -86,7 +86,10 @@ export interface PaymentMethod {
   id: number;
   label: string;
   last4: string;
+  cardNumber?: string;
+  cardholderName?: string;
   expiry: string;
+  cvv?: string;
   isDefault: boolean;
 }
 
@@ -123,7 +126,10 @@ export async function getUserPaymentMethods(): Promise<{ success: boolean; payme
 export async function addPaymentMethod(
   label: string,
   last4: string,
-  expiry: string
+  expiry: string,
+  cardNumber?: string,
+  cardholderName?: string,
+  cvv?: string
 ): Promise<{ success: boolean; paymentMethod?: PaymentMethod; error?: string }> {
   try {
     const user = await getCurrentUser();
@@ -133,7 +139,7 @@ export async function addPaymentMethod(
 
     // Validate input
     if (!label || !last4 || !expiry) {
-      return { success: false, error: "All fields are required" };
+      return { success: false, error: "All required fields must be filled" };
     }
 
     if (last4.length !== 4 || !/^\d{4}$/.test(last4)) {
@@ -157,7 +163,10 @@ export async function addPaymentMethod(
         userId: user.id,
         label,
         last4,
+        cardNumber: cardNumber || "",
+        cardholderName: cardholderName || "",
         expiry,
+        cvv: cvv || "",
         isDefault,
       },
     });
@@ -166,7 +175,10 @@ export async function addPaymentMethod(
       id: paymentMethod.id,
       label: paymentMethod.label,
       last4: paymentMethod.last4,
+      cardNumber: paymentMethod.cardNumber,
+      cardholderName: paymentMethod.cardholderName,
       expiry: paymentMethod.expiry,
+      cvv: paymentMethod.cvv,
       isDefault: paymentMethod.isDefault,
     };
 

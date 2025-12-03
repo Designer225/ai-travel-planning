@@ -73,15 +73,32 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
   };
 
   const handleAddCard = async () => {
-    if (!newCard.number || !newCard.expiry) {
+    if (!newCard.number || !newCard.name || !newCard.expiry || !newCard.cvv) {
       showToast("Please fill in all required fields", "error");
       return;
     }
 
-    const last4 = newCard.number.replace(/\s+/g, "").slice(-4);
-    const type = newCard.number.startsWith("4") ? "Visa" : newCard.number.startsWith("5") ? "Mastercard" : "Card";
+    // Clean card number (remove spaces)
+    const cleanedCardNumber = newCard.number.replace(/\s+/g, "");
     
-    const result = await addPaymentMethod(type, last4, newCard.expiry);
+    // Validate card number length
+    if (cleanedCardNumber.length < 13 || cleanedCardNumber.length > 19) {
+      showToast("Invalid card number", "error", "Card number must be between 13 and 19 digits");
+      return;
+    }
+
+    const last4 = cleanedCardNumber.slice(-4);
+    const type = cleanedCardNumber.startsWith("4") ? "Visa" : cleanedCardNumber.startsWith("5") ? "Mastercard" : "Card";
+    
+    const result = await addPaymentMethod(
+      type, 
+      last4, 
+      newCard.expiry,
+      cleanedCardNumber, // Full card number (demo only)
+      newCard.name,      // Cardholder name
+      newCard.cvv        // CVV (demo only)
+    );
+    
     if (result.success && result.paymentMethod) {
       setIsAddDialogOpen(false);
       setNewCard({ number: "", name: "", expiry: "", cvv: "" });

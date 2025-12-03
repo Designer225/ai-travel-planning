@@ -87,14 +87,17 @@ model DayActivity {
 }
 
 model PaymentMethod {
-  id        Int      @id @default(autoincrement())
-  userId   Int
-  label     String
-  last4     String
-  expiry    String
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  label         String
+  last4         String
+  cardNumber    String   @default("") // Full card number (demo only, no encryption)
+  cardholderName String   @default("")
+  expiry        String
+  cvv           String   @default("") // CVV (demo only, no encryption)
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
