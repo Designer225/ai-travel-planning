@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  
+}
+        
+        
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  bio           String    @default("")
+  location      String    @default("")
+  avatarUrl     String    @default("")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  trips           Trip[]
+  paymentMethods  PaymentMethod[]
+
+  @@index([email])
+}
+
+model Trip {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  title       String
+  destination String
+  startDate   DateTime?
+  endDate     DateTime?
+  budget      String?
+  travelers   Int?
+  status      TripStatus @default(SAVED)
+  imageUrl    String    @default("")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days    TripDay[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model TripDay {
+  id        Int       @id @default(autoincrement())
+  tripId    Int
+  dayNumber Int
+  date      String?
+  title     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  trip       Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  activities DayActivity[]
+
+  @@index([tripId])
+}
+
+model DayActivity {
+  id          Int                @id @default(autoincrement())
+  tripDayId   Int
+  time        String
+  title       String
+  description String
+  location    String?
+  category    ActivityCategory
+  order       Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  tripDay TripDay @relation(fields: [tripDayId], references: [id], onDelete: Cascade)
+
+  @@index([tripDayId])
+  @@index([tripDayId, order])
+}
+
+model PaymentMethod {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  label         String
+  last4         String
+  cardNumber    String   @default("") // Full card number (demo only, no encryption)
+  cardholderName String   @default("")
+  expiry        String
+  cvv           String   @default("") // CVV (demo only, no encryption)
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum TripStatus {
+  UPCOMING
+  PAST
+  SAVED
+}
+
+enum ActivityCategory {
+  transport
+  activity
+  food
+  accommodation
+  other
+}
