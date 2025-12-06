@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Sparkles, User } from 'lucide-react';
 
 interface Message {
@@ -13,7 +14,7 @@ interface ChatMessageProps {
   message: Message;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export const ChatMessage = memo(function ChatMessage({ message }: ChatMessageProps) {
   const isAssistant = message.role === 'assistant';
 
   return (
@@ -53,7 +54,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       </div>
     </div>
   );
-}
+});
 
 
 

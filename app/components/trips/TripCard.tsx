@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
-import { Calendar, Clock, MapPin, Pencil, Trash2, Copy } from 'lucide-react';
+import { Calendar, Clock, MapPin, Pencil, Trash2, Copy, Plane } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import type { Trip } from './TripsList';
@@ -25,6 +25,7 @@ interface TripCardProps {
 
 export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: TripCardProps) {
   const [showWarningDialog, setShowWarningDialog] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handlePrimaryAction = () => {
     if (type === 'upcoming') {
@@ -61,16 +62,50 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
 
   const warningContent = getWarningContent();
 
+  // Generate a gradient color based on destination name for consistent styling
+  const getGradientColor = (destination: string) => {
+    const hash = destination.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const gradients = [
+      'from-blue-500 to-purple-500',
+      'from-pink-500 to-rose-500',
+      'from-green-500 to-emerald-500',
+      'from-orange-500 to-amber-500',
+      'from-indigo-500 to-blue-500',
+      'from-cyan-500 to-teal-500',
+    ];
+    return gradients[hash % gradients.length];
+  };
+
+  const hasImage = trip.imageUrl && trip.imageUrl.trim() !== '' && !imageError;
+  const gradientClass = getGradientColor(trip.destination);
+  const showPlaceholder = !hasImage;
+
   return (
     <>
       <Card className="hover:shadow-lg transition-shadow overflow-hidden">
         {/* Image */}
         <div className="relative h-48 w-full overflow-hidden">
-          <ImageWithFallback
-            src={trip.imageUrl}
-            alt={trip.title || trip.destination}
-            className="w-full h-full object-cover"
-          />
+          {hasImage && !imageError ? (
+            <img
+              src={trip.imageUrl}
+              alt={trip.title || trip.destination}
+              className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
+            />
+          ) : null}
+          {/* Placeholder when no image or image fails */}
+          {showPlaceholder && (
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${gradientClass} flex items-center justify-center`}
+            >
+              <div className="text-center text-white p-4">
+                <Plane className="w-12 h-12 mx-auto mb-2 opacity-90" />
+                <p className="text-sm font-medium opacity-90 truncate max-w-[200px]">
+                  {trip.destination}
+                </p>
+              </div>
+            </div>
+          )}
           <div className="absolute top-3 right-3">
             {type === 'upcoming' && (
               <Badge variant="default" className="flex-shrink-0">Upcoming</Badge>

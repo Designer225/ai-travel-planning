@@ -58,7 +58,15 @@ export default function AIChatbot() {
 
           {/* Trip Planning Panel - Right Side */}
           <div className="hidden md:flex md:w-1/2 lg:w-3/5 flex-col bg-gradient-to-br from-gray-50 to-blue-50/30">
-            <TripPanel tripPlan={tripPlan} />
+            <TripPanel 
+              tripPlan={tripPlan} 
+              setTripPlan={setTripPlan}
+              onSendMessage={(message) => {
+                // Trigger message in ChatPanel via a custom event or ref
+                // For now, we'll use a custom event
+                window.dispatchEvent(new CustomEvent('chat-send-message', { detail: { message } }));
+              }}
+            />
           </div>
         </div>
       </ThemeProvider>
