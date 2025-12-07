@@ -2,8 +2,6 @@
 
 import { memo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
@@ -22,8 +20,18 @@ import { TripPlan, TripDay, DayActivity } from '@/types';
 import { createTrip, saveItinerary } from '@/app/lib/tripActions';
 import { setCurrentItinerary } from '@/app/lib/itineraryActions';
 import { toast } from 'sonner';
-import { EditableTripHeader } from '../itinerary/EditableTripHeader';
-import { EditableDayCard } from '../itinerary/EditableDayCard';
+import dynamic from 'next/dynamic';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
+// Dynamically import editable components - only load when in edit mode
+const EditableTripHeader = dynamic(() => import('../itinerary/EditableTripHeader'), {
+  ssr: false,
+});
+
+const EditableDayCard = dynamic(() => import('../itinerary/EditableDayCard'), {
+  ssr: false,
+});
 
 interface TripPanelProps {
   tripPlan: TripPlan | null;

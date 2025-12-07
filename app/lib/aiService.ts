@@ -13,6 +13,98 @@ const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 // Use gemini-2.5-flash-lite for faster responses
 const MODEL_NAME = 'gemini-2.5-flash-lite';
 
+// Response cache configuration
+interface CacheEntry {
+  data: GenerateItineraryResponse;
+  timestamp: number;
+}
+
+const responseCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+const MAX_CACHE_SIZE = 100; // Maximum number of cached entries
+
+/**
+ * Simple hash function for cache keys
+ */
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
+/**
+ * Generates a cache key from the request parameters
+ */
+function generateCacheKey(params: GenerateItineraryParams): string {
+  const keyData = {
+    userMessage: params.userMessage.toLowerCase().trim(),
+    existingTripPlan: params.existingTripPlan ? JSON.stringify(params.existingTripPlan) : null,
+  };
+  const keyString = JSON.stringify(keyData);
+  return `cache_${simpleHash(keyString)}`;
+}
+
+/**
+ * Gets a cached response if available and not expired
+ */
+function getCachedResponse(cacheKey: string): GenerateItineraryResponse | null {
+  const entry = responseCache.get(cacheKey);
+  if (!entry) {
+    return null;
+  }
+
+  const now = Date.now();
+  if (now - entry.timestamp > CACHE_TTL) {
+    // Cache expired, remove it
+    responseCache.delete(cacheKey);
+    return null;
+  }
+
+  return entry.data;
+}
+
+/**
+ * Stores a response in the cache
+ */
+function setCachedResponse(cacheKey: string, data: GenerateItineraryResponse): void {
+  // If cache is too large, remove oldest entries
+  if (responseCache.size >= MAX_CACHE_SIZE) {
+    const entries = Array.from(responseCache.entries());
+    // Sort by timestamp and remove oldest 20%
+    entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const toRemove = Math.floor(MAX_CACHE_SIZE * 0.2);
+    for (let i = 0; i < toRemove; i++) {
+      responseCache.delete(entries[i][0]);
+    }
+  }
+
+  responseCache.set(cacheKey, {
+    data,
+    timestamp: Date.now(),
+  });
+}
+
+/**
+ * Cleans up expired cache entries (call periodically)
+ */
+function cleanupCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of responseCache.entries()) {
+    if (now - entry.timestamp > CACHE_TTL) {
+      responseCache.delete(key);
+    }
+  }
+}
+
+// Clean up cache every 10 minutes
+if (typeof setInterval !== 'undefined') {
+  setInterval(cleanupCache, 10 * 60 * 1000);
+}
+
 export interface GenerateItineraryParams {
   userMessage: string;
   existingTripPlan?: TripPlan | null;
@@ -40,6 +132,14 @@ export async function generateItinerary(
     };
   }
 
+  // Check cache first
+  const cacheKey = generateCacheKey(params);
+  const cachedResponse = getCachedResponse(cacheKey);
+  if (cachedResponse) {
+    console.log('Returning cached response');
+    return cachedResponse;
+  }
+
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
@@ -61,11 +161,21 @@ export async function generateItinerary(
     // Combine system and user prompts
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
+    // Build conversation history for Gemini API (if available)
+    const history = params.conversationHistory?.slice(-8) || []; // Last 8 messages
+    const conversationParts = history.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }],
+    }));
+
     // Make the API call with timeout
     const generateContentPromise = model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+      contents: [
+        ...conversationParts,
+        { role: 'user', parts: [{ text: fullPrompt }] },
+      ],
       generationConfig: {
-        temperature: 0.7,
+        temperature: 0.8, // Slightly higher for more conversational responses
         topK: 40,
         topP: 0.95,
         maxOutputTokens: 4096,
@@ -73,8 +183,8 @@ export async function generateItinerary(
       },
     });
 
-    const result = await Promise.race([generateContentPromise, timeoutPromise]);
-    const response = result.response;
+    const apiResult = await Promise.race([generateContentPromise, timeoutPromise]);
+    const response = apiResult.response;
     const text = response.text();
 
     // Parse the JSON response
@@ -100,11 +210,16 @@ export async function generateItinerary(
     // Validate and transform the trip plan
     const tripPlan = validateAndTransformTripPlan(tripPlanData, params.existingTripPlan);
 
-    return {
+    const result: GenerateItineraryResponse = {
       success: true,
       responseText,
       tripPlan: tripPlan || undefined,
     };
+
+    // Cache the successful response
+    setCachedResponse(cacheKey, result);
+
+    return result;
   } catch (error: any) {
     console.error('Error generating itinerary:', error);
 
@@ -145,11 +260,19 @@ export async function generateItinerary(
  * Builds the system prompt for the AI
  */
 function buildSystemPrompt(existingTripPlan?: TripPlan | null): string {
-  return `You are an expert travel planning assistant. Your role is to help users create detailed, time-aware travel itineraries.
+  return `You are a friendly, conversational travel planning assistant. You help users plan amazing trips through natural, helpful conversations.
 
-When a user requests a trip plan, you MUST return a JSON object with the following structure:
+CONVERSATION STYLE:
+- Be warm, friendly, and conversational - like talking to a knowledgeable friend
+- Answer questions directly and naturally before making any changes
+- Understand context from the conversation history - if someone asks "How about in October?" after discussing weather, they're asking about weather in October, NOT asking to change trip dates
+- Only modify the itinerary when the user EXPLICITLY asks to change, add, or modify something
+- For follow-up questions (weather, costs, recommendations, etc.), just answer the question - don't change the trip unless asked
+
+RESPONSE FORMAT:
+When a user requests a trip plan or itinerary changes, return JSON with this structure:
 {
-  "responseText": "A friendly, conversational response to the user (2-3 sentences)",
+  "responseText": "A natural, conversational response (2-4 sentences). Be friendly and helpful.",
   "tripPlan": {
     "destination": "City, Country",
     "startDate": "YYYY-MM-DD" (optional),
@@ -177,18 +300,20 @@ When a user requests a trip plan, you MUST return a JSON object with the followi
   }
 }
 
-IMPORTANT RULES:
-1. Activities MUST be in chronological order (sorted by time)
-2. Times should be realistic and allow for travel between locations
-3. Include a mix of activities: transport, accommodation, food, and activities
-4. Each activity must have a unique ID (use simple strings like "1", "2", etc.)
-5. If the user is modifying an existing trip, preserve existing days and add/modify as requested
-6. Always return valid JSON - no markdown formatting unless the user explicitly asks for it
-7. If the user's request doesn't require itinerary changes, only return "responseText" without "tripPlan"
+CRITICAL RULES:
+1. If the user asks a QUESTION (weather, costs, recommendations, "what about X?", "how about Y?"), answer the question conversationally. ONLY include "tripPlan" if they explicitly ask to change the itinerary.
+2. If the user says "change to October" or "update the dates" - THEN modify the tripPlan
+3. If the user asks "How about in October?" after discussing weather - they want weather info for October, NOT a date change
+4. Activities MUST be in chronological order (sorted by time)
+5. Times should be realistic and allow for travel between locations
+6. Include a mix of activities: transport, accommodation, food, and activities
+7. Each activity must have a unique ID (use simple strings like "1", "2", etc.)
+8. If modifying an existing trip, preserve existing days unless explicitly asked to change them
+9. Always return valid JSON - no markdown formatting
 
-For general questions or conversations that don't require itinerary generation, return:
+For general questions that don't require itinerary changes, return:
 {
-  "responseText": "Your helpful response here"
+  "responseText": "Your helpful, conversational answer here"
 }`;
 }
 
@@ -200,25 +325,41 @@ function buildUserPrompt(
   existingTripPlan?: TripPlan | null,
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): string {
-  let prompt = `User message: ${userMessage}\n\n`;
+  let prompt = '';
 
+  // Include conversation history for context (last 5-6 messages)
+  if (conversationHistory && conversationHistory.length > 0) {
+    prompt += 'CONVERSATION HISTORY (for context - understand what was just discussed):\n';
+    const recentHistory = conversationHistory.slice(-6); // Last 6 messages for context
+    recentHistory.forEach((msg) => {
+      prompt += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
+    });
+    prompt += '\n';
+  }
+
+  // Current user message
+  prompt += `CURRENT USER MESSAGE: ${userMessage}\n\n`;
+
+  // Include trip plan if it exists
   if (existingTripPlan) {
-    prompt += `Current trip plan:\n`;
+    prompt += `CURRENT TRIP PLAN:\n`;
     prompt += `Destination: ${existingTripPlan.destination}\n`;
     if (existingTripPlan.startDate) prompt += `Start Date: ${existingTripPlan.startDate}\n`;
     if (existingTripPlan.endDate) prompt += `End Date: ${existingTripPlan.endDate}\n`;
     if (existingTripPlan.budget) prompt += `Budget: ${existingTripPlan.budget}\n`;
     if (existingTripPlan.travelers) prompt += `Travelers: ${existingTripPlan.travelers}\n`;
-    prompt += `\nCurrent itinerary (${existingTripPlan.days.length} days):\n`;
     
-    existingTripPlan.days.forEach((day) => {
-      prompt += `\nDay ${day.day}: ${day.title}\n`;
-      day.activities.forEach((activity) => {
-        prompt += `  ${activity.time} - ${activity.title} (${activity.category})\n`;
+    if (existingTripPlan.days.length > 0) {
+      prompt += `\nCurrent itinerary (${existingTripPlan.days.length} days):\n`;
+      existingTripPlan.days.forEach((day) => {
+        prompt += `\nDay ${day.day}: ${day.title}\n`;
+        day.activities.forEach((activity) => {
+          prompt += `  ${activity.time} - ${activity.title} (${activity.category})\n`;
+        });
       });
-    });
+    }
     
-    prompt += `\nPlease update or extend this itinerary based on the user's request.\n`;
+    prompt += `\nIMPORTANT: Only modify this trip plan if the user EXPLICITLY asks to change, add, or update something. If they're just asking a question, answer it without changing the trip plan.\n`;
   }
 
   return prompt;

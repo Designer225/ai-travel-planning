@@ -1,13 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { ChatPanel } from './ChatPanel';
-import { TripPanel } from './TripPanel';
 import { MapPin, Sparkles } from 'lucide-react';
 import { TripPlan } from '@/types';
 import { Navigation } from '../layout/Navigation';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { theme } from '@/app/lib/themes';
+
+// Dynamically import TripPanel to reduce initial bundle size
+// Only load when needed (when tripPlan exists or on larger screens)
+const TripPanel = dynamic(() => import('./TripPanel').then(mod => ({ default: mod.TripPanel })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="text-gray-500">Loading itinerary panel...</div>
+    </div>
+  ),
+});
 
 export default function AIChatbot() {
   const [tripPlan, setTripPlan] = useState<TripPlan | null>(null);

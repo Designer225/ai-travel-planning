@@ -15,6 +15,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  suggestions?: string[];
 }
 
 interface ChatPanelProps {
@@ -96,11 +97,15 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
         setTripPlan(data.tripPlan);
       }
 
+      // Generate follow-up suggestions based on context
+      const suggestions = generateSuggestions(data.tripPlan, data.responseText, content);
+
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.responseText,
         timestamp: new Date(),
+        suggestions: suggestions.length > 0 ? suggestions : undefined,
       };
       setMessages((prev) => [...prev, aiResponse]);
     } catch (error: any) {
@@ -131,6 +136,66 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
       window.removeEventListener('chat-send-message', handleCustomMessage as EventListener);
     };
   }, [isTyping, tripPlan, conversationHistory]);
+
+  /**
+   * Generates contextual follow-up suggestions based on the conversation
+   */
+  function generateSuggestions(
+    tripPlan: TripPlan | null | undefined,
+    responseText: string,
+    lastUserMessage: string
+  ): string[] {
+    const suggestions: string[] = [];
+    const lowerResponse = responseText.toLowerCase();
+    const lowerUserMessage = lastUserMessage.toLowerCase();
+
+    // If itinerary was just generated
+    if (tripPlan && tripPlan.days.length > 0) {
+      const destination = tripPlan.destination || 'this destination';
+      
+      // Destination-specific suggestions
+      if (lowerResponse.includes('itinerary') || lowerResponse.includes('plan') || lowerResponse.includes('trip')) {
+        suggestions.push(`Add a day trip near ${destination}`);
+        suggestions.push(`Find budget-friendly restaurants in ${destination}`);
+        suggestions.push(`What's the weather like in ${destination}?`);
+      }
+
+      // Activity-based suggestions
+      if (lowerResponse.includes('activity') || lowerResponse.includes('visit') || lowerResponse.includes('see')) {
+        suggestions.push(`Add more cultural activities`);
+        suggestions.push(`Find outdoor activities`);
+        suggestions.push(`Suggest family-friendly options`);
+      }
+
+      // Budget suggestions
+      if (lowerResponse.includes('budget') || lowerResponse.includes('cost') || lowerUserMessage.includes('budget')) {
+        suggestions.push(`Make it more budget-friendly`);
+        suggestions.push(`Show cost breakdown by day`);
+        suggestions.push(`Suggest free activities`);
+      }
+
+      // General trip suggestions
+      if (suggestions.length === 0) {
+        suggestions.push(`Add more days to the trip`);
+        suggestions.push(`Make the itinerary more relaxed`);
+        suggestions.push(`Add more food experiences`);
+      }
+    } else {
+      // No itinerary yet - general suggestions
+      if (lowerResponse.includes('destination') || lowerUserMessage.includes('visit') || lowerUserMessage.includes('go')) {
+        suggestions.push(`Tell me more about this destination`);
+        suggestions.push(`What's the best time to visit?`);
+        suggestions.push(`What's the budget for this trip?`);
+      } else {
+        suggestions.push(`Plan a 5-day trip`);
+        suggestions.push(`Create a romantic getaway`);
+        suggestions.push(`Suggest budget-friendly destinations`);
+      }
+    }
+
+    // Limit to 3 suggestions
+    return suggestions.slice(0, 3);
+  }
 
   const handleDestinationSelect = async (destination: Destination) => {
     setShowDestinationSearch(false);
@@ -176,20 +241,29 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
         if (data.tripPlan) {
           setTripPlan(data.tripPlan);
         }
+        
+        // Generate follow-up suggestions
+        const suggestions = generateSuggestions(data.tripPlan, data.responseText, `I want to visit ${destination.name}, ${destination.country}`);
+        
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
           content: data.responseText,
           timestamp: new Date(),
+          suggestions: suggestions.length > 0 ? suggestions : undefined,
         };
         setMessages((prev) => [...prev, aiResponse]);
       } else {
         // Fallback to basic response if AI fails
+        const fallbackContent = `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`;
+        const suggestions = generateSuggestions(null, fallbackContent, `I want to visit ${destination.name}, ${destination.country}`);
+        
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`,
+          content: fallbackContent,
           timestamp: new Date(),
+          suggestions: suggestions.length > 0 ? suggestions : undefined,
         };
         setMessages((prev) => [...prev, aiResponse]);
       }
@@ -203,11 +277,15 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
         travelers: 1,
       };
       setTripPlan(basicPlan);
+      const errorContent = `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`;
+      const suggestions = generateSuggestions(basicPlan, errorContent, `I want to visit ${destination.name}, ${destination.country}`);
+      
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`,
+        content: errorContent,
         timestamp: new Date(),
+        suggestions: suggestions.length > 0 ? suggestions : undefined,
       };
       setMessages((prev) => [...prev, aiResponse]);
     } finally {
@@ -242,7 +320,15 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
       >
         <div className="space-y-4 max-w-2xl">
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage 
+              key={message.id} 
+              message={message}
+              onSuggestionClick={(suggestion) => {
+                if (!isTyping) {
+                  handleSendMessage(suggestion);
+                }
+              }}
+            />
           ))}
           {isTyping && (
             <div className="flex gap-2 items-start">
