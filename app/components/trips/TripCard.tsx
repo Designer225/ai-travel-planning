@@ -68,7 +68,7 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
         <div className="relative h-48 w-full overflow-hidden">
           <ImageWithFallback
             src={trip.imageUrl}
-            alt={trip.title || trip.destination}
+            alt={`Preview image for ${trip.title || trip.destination}`}
             className="w-full h-full object-cover"
           />
           <div className="absolute top-3 right-3">

@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { startTransition, useState, useEffect } from 'react';
+import { startTransition, useState, useEffect, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft, ShoppingCart } from 'lucide-react';
@@ -16,11 +16,115 @@ import { theme } from '@/app/lib/themes';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { tryCheckout } from '@/app/lib/clientUserGate';
 import { getTripById, saveItinerary, createTrip } from '@/app/lib/tripActions';
-import { getCurrentItineraryId, getCurrentItinerary } from '@/app/lib/itineraryActions';
+import { getCurrentItineraryId, setCurrentItinerary } from '@/app/lib/itineraryActions';
 
 interface ItineraryBuilderProps {
   onBack?: () => void;
 }
+
+const AI_PLAN_STORAGE_KEY = 'ai-itinerary-plan';
+
+const normalizeCategory = (category?: string): DayActivity['category'] => {
+  const normalized = (category || '').toLowerCase();
+  if (['transport', 'activity', 'food', 'accommodation', 'other'].includes(normalized)) {
+    return normalized as DayActivity['category'];
+  }
+  if (normalized.includes('food') || normalized.includes('restaurant') || normalized.includes('dinner')) {
+    return 'food';
+  }
+  if (normalized.includes('hotel') || normalized.includes('stay')) {
+    return 'accommodation';
+  }
+  if (normalized.includes('flight') || normalized.includes('train') || normalized.includes('bus')) {
+    return 'transport';
+  }
+  return 'activity';
+};
+
+const parseAiTripPlan = (raw: unknown): TripPlan | null => {
+  if (!raw) return null;
+  try {
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    const daysInput = Array.isArray((parsed as any).days) ? (parsed as any).days : [];
+
+    const mappedDays: TripDay[] = daysInput.map((day: any, idx: number) => {
+      const activitiesInput = Array.isArray(day.activities) ? day.activities : [];
+      const activities: DayActivity[] = activitiesInput.map((activity: any, aIdx: number) => {
+        const id =
+          typeof activity.id === 'string'
+            ? activity.id
+            : typeof activity.id === 'number'
+              ? activity.id.toString()
+              : (typeof crypto !== 'undefined' && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : `activity-${Date.now()}-${idx}-${aIdx}`;
+
+        return {
+          id,
+          time: typeof activity.time === 'string' ? activity.time : '09:00',
+          title: typeof activity.title === 'string' ? activity.title : 'New Activity',
+          description: typeof activity.description === 'string' ? activity.description : 'Add details about this activity',
+          location: typeof activity.location === 'string' ? activity.location : undefined,
+          category: normalizeCategory(activity.category),
+        };
+      });
+
+      const numericDay =
+        typeof day.day === 'number'
+          ? day.day
+          : typeof day.day === 'string' && !Number.isNaN(parseInt(day.day, 10))
+            ? parseInt(day.day, 10)
+            : idx + 1;
+
+      return {
+        day: numericDay,
+        title: typeof day.title === 'string' ? day.title : `Day ${idx + 1}`,
+        date: typeof day.date === 'string' ? day.date : undefined,
+        activities,
+      };
+    });
+
+    const days = mappedDays.length
+      ? mappedDays
+      : [
+          {
+            day: 1,
+            title: 'Day 1',
+            activities: [],
+          },
+        ];
+
+    const normalizeDate = (value?: unknown) => (typeof value === 'string' ? value : undefined);
+    const numericTravelers =
+      typeof (parsed as any).travelers === 'number' && !Number.isNaN((parsed as any).travelers)
+        ? (parsed as any).travelers
+        : undefined;
+
+    return {
+      title: typeof (parsed as any).title === 'string' ? (parsed as any).title : undefined,
+      destination: typeof (parsed as any).destination === 'string' ? (parsed as any).destination : 'Custom Trip',
+      startDate: normalizeDate((parsed as any).startDate),
+      endDate: normalizeDate((parsed as any).endDate),
+      days,
+      budget: typeof (parsed as any).budget === 'string' ? (parsed as any).budget : undefined,
+      travelers: numericTravelers,
+    };
+  } catch (error) {
+    console.error('Failed to parse AI itinerary payload', error);
+    return null;
+  }
+};
+
+const parseTimeToMinutes = (time?: string | null) => {
+  if (!time) return Number.POSITIVE_INFINITY;
+  const [hourStr, minuteStr] = time.split(':');
+  const hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  if (isNaN(hour) || isNaN(minute)) return Number.POSITIVE_INFINITY;
+  return hour * 60 + minute;
+};
 
 export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {}) {
   const router = useRouter();
@@ -46,6 +150,9 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     travelers: 1,
   });
 
+  const tripIdParam = useMemo(() => searchParams?.get('tripId'), [searchParams]);
+  const aiPlanParam = useMemo(() => searchParams?.get('aiPlan'), [searchParams]);
+
   const handleUpdateTrip = (updates: Partial<TripPlan>) => {
     setTripPlan(prev => ({ ...prev, ...updates }));
   };
@@ -60,15 +167,6 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   };
 
   const handleUpdateActivity = (dayIndex: number, activityId: string, updates: Partial<DayActivity>) => {
-    const parseTimeToMinutes = (time?: string | null) => {
-      if (!time) return Number.POSITIVE_INFINITY;
-      const [hourStr, minuteStr] = time.split(':');
-      const hour = parseInt(hourStr, 10);
-      const minute = parseInt(minuteStr, 10);
-      if (isNaN(hour) || isNaN(minute)) return Number.POSITIVE_INFINITY;
-      return hour * 60 + minute;
-    };
-
     setTripPlan(prev => ({
       ...prev,
       days: prev.days.map((day, idx) => {
@@ -162,14 +260,28 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   };
 
   useEffect(() => {
-    loadTripData();
-  }, []);
+    loadTripData(tripIdParam, aiPlanParam);
+  }, [tripIdParam, aiPlanParam]);
 
-  const loadTripData = async () => {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    sessionStorage.setItem(AI_PLAN_STORAGE_KEY, JSON.stringify(tripPlan));
+  }, [tripPlan]);
+
+  useEffect(() => {
+    if (!tripId) return;
+    const currentParam = searchParams?.get('tripId');
+    if (currentParam === String(tripId)) return;
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set('tripId', String(tripId));
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [tripId, router, searchParams]);
+
+  const loadTripData = async (tripIdFromUrl?: string | null, aiPlanFromUrl?: string | null) => {
     setLoading(true);
     try {
       // Check for tripId in URL params
-      const urlTripId = searchParams?.get('tripId');
+      const urlTripId = tripIdFromUrl;
       if (urlTripId) {
         const id = parseInt(urlTripId);
         if (!isNaN(id)) {
@@ -177,6 +289,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
           if (result.success && result.tripPlan) {
             setTripPlan(result.tripPlan);
             setTripId(id);
+            await setCurrentItinerary(id);
             setLoading(false);
             return;
           }
@@ -190,9 +303,20 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
         if (result.success && result.tripPlan) {
           setTripPlan(result.tripPlan);
           setTripId(currentItineraryId);
+          await setCurrentItinerary(currentItineraryId);
           setLoading(false);
           return;
         }
+      }
+
+      const aiPayload = aiPlanFromUrl ? decodeURIComponent(aiPlanFromUrl) : null;
+      const storedPlan = typeof window !== 'undefined' ? sessionStorage.getItem(AI_PLAN_STORAGE_KEY) : null;
+      const aiPlan = parseAiTripPlan(aiPayload || storedPlan);
+      if (aiPlan) {
+        setTripPlan(aiPlan);
+        setTripId(null);
+        setLoading(false);
+        return;
       }
 
       // No existing trip, start with default
@@ -233,6 +357,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
       // Save the itinerary
       const result = await saveItinerary(currentTripId, tripPlan);
       if (result.success) {
+        await setCurrentItinerary(currentTripId);
         toast.success('Itinerary saved successfully!');
       } else {
         toast.error(result.error || 'Failed to save itinerary');
@@ -262,12 +387,12 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     startTransition(async () => {
       await tryCheckout(tripPlan, router);
     });
-  }
+  };
 
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <p className="text-gray-500">Loading itinerary...</p>
+        <p className="text-gray-700">Loading itinerary...</p>
       </div>
     );
   }
@@ -284,30 +409,30 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   {onBack && (
-                    <Button variant="ghost" size="sm" className="gap-2" onClick={onBack}>
+                    <Button variant="ghost" size="sm" className="gap-2" onClick={onBack} aria-label="Back to chat">
                       <ArrowLeft className="w-4 h-4" />
                       Back to Chat
                     </Button>
                   )}
                   {onBack && <div className="h-6 w-px bg-gray-300" />}
                   <div className="flex items-center gap-3">
-                    <div className="relative">
+                    <div className="relative" aria-hidden>
                       <MapPin className="w-8 h-8 text-blue-600" />
                       <Sparkles className="w-4 h-4 text-purple-500 absolute -top-1 -right-1" />
                     </div>
                     <div>
                       <h1 className="text-xl">Itinerary Builder</h1>
-                      <p className="text-sm text-gray-600">Edit and organize your trip</p>
+                      <p className="text-sm text-gray-700">Edit and organize your trip</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
+                  <Button variant="outline" size="sm" onClick={handleShare} className="gap-2" aria-label="Share itinerary">
                     <Share2 className="w-4 h-4" />
                     Share
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExport} className="gap-2">
+                  <Button variant="outline" size="sm" onClick={handleExport} className="gap-2" aria-label="Export itinerary to PDF">
                     <Download className="w-4 h-4" />
                     Export PDF
                   </Button>
@@ -315,6 +440,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                     size="sm" 
                     onClick={handleSave}
                     className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    aria-label="Save itinerary changes"
                   >
                     <Save className="w-4 h-4" />
                     Save Changes
@@ -323,6 +449,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                     size="sm" 
                     onClick={handleCheckout}
                     className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    aria-label="Proceed to checkout for this itinerary"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     Checkout
@@ -333,7 +460,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
           </header>
 
           {/* Main Content */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden" role="main">
             <ScrollArea className="h-full">
               <div className="container mx-auto px-6 py-8 max-w-5xl">
                 {/* Editable Trip Header */}
@@ -361,6 +488,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                     variant="outline"
                     onClick={handleAddDay}
                     className="w-full border-dashed border-2 h-16 gap-2 hover:bg-blue-50 hover:border-blue-300"
+                    aria-label="Add another itinerary day"
                   >
                     <Plus className="w-5 h-5" />
                     Add Another Day
@@ -377,7 +505,3 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     </DndProvider>
   );
 }
-
-
-
-

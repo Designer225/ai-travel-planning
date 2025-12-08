@@ -8,11 +8,12 @@ interface ActivityDropZoneProps {
   position: number;
   onDrop: (activityId: string, fromDayIndex: number, position: number) => void;
   isFirst?: boolean;
+  ariaLabel?: string;
 }
 
 const ItemType = 'ACTIVITY';
 
-export function ActivityDropZone({ dayIndex, position, onDrop, isFirst = false }: ActivityDropZoneProps) {
+export function ActivityDropZone({ dayIndex, position, onDrop, isFirst = false, ariaLabel }: ActivityDropZoneProps) {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemType,
     drop: (item: { activityId: string; dayIndex: number; activityIndex: number }) => {
@@ -46,6 +47,9 @@ export function ActivityDropZone({ dayIndex, position, onDrop, isFirst = false }
           ? 'h-2'
           : 'h-1'
       }`}
+      aria-label={ariaLabel || 'Drop activity here'}
+      role="region"
+      tabIndex={isFirst ? 0 : -1}
     >
       {isActive && (
         <div className="flex items-center justify-center h-full text-sm text-blue-600">

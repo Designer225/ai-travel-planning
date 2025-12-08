@@ -29,6 +29,8 @@ const INITIAL_MESSAGE: Message = {
   timestamp: new Date(),
 };
 
+const AI_PLAN_STORAGE_KEY = 'ai-itinerary-plan';
+
 export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [isTyping, setIsTyping] = useState(false);
@@ -366,6 +368,9 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     
     if (updatePlan !== undefined) {
       setTripPlan(updatePlan);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(AI_PLAN_STORAGE_KEY, JSON.stringify(updatePlan));
+      }
     }
 
     const aiResponse: Message = {
@@ -403,6 +408,9 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     };
 
     setTripPlan(plan);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(AI_PLAN_STORAGE_KEY, JSON.stringify(plan));
+    }
 
     const aiResponse: Message = {
       id: (Date.now() + 1).toString(),
@@ -431,7 +439,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
             Browse Destinations
           </Button>
         </div>
-        <p className="text-sm text-gray-600">Describe your dream trip and I'll plan it for you</p>
+        <p className="text-sm text-gray-700">Describe your dream trip and I'll plan it for you</p>
       </div>
 
       <ScrollArea className="flex-1 p-4 overflow-auto">
@@ -469,6 +477,4 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     </>
   );
 }
-
-
 

@@ -19,11 +19,13 @@ function dbTripToTripPlan(trip: any): TripPlan {
           if (a.order !== undefined && b.order !== undefined) {
             return a.order - b.order;
           }
-          return a.time.localeCompare(b.time);
+          const timeA = a.time || '00:00';
+          const timeB = b.time || '00:00';
+          return timeA.localeCompare(timeB);
         })
         .map((activity: any) => ({
           id: activity.id.toString(),
-          time: activity.time,
+          time: activity.time || '00:00',
           title: activity.title,
           description: activity.description,
           location: activity.location || undefined,
@@ -400,4 +402,3 @@ export async function saveItinerary(
     return { success: false, error: "Failed to save itinerary" };
   }
 }
-

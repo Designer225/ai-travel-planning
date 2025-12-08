@@ -52,7 +52,7 @@ function TripCard({ trip, isPast }: { trip: TripCardTrip; isPast: boolean }) {
         >
           <img
             src={trip.image}
-            alt={trip.destination}
+            alt={`Preview image for ${trip.destination} trip`}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </Box>

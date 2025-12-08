@@ -1,7 +1,7 @@
 'use client';
 
 import { AppBar, Toolbar, Box, Typography, Container, Button } from "@mui/material";
-import { Flight, Explore } from "@mui/icons-material";
+import { Flight, TravelExplore } from "@mui/icons-material";
 import Link from "next/link";
 import { startTransition, useEffect, useState } from "react";
 import { tryEnterDashboard, tryGetCurrentUser, tryLogout } from "@/app/lib/clientUserGate";
@@ -62,7 +62,7 @@ export function Navigation() {
                   }}
                 >
                   <Flight sx={{ color: "white", fontSize: 24 }} />
-                  <Explore 
+                  <TravelExplore 
                     sx={{ 
                       position: "absolute",
                       top: -4,
