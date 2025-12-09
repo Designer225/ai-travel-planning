@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
 import { Box, Container, Typography, CssBaseline, Snackbar, Alert, CircularProgress } from "@mui/material";
 import { Navigation } from "../components/layout/Navigation";
@@ -21,7 +20,6 @@ type ToastType = {
 };
 
 export default function AccountPage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     firstName: "",
@@ -36,29 +34,23 @@ export default function AccountPage() {
     async function loadUserData() {
       try {
         const user = await getCurrentUser();
-        
-        if (!user) {
-          router.push("/login");
-          return;
+        if (user) {
+          setProfileData({
+            firstName: user.firstName || "",
+            lastName: user.lastName || "",
+            bio: user.bio || "",
+            email: user.email || "",
+            location: user.location || "",
+            avatarUrl: user.avatarUrl || ""
+          });
         }
-
-        setProfileData({
-          firstName: user.firstName || "",
-          lastName: user.lastName || "",
-          bio: user.bio || "",
-          email: user.email || "",
-          location: user.location || "",
-          avatarUrl: user.avatarUrl || ""
-        });
-      } catch (error) {
-        router.push("/login");
       } finally {
         setIsLoading(false);
       }
     }
 
     loadUserData();
-  }, [router]);
+  }, []);
 
   const [toast, setToast] = useState<ToastType>({
     open: false,
