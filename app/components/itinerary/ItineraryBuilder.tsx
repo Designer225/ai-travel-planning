@@ -131,6 +131,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   const searchParams = useSearchParams();
   const [tripId, setTripId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reorderMode, setReorderMode] = useState(false);
 
   const [tripPlan, setTripPlan] = useState<TripPlan>({
     // Blank slate for new trips; other flows that load an existing trip
@@ -257,6 +258,29 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
       ...prev,
       days: [...prev.days, newDay],
     }));
+  };
+
+  const handleDeleteDay = (dayIndex: number) => {
+    setTripPlan(prev => {
+      const remainingDays = prev.days.filter((_, idx) => idx !== dayIndex);
+      if (remainingDays.length === 0) {
+        return {
+          ...prev,
+          days: [
+            {
+              day: 1,
+              title: 'Day 1',
+              activities: [],
+            },
+          ],
+        };
+      }
+      const renumbered = remainingDays.map((day, idx) => ({
+        ...day,
+        day: idx + 1,
+      }));
+      return { ...prev, days: renumbered };
+    });
   };
 
   useEffect(() => {
@@ -428,6 +452,15 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                 </div>
                 
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant={reorderMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setReorderMode((prev) => !prev)}
+                    className="gap-2"
+                    aria-label={reorderMode ? "Disable drag and drop reordering" : "Enable drag and drop reordering"}
+                  >
+                    {reorderMode ? 'Reordering On' : 'Reorder Activities'}
+                  </Button>
                   <Button variant="outline" size="sm" onClick={handleShare} className="gap-2" aria-label="Share itinerary">
                     <Share2 className="w-4 h-4" />
                     Share
@@ -478,6 +511,8 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                       onDeleteActivity={(activityId) => handleDeleteActivity(index, activityId)}
                       onMoveActivity={handleMoveActivity}
                       onAddActivity={() => handleAddActivity(index)}
+                      onDeleteDay={() => handleDeleteDay(index)}
+                      enableDragAndDrop={reorderMode}
                     />
                   ))}
                 </div>

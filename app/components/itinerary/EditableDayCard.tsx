@@ -20,6 +20,8 @@ interface EditableDayCardProps {
   onDeleteActivity: (activityId: string) => void;
   onMoveActivity: (fromDayIndex: number, fromActivityId: string, toDayIndex: number, toPosition: number) => void;
   onAddActivity: () => void;
+  onDeleteDay: () => void;
+  enableDragAndDrop?: boolean;
 }
 
 export function EditableDayCard({
@@ -30,6 +32,8 @@ export function EditableDayCard({
   onDeleteActivity,
   onMoveActivity,
   onAddActivity,
+  onDeleteDay,
+  enableDragAndDrop = false,
 }: EditableDayCardProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState(day.title);
@@ -95,6 +99,8 @@ export function EditableDayCard({
     if (!nodes || targetIndex < 0 || targetIndex >= nodes.length) return;
     nodes[targetIndex].focus();
   };
+
+  const allowDrag = enableDragAndDrop || isEditMode;
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
@@ -217,13 +223,23 @@ export function EditableDayCard({
                 </>
               )}
             </Button>
+            <Button
+              onClick={onDeleteDay}
+              variant="outline"
+              size="sm"
+              className="gap-2 text-red-600 border-red-200 hover:bg-red-50"
+              aria-label={`Delete ${dayLabel}`}
+            >
+              <X className="w-4 h-4" />
+              Delete
+            </Button>
           </div>
         </div>
       </div>
 
       <div className="space-y-3 ml-16" ref={activitiesContainerRef}>
         {/* Drop zone before first activity */}
-        {isEditMode && (
+        {allowDrag && (
           <ActivityDropZone
             dayIndex={dayIndex}
             position={0}
@@ -235,7 +251,7 @@ export function EditableDayCard({
 
         {day.activities.map((activity, actIndex) => (
           <div key={activity.id}>
-            {isEditMode ? (
+            {allowDrag ? (
               <DraggableActivity
                 activity={activity}
                 dayIndex={dayIndex}
@@ -264,7 +280,7 @@ export function EditableDayCard({
             )}
             
             {/* Drop zone after each activity */}
-            {isEditMode && (
+            {allowDrag && (
               <ActivityDropZone
                 dayIndex={dayIndex}
                 position={actIndex + 1}
