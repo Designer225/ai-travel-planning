@@ -4,11 +4,7 @@ import { setCurrentItinerary, clearCurrentItinerary, addDestinationToCurrentItin
 import { TripPlan } from "@/types";
 
 export async function tryEnterDashboard(router: AppRouterInstance) {
-    let currentUser = await getCurrentUser();
-    if (currentUser === undefined) {
-        // placeholder function, replace with login page when it exists
-        await tryLogin('john.smith@gmail.com', 'password123', router);
-    } else router.push('/dashboard');
+    router.push('/dashboard');
 }
 
 export async function tryGetCurrentUser(router: AppRouterInstance) {
@@ -32,50 +28,28 @@ export async function tryLogout(router: AppRouterInstance) {
 }
 
 export async function tryCopyItinerary(tripId: number, router: AppRouterInstance) {
-    if (await getCurrentUser() === undefined) await tryLogout(router);
-    else {
-        // Copy trip is handled in TripsList component now
-        router.push('/itinerary-builder');
-    }
+    router.push('/itinerary-builder');
 }
 
 export async function tryEnterItineraryBuilder(router: AppRouterInstance, destId?: number, tripId?: number) {
-    if (await getCurrentUser() === undefined) await tryLogout(router);
-    else {
-        if (tripId !== undefined) {
-            await setCurrentItinerary(tripId);
-        } else if (destId !== undefined) {
-            // destId is a destination ID, we need to get the destination name
-            // For now, we'll create a placeholder - this should be enhanced
-            await addDestinationToCurrentItinerary(`Destination ${destId}`);
-        } else {
-            // Explicitly clear any previously selected itinerary so we start a blank trip
-            await clearCurrentItinerary();
-        }
-        router.push('/itinerary-builder')
+    if (tripId !== undefined) {
+        await setCurrentItinerary(tripId);
+    } else if (destId !== undefined) {
+        await addDestinationToCurrentItinerary(`Destination ${destId}`);
+    } else {
+        await clearCurrentItinerary();
     }
+    router.push('/itinerary-builder');
 }
 
 export async function tryEnterMapExplorer(router: AppRouterInstance) {
-    if (await getCurrentUser() === undefined) await tryLogout(router);
-    else {
-        // fetch the user and open map explorer
-        router.push('/map-explore');
-    }
+    router.push('/map-explore');
 }
 
 export async function tryEnterMyTrips(router: AppRouterInstance) {
-    if (await getCurrentUser() === undefined) await tryLogout(router);
-    else {
-        // fetch the user and open the page for that user
-        router.push('/my-trips');
-    }
+    router.push('/my-trips');
 }
 
 export async function tryCheckout(tripPlan: TripPlan, router: AppRouterInstance) {
-    if (await getCurrentUser() === undefined) await tryLogout(router);
-    else {
-        // upload trip data or something
-        router.push('/checkout');
-    }
+    router.push('/checkout');
 }
