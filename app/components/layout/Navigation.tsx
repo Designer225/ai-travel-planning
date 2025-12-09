@@ -104,8 +104,11 @@ export function Navigation() {
             <Box>
               { showButtons && (
                 user === undefined
-                ? <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Login</Button>
-                : <Box>
+                ? <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button variant="outlined" component={Link} href="/login">Login</Button>
+                    <Button variant="contained" className="gradient-button" component={Link} href="/register">Sign Up</Button>
+                  </Box>
+                : <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Dashboard</Button>
                     <Button variant="outlined" onClick={handleLogout}>Log out</Button>
                   </Box>
