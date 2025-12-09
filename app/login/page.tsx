@@ -175,11 +175,9 @@ export default function LoginPage() {
               <Box sx={{ textAlign: "center", mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                   Don&apos;t have an account?{" "}
-                  <Link href="/register" passHref legacyBehavior>
-                    <MuiLink component="a" sx={{ cursor: "pointer" }}>
-                      Sign Up
-                    </MuiLink>
-                  </Link>
+                  <MuiLink component={Link} href="/register" sx={{ cursor: "pointer" }}>
+                    Sign Up
+                  </MuiLink>
                 </Typography>
               </Box>
             </Box>
