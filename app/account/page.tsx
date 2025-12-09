@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
-import { Box, Container, Typography, CssBaseline, Snackbar, Alert } from "@mui/material";
+import { Box, Container, Typography, CssBaseline, Snackbar, Alert, CircularProgress } from "@mui/material";
 import { Navigation } from "../components/layout/Navigation";
 import { ProfileSection } from "../components/account/ProfileSection";
 import { AccountSettings } from "../components/account/AccountSettings";
@@ -10,6 +11,7 @@ import { TravelPreferences } from "../components/account/TravelPreferences";
 import { PaymentSettings } from "../components/account/PaymentSettings";
 import { MyTrips } from "../components/account/MyTrips";
 import { theme } from "@/app/lib/themes";
+import { getCurrentUser } from "../lib/sessionControl";
 
 type ToastType = {
   open: boolean;
@@ -19,14 +21,44 @@ type ToastType = {
 };
 
 export default function AccountPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Smith",
-    bio: "Travel Enthusiast",
-    email: "john.smith@email.com",
-    location: "San Francisco, CA",
-    avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400"
+    firstName: "",
+    lastName: "",
+    bio: "",
+    email: "",
+    location: "",
+    avatarUrl: ""
   });
+
+  useEffect(() => {
+    async function loadUserData() {
+      try {
+        const user = await getCurrentUser();
+        
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+
+        setProfileData({
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          bio: user.bio || "",
+          email: user.email || "",
+          location: user.location || "",
+          avatarUrl: user.avatarUrl || ""
+        });
+      } catch (error) {
+        router.push("/login");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadUserData();
+  }, [router]);
 
   const [toast, setToast] = useState<ToastType>({
     open: false,
@@ -41,6 +73,25 @@ export default function AccountPage() {
   const handleCloseToast = () => {
     setToast({ ...toast, open: false });
   };
+
+  if (isLoading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box 
+          sx={{ 
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(147.631deg, rgb(239, 246, 255) 0%, rgb(255, 255, 255) 50%, rgb(250, 245, 255) 100%)",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
