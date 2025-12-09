@@ -10,7 +10,11 @@ type SessionData = {
     user?: SiteUser;
 }
 
-const SESSION_SECRET = process.env.SESSION_SECRET || "o1~vaK?G%,Uisuy^3yzNyT=G@KC1#%fmM6*].Pgb4ziktL+GjZTaf:.jLP]i+BrsHUovoDG0@)3Ed9+jL]";
+if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required');
+}
+
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 async function getSession() {
     const session = await getIronSession<SessionData>(await cookies(), {
