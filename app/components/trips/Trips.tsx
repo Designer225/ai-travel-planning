@@ -18,7 +18,6 @@ export default function Trips() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'saved'>('upcoming');
 
   const handleCreateTrip = () => {
-    console.log('Create new trip');
     // Handle create trip functionality
     startTransition(async () => {
       await tryEnterItineraryBuilder(router);
