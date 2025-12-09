@@ -15,16 +15,14 @@ export async function tryLogin(email: string, password: string, router: AppRoute
     const result = await login(email, password);
     if (result.success) {
         router.push('/dashboard');
-    } else {
-        // Handle login error - could show toast or redirect to login page
-        console.error('Login failed:', result.error);
+        router.refresh();
     }
+    return result;
 }
 
 export async function tryLogout(router: AppRouterInstance) {
     await logout();
-    if (typeof window !== 'undefined' && window.location.pathname == '/') window.location.reload();
-    else router.push('/');
+    // Server action handles redirect via redirect('/')
 }
 
 export async function tryCopyItinerary(tripId: number, router: AppRouterInstance) {
