@@ -1,11 +1,14 @@
 'use client';
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
-import { Box, Container, Typography, CssBaseline, Grid, Paper, Button } from "@mui/material";
+import { Box, Container, Typography, CssBaseline, Grid, Paper, Button, CircularProgress } from "@mui/material";
 import Link from "next/link";
 import { Navigation } from "@/app/components/layout/Navigation";
 import { theme } from "@/app/lib/themes";
 import { BotMessageSquare, Sparkles, Map, User, ShoppingCart, Car } from "lucide-react";
+import { getCurrentUser } from "@/app/lib/sessionControl";
 
 const routes = [
   {
@@ -47,6 +50,41 @@ const routes = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      setIsLoading(false);
+    }
+
+    checkAuth();
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(147.631deg, rgb(239, 246, 255) 0%, rgb(255, 255, 255) 50%, rgb(250, 245, 255) 100%)",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
