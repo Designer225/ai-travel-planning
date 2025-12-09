@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { getIronSession } from 'iron-session';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
+import { redirect } from 'next/navigation';
 
 type SessionData = {
     user?: SiteUser;
@@ -143,8 +144,8 @@ export async function login(
 
 export async function logout() {
     const session = await getSession();
-    session.user = undefined;
-    await session.save();
+    session.destroy();
+    redirect('/');
 }
 
 // Note: copyItinerary, setCurrentItinerary, addDestinationToCurrentItinerary,
