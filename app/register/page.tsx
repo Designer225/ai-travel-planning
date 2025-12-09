@@ -79,6 +79,7 @@ export default function RegisterPage() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box
+        component="main"
         sx={{
           minHeight: "100vh",
           display: "flex",
@@ -90,6 +91,7 @@ export default function RegisterPage() {
       >
         <Container maxWidth="sm">
           <Paper
+            component="section"
             elevation={3}
             sx={{
               p: 4,
@@ -97,8 +99,10 @@ export default function RegisterPage() {
               flexDirection: "column",
               alignItems: "center",
             }}
+            role="region"
+            aria-labelledby="register-heading"
           >
-            <Typography component="h1" variant="h4" gutterBottom>
+            <Typography component="h1" variant="h4" gutterBottom id="register-heading">
               Create Account
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -106,7 +110,7 @@ export default function RegisterPage() {
             </Typography>
 
             {error && (
-              <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+              <Alert severity="error" sx={{ width: "100%", mb: 2 }} role="alert">
                 {error}
               </Alert>
             )}
@@ -115,6 +119,8 @@ export default function RegisterPage() {
               component="form"
               onSubmit={handleSubmit(onSubmit)}
               sx={{ width: "100%" }}
+              noValidate
+              aria-label="Registration form"
             >
               <Box sx={{ display: "flex", gap: 2 }}>
                 <TextField
@@ -126,6 +132,16 @@ export default function RegisterPage() {
                   helperText={errors.firstName?.message}
                   disabled={isLoading}
                   autoComplete="given-name"
+                  required
+                  inputProps={{
+                    'aria-label': 'First name',
+                    'aria-required': 'true',
+                    'aria-invalid': !!errors.firstName,
+                    'aria-describedby': errors.firstName ? 'firstName-error' : undefined,
+                  }}
+                  FormHelperTextProps={{
+                    id: 'firstName-error',
+                  }}
                 />
 
                 <TextField
@@ -137,6 +153,16 @@ export default function RegisterPage() {
                   helperText={errors.lastName?.message}
                   disabled={isLoading}
                   autoComplete="family-name"
+                  required
+                  inputProps={{
+                    'aria-label': 'Last name',
+                    'aria-required': 'true',
+                    'aria-invalid': !!errors.lastName,
+                    'aria-describedby': errors.lastName ? 'lastName-error' : undefined,
+                  }}
+                  FormHelperTextProps={{
+                    id: 'lastName-error',
+                  }}
                 />
               </Box>
 
@@ -150,6 +176,16 @@ export default function RegisterPage() {
                 helperText={errors.email?.message}
                 disabled={isLoading}
                 autoComplete="email"
+                required
+                inputProps={{
+                  'aria-label': 'Email address',
+                  'aria-required': 'true',
+                  'aria-invalid': !!errors.email,
+                  'aria-describedby': errors.email ? 'email-error' : undefined,
+                }}
+                FormHelperTextProps={{
+                  id: 'email-error',
+                }}
               />
 
               <TextField
@@ -162,6 +198,16 @@ export default function RegisterPage() {
                 helperText={errors.password?.message}
                 disabled={isLoading}
                 autoComplete="new-password"
+                required
+                inputProps={{
+                  'aria-label': 'Password',
+                  'aria-required': 'true',
+                  'aria-invalid': !!errors.password,
+                  'aria-describedby': errors.password ? 'password-error' : undefined,
+                }}
+                FormHelperTextProps={{
+                  id: 'password-error',
+                }}
               />
 
               <TextField
@@ -174,6 +220,16 @@ export default function RegisterPage() {
                 helperText={errors.confirmPassword?.message}
                 disabled={isLoading}
                 autoComplete="new-password"
+                required
+                inputProps={{
+                  'aria-label': 'Confirm password',
+                  'aria-required': 'true',
+                  'aria-invalid': !!errors.confirmPassword,
+                  'aria-describedby': errors.confirmPassword ? 'confirmPassword-error' : undefined,
+                }}
+                FormHelperTextProps={{
+                  id: 'confirmPassword-error',
+                }}
               />
 
               <Button
@@ -183,9 +239,13 @@ export default function RegisterPage() {
                 size="large"
                 disabled={isLoading}
                 sx={{ mt: 3, mb: 2 }}
+                aria-label={isLoading ? "Creating account..." : "Create new account"}
               >
                 {isLoading ? (
-                  <CircularProgress size={24} color="inherit" />
+                  <>
+                    <CircularProgress size={24} color="inherit" aria-hidden="true" />
+                    <span className="sr-only">Creating account...</span>
+                  </>
                 ) : (
                   "Create Account"
                 )}
