@@ -66,6 +66,7 @@ export default function LoginPage() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box
+        component="main"
         sx={{
           minHeight: "100vh",
           display: "flex",
@@ -77,6 +78,7 @@ export default function LoginPage() {
       >
         <Container maxWidth="sm">
           <Paper
+            component="section"
             elevation={3}
             sx={{
               p: 4,
@@ -84,8 +86,10 @@ export default function LoginPage() {
               flexDirection: "column",
               alignItems: "center",
             }}
+            role="region"
+            aria-labelledby="login-heading"
           >
-            <Typography component="h1" variant="h4" gutterBottom>
+            <Typography component="h1" variant="h4" gutterBottom id="login-heading">
               Sign In
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -93,7 +97,7 @@ export default function LoginPage() {
             </Typography>
 
             {error && (
-              <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+              <Alert severity="error" sx={{ width: "100%", mb: 2 }} role="alert">
                 {error}
               </Alert>
             )}
@@ -102,6 +106,8 @@ export default function LoginPage() {
               component="form"
               onSubmit={handleSubmit(onSubmit)}
               sx={{ width: "100%" }}
+              noValidate
+              aria-label="Login form"
             >
               <TextField
                 {...register("email")}
@@ -113,6 +119,16 @@ export default function LoginPage() {
                 helperText={errors.email?.message}
                 disabled={isLoading}
                 autoComplete="email"
+                required
+                inputProps={{
+                  'aria-label': 'Email address',
+                  'aria-required': 'true',
+                  'aria-invalid': !!errors.email,
+                  'aria-describedby': errors.email ? 'email-error' : undefined,
+                }}
+                FormHelperTextProps={{
+                  id: 'email-error',
+                }}
               />
 
               <TextField
@@ -125,6 +141,16 @@ export default function LoginPage() {
                 helperText={errors.password?.message}
                 disabled={isLoading}
                 autoComplete="current-password"
+                required
+                inputProps={{
+                  'aria-label': 'Password',
+                  'aria-required': 'true',
+                  'aria-invalid': !!errors.password,
+                  'aria-describedby': errors.password ? 'password-error' : undefined,
+                }}
+                FormHelperTextProps={{
+                  id: 'password-error',
+                }}
               />
 
               <Button
@@ -134,9 +160,13 @@ export default function LoginPage() {
                 size="large"
                 disabled={isLoading}
                 sx={{ mt: 3, mb: 2 }}
+                aria-label={isLoading ? "Signing in..." : "Sign in to your account"}
               >
                 {isLoading ? (
-                  <CircularProgress size={24} color="inherit" />
+                  <>
+                    <CircularProgress size={24} color="inherit" aria-hidden="true" />
+                    <span className="sr-only">Signing in...</span>
+                  </>
                 ) : (
                   "Sign In"
                 )}
