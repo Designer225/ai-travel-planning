@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
-import { Box, Container, Typography, CssBaseline, Snackbar, Alert, Grid } from "@mui/material";
+import { Box, Container, Typography, CssBaseline, Snackbar, Alert, Grid, CircularProgress } from "@mui/material";
 import { Navigation } from "../components/layout/Navigation";
 import { TripSummary } from "../components/checkout/TripSummary";
 import { PaymentDetails } from "../components/checkout/PaymentDetails";
 import { theme } from "@/app/lib/themes";
+import { getCurrentUser } from "@/app/lib/sessionControl";
 
 type ToastType = {
   open: boolean;
@@ -16,11 +18,26 @@ type ToastType = {
 };
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<ToastType>({
     open: false,
     message: "",
     severity: "success",
   });
+
+  useEffect(() => {
+    async function checkAuth() {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      setIsLoading(false);
+    }
+
+    checkAuth();
+  }, [router]);
 
   const showToast = (message: string, severity: "success" | "error" | "info" | "warning", description?: string) => {
     setToast({ open: true, message, description, severity });
@@ -29,6 +46,25 @@ export default function CheckoutPage() {
   const handleCloseToast = () => {
     setToast({ ...toast, open: false });
   };
+
+  if (isLoading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(147.631deg, rgb(239, 246, 255) 0%, rgb(255, 255, 255) 50%, rgb(250, 245, 255) 100%)",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
