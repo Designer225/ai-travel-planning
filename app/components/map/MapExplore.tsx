@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { startTransition, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Map, Marker } from "pigeon-maps";
 import { MapPin, UtensilsCrossed, Bed, Compass, X } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
@@ -12,7 +13,6 @@ import { theme } from "@/app/lib/themes";
 import { Destination, DestinationType } from "@/types";
 import { toast } from "sonner";
 import { tryEnterItineraryBuilder } from "@/app/lib/clientUserGate";
-import { useRouter } from "next/navigation";
 
 // Mock data for destinations
 const mockDestinations: Destination[] = [
@@ -1141,7 +1141,6 @@ export function MapExplore() {
   const handleAddToItinerary = () => {
     if (selectedDestination === null) return;
     toast.message('Adding to the current itinerary...');
-    console.log('Adding to itinerary:', selectedDestination);
     startTransition(async () => {
       await tryEnterItineraryBuilder(router, selectedDestination.id);
     });
@@ -1260,9 +1259,9 @@ export function MapExplore() {
               </DialogDescription>
             </DialogHeader>
             <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
-              {locations.map((location, index) => (
+              {locations.map((location) => (
                 <div
-                  key={index}
+                  key={location.name}
                   onClick={() => handleLocationClick(location)}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-colors"
                 >
@@ -1310,8 +1309,8 @@ export function MapExplore() {
             <div className="mt-4">
               <h4 className="text-sm font-medium mb-2">Highlights</h4>
               <div className="flex flex-wrap gap-2">
-                {selectedDestination?.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
+                {selectedDestination?.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="text-xs">
                     {tag}
                   </Badge>
                 ))}
