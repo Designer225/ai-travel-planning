@@ -1,8 +1,7 @@
 ﻿'use client';
 
 import { useState, KeyboardEvent } from 'react';
-import { Button } from '@/app/components/ui/button';
-import { Input } from '@/app/components/ui/input';
+import { Button, Input } from '@mui/material';
 import { Send } from 'lucide-react';
 
 interface ChatInputProps {
@@ -32,7 +31,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
       <Input
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyPress}
         placeholder="Ask me anything about travel..."
         disabled={disabled}
         className="flex-1"
@@ -40,7 +39,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
       <Button
         onClick={handleSend}
         disabled={!input.trim() || disabled}
-        size="icon"
+        variant="contained"
         className="bg-blue-600 hover:bg-blue-700"
       >
         <Send className="w-4 h-4" />

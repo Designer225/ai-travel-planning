@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { Card } from '@/app/components/ui/card';
-import { Button } from '@/app/components/ui/button';
-import { Input } from '@/app/components/ui/input';
+import { Button, Input } from '@mui/material';
 import { Badge } from '@/app/components/ui/badge';
 import { Calendar, MapPin, DollarSign, Users, Edit2, Check, X } from 'lucide-react';
 import { TripPlan } from '@/types';
@@ -13,7 +12,7 @@ interface EditableTripHeaderProps {
   onUpdate: (updates: Partial<TripPlan>) => void;
 }
 
-export function EditableTripHeader({ tripPlan, onUpdate }: EditableTripHeaderProps) {
+export default function EditableTripHeader({ tripPlan, onUpdate }: EditableTripHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({
     destination: tripPlan.destination,
@@ -89,7 +88,9 @@ export function EditableTripHeader({ tripPlan, onUpdate }: EditableTripHeaderPro
               <label className="text-sm text-gray-600 mb-1 block">Travelers</label>
               <Input
                 type="number"
-                min="1"
+                inputProps={{
+                  min: 1
+                }}
                 value={editValues.travelers}
                 onChange={(e) => setEditValues({ ...editValues, travelers: parseInt(e.target.value) || 1 })}
               />
@@ -97,11 +98,24 @@ export function EditableTripHeader({ tripPlan, onUpdate }: EditableTripHeaderPro
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Button onClick={handleSave} size="sm" className="gap-2">
+            <Button onClick={handleSave} variant="contained" sx={{
+              gap: 1,
+              backgroundColor: "#000",
+              ":hover": {
+                backgroundColor: "#333"
+              }
+            }}>
               <Check className="w-4 h-4" />
               Save
             </Button>
-            <Button onClick={handleCancel} variant="outline" size="sm" className="gap-2">
+            <Button onClick={handleCancel} variant="outlined" sx={{
+              gap: 1,
+              color: "#000",
+              borderColor: "#000",
+              ":hover": {
+                backgroundColor: "#eee"
+              }
+            }}>
               <X className="w-4 h-4" />
               Cancel
             </Button>
@@ -143,7 +157,14 @@ export function EditableTripHeader({ tripPlan, onUpdate }: EditableTripHeaderPro
           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
             {tripPlan.days.length} {tripPlan.days.length === 1 ? 'day' : 'days'}
           </Badge>
-          <Button onClick={handleStartEdit} variant="ghost" size="sm" className="gap-2">
+          <Button onClick={handleStartEdit} variant="outlined" sx={{
+            gap: 1,
+            color: "#000",
+            border: "none",
+            ":hover": {
+              backgroundColor: "#eee"
+            }
+          }}>
             <Edit2 className="w-4 h-4" />
             Edit
           </Button>

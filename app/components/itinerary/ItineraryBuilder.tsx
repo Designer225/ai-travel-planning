@@ -4,10 +4,10 @@ import { startTransition, useState, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft, ShoppingCart } from 'lucide-react';
-import { Button } from '@/app/components/ui/button';
+import { Button } from '@mui/material';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
-import { EditableTripHeader } from './EditableTripHeader';
-import { EditableDayCard } from './EditableDayCard';
+import EditableTripHeader from './EditableTripHeader';
+import EditableDayCard from './EditableDayCard';
 import { TripPlan, DayActivity, TripDay } from '@/types';
 import { toast, Toaster } from 'sonner';
 import { Navigation } from '../layout/Navigation';
@@ -284,7 +284,14 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   {onBack && (
-                    <Button variant="ghost" size="sm" className="gap-2" onClick={onBack}>
+                    <Button variant="outlined" sx={{
+                      gap: 2,
+                      border: "none",
+                      color: "#000",
+                      ":hover": {
+                        backgroundColor: "#eee"
+                      }
+                    }} onClick={onBack}>
                       <ArrowLeft className="w-4 h-4" />
                       Back to Chat
                     </Button>
@@ -303,26 +310,46 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
+                  <Button variant="outlined" onClick={handleShare} sx={{
+                    color: "#000",
+                    border: "none",
+                    gap: 1,
+                    ":hover": {
+                      backgroundColor: "#eee"
+                    }
+                  }}>
                     <Share2 className="w-4 h-4" />
                     Share
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExport} className="gap-2">
+                  <Button variant="outlined" onClick={handleExport} sx={{
+                    color: "#000",
+                    border: "none",
+                    gap: 1,
+                    ":hover": {
+                      backgroundColor: "#eee"
+                    }
+                  }}>
                     <Download className="w-4 h-4" />
                     Export PDF
                   </Button>
                   <Button 
-                    size="sm" 
+                    variant='contained'
                     onClick={handleSave}
-                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="gradient-button"
+                    sx={{
+                      gap: 1
+                    }}
                   >
                     <Save className="w-4 h-4" />
                     Save Changes
                   </Button>
                   <Button 
-                    size="sm" 
+                    variant='contained'
                     onClick={handleCheckout}
-                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="gradient-button"
+                    sx={{
+                      gap: 1
+                    }}
                   >
                     <ShoppingCart className="w-4 h-4" />
                     Checkout
@@ -358,9 +385,13 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                 {/* Add Day Button */}
                 <div className="mt-6">
                   <Button
-                    variant="outline"
+                    variant="outlined"
                     onClick={handleAddDay}
                     className="w-full border-dashed border-2 h-16 gap-2 hover:bg-blue-50 hover:border-blue-300"
+                    sx={{
+                      border: "dashed 1px #000",
+                      color: "#000"
+                    }}
                   >
                     <Plus className="w-5 h-5" />
                     Add Another Day

@@ -2,12 +2,12 @@
 
 import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/app/components/ui/dialog';
-import { Input } from '@/app/components/ui/input';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { Badge } from '@/app/components/ui/badge';
-import { Button } from '@mui/material';
-import { Checkbox } from '@/app/components/ui/checkbox';
-import { Slider } from '@/app/components/ui/slider';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
+import Checkbox from '@mui/material/Checkbox';
+import Slider from '@mui/material/Slider';
 import { Separator } from '@/app/components/ui/separator';
 import { 
   Search, 
@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { destinations, activityTypes, vibeTypes, climateTypes, budgetRanges, Destination } from '@/data/destinations';
 import { DestinationCard } from '@/app/components/itinerary/DestinationCard';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { theme } from '@/app/lib/themes';
 
 interface DestinationSearchProps {
   open: boolean;
@@ -130,221 +132,276 @@ export function DestinationSearch({ open, onClose, onSelectDestination }: Destin
     (durationRange[0] !== 1 || durationRange[1] !== 14 ? 1 : 0);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="!w-[96vw] !max-w-[96vw] h-[90vh] p-0 flex flex-col">
-        <DialogHeader className="p-6 pb-4 flex-shrink-0">
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Sparkles className="w-6 h-6 text-purple-600" />
-            Discover Your Next Destination
-          </DialogTitle>
-          <DialogDescription>
-            Browse and filter destinations to find your perfect trip
-          </DialogDescription>
-        </DialogHeader>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="!w-[96vw] !max-w-[96vw] h-[90vh] p-0 flex flex-col">
+          <DialogHeader className="p-6 pb-4 flex-shrink-0">
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Sparkles className="w-6 h-6 text-purple-600" />
+              Discover Your Next Destination
+            </DialogTitle>
+            <DialogDescription>
+              Browse and filter destinations to find your perfect trip
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="flex flex-col md:flex-row gap-0 flex-1 min-h-0 overflow-hidden">
-          {/* Filters Sidebar */}
-          <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-80 lg:w-80 xl:w-96 border-r bg-gray-50 flex flex-col flex-shrink-0`}>
-            <div className="p-4 border-b bg-white flex-shrink-0">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">Filters</h3>
-                {activeFilterCount > 0 && (
-                  <Button 
-                    variant="text"
-                    onClick={clearAllFilters}
-                    className="h-auto py-1 px-2 text-xs"
-                  >
-                    Clear all
-                  </Button>
-                )}
-              </div>
-              {activeFilterCount > 0 && (
-                <Badge variant="secondary">{activeFilterCount} active</Badge>
-              )}
-            </div>
-
-            <ScrollArea className="flex-1 h-full">
-              <div className="p-4 space-y-6 pr-3">
-                {/* Budget */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <DollarSign className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm">Daily Budget</h4>
-                  </div>
-                  <div className="space-y-3">
-                    <Slider
-                      value={budgetRange}
-                      onValueChange={(value) => setBudgetRange(value as [number, number])}
-                      min={0}
-                      max={1000}
-                      step={10}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-gray-600">
-                      <span>${budgetRange[0]}</span>
-                      <span>${budgetRange[1] === 1000 ? '1000+' : budgetRange[1]}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Trip Duration */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Calendar className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm">Trip Duration (days)</h4>
-                  </div>
-                  <div className="space-y-3">
-                    <Slider
-                      value={durationRange}
-                      onValueChange={(value) => setDurationRange(value as [number, number])}
-                      min={1}
-                      max={14}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-gray-600">
-                      <span>{durationRange[0]} days</span>
-                      <span>{durationRange[1] === 14 ? '14+' : durationRange[1]} days</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Activities */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Mountain className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm">Activities</h4>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {activityTypes.slice(0, 12).map((activity) => (
-                      <Badge
-                        key={activity}
-                        variant={selectedActivities.includes(activity) ? 'default' : 'outline'}
-                        className="cursor-pointer"
-                        onClick={() => handleActivityToggle(activity)}
-                      >
-                        {activity}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Vibe */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm">Vibe</h4>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {vibeTypes.slice(0, 10).map((vibe) => (
-                      <Badge
-                        key={vibe}
-                        variant={selectedVibes.includes(vibe) ? 'default' : 'outline'}
-                        className="cursor-pointer"
-                        onClick={() => handleVibeToggle(vibe)}
-                      >
-                        {vibe}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Climate */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Palmtree className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm">Climate</h4>
-                  </div>
-                  <div className="space-y-2">
-                    {climateTypes.map((climate) => (
-                      <div key={climate.value} className="flex items-center gap-2">
-                        <Checkbox
-                          id={climate.value}
-                          checked={selectedClimate.includes(climate.value)}
-                          onCheckedChange={() => handleClimateToggle(climate.value)}
-                        />
-                        <label
-                          htmlFor={climate.value}
-                          className="text-sm cursor-pointer flex-1"
-                        >
-                          {climate.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </ScrollArea>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            {/* Search Bar */}
-            <div className="p-4 border-b bg-white flex-shrink-0">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Search destinations, countries, or activities..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 pr-9"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          <div className="flex flex-col md:flex-row gap-0 flex-1 min-h-0 overflow-hidden">
+            {/* Filters Sidebar */}
+            <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-80 lg:w-80 xl:w-96 border-r bg-gray-50 flex flex-col flex-shrink-0 overflow-hidden`}>
+              <div className="p-4 border-b bg-white flex-shrink-0">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium">Filters</h3>
+                  {activeFilterCount > 0 && (
+                    <Button 
+                      variant="text"
+                      onClick={clearAllFilters}
+                      className="h-auto py-1 px-2 text-xs"
                     >
-                      <X className="w-4 h-4" />
-                    </button>
+                      Clear all
+                    </Button>
                   )}
                 </div>
-                <Button
-                  variant="outlined"
-                  className="md:hidden"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <p className="text-sm text-gray-600">
-                  {filteredDestinations.length} {filteredDestinations.length === 1 ? 'destination' : 'destinations'} found
-                </p>
-              </div>
-            </div>
-
-            {/* Results */}
-            <ScrollArea className="flex-1 h-full">
-              <div className="p-4 pr-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                {filteredDestinations.map((destination) => (
-                  <DestinationCard
-                    key={destination.id}
-                    destination={destination}
-                    onSelect={() => onSelectDestination(destination)}
-                  />
-                ))}
-                {filteredDestinations.length === 0 && (
-                  <div className="col-span-full text-center py-12">
-                    <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <h3 className="text-lg mb-2">No destinations found</h3>
-                    <p className="text-gray-600 text-sm">Try adjusting your filters or search terms</p>
-                  </div>
+                {activeFilterCount > 0 && (
+                  <Badge variant="secondary">{activeFilterCount} active</Badge>
                 )}
               </div>
-            </ScrollArea>
+
+              <ScrollArea className="flex-1" style={{
+                height: activeFilterCount > 0 ? '86%' : '91%'
+              }}>
+                <div className="p-4 space-y-6 pr-3">
+                  {/* Budget */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <DollarSign className="w-4 h-4 text-gray-600" />
+                      <h4 className="text-sm">Daily Budget</h4>
+                    </div>
+                    <div className="space-y-3">
+                      <Slider
+                        value={budgetRange}
+                        onChange={(_, value) => setBudgetRange(value as [number, number])}
+                        min={0}
+                        max={1000}
+                        step={10}
+                        sx={{
+                          color: '#000',
+                          width: '90%',
+                          marginInline: 2
+                        }}
+                      />
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>${budgetRange[0]}</span>
+                        <span>${budgetRange[1] === 1000 ? '1000+' : budgetRange[1]}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Trip Duration */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Calendar className="w-4 h-4 text-gray-600" />
+                      <h4 className="text-sm">Trip Duration (days)</h4>
+                    </div>
+                    <div className="space-y-3">
+                      <Slider
+                        value={durationRange}
+                        onChange={(_, value) => setDurationRange(value as [number, number])}
+                        min={1}
+                        max={14}
+                        step={1}
+                        sx={{
+                          color: '#000',
+                          width: '90%',
+                          marginInline: 2
+                        }}
+                      />
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>{durationRange[0]} days</span>
+                        <span>{durationRange[1] === 14 ? '14+' : durationRange[1]} days</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Activities */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Mountain className="w-4 h-4 text-gray-600" />
+                      <h4 className="text-sm">Activities</h4>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {activityTypes.slice(0, 12).map((activity) => (
+                        <Button
+                          key={activity}
+                          size='small'
+                          variant={selectedActivities.includes(activity) ? 'contained' : 'outlined'}
+                          className="cursor-pointer"
+                          onClick={() => handleActivityToggle(activity)}
+                          sx={ selectedActivities.includes(activity) ? {
+                            color: "#fff",
+                            backgroundColor: "#000",
+                            ":hover": {
+                              backgroundColor: "#333"
+                            }
+                          } : {
+                            color: "#000",
+                            borderColor: "#000",
+                            ":hover": {
+                              backgroundColor: "#eee"
+                            }
+                          }}
+                        >
+                          {activity}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Vibe */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="w-4 h-4 text-gray-600" />
+                      <h4 className="text-sm">Vibe</h4>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {vibeTypes.slice(0, 10).map((vibe) => (
+                        <Button
+                          key={vibe}
+                          size='small'
+                          variant={selectedVibes.includes(vibe) ? 'contained' : 'outlined'}
+                          className="cursor-pointer"
+                          onClick={() => handleVibeToggle(vibe)}
+                          sx={ selectedVibes.includes(vibe) ? {
+                            color: "#fff",
+                            backgroundColor: "#000",
+                            ":hover": {
+                              backgroundColor: "#333"
+                            }
+                          } : {
+                            color: "#000",
+                            borderColor: "#000",
+                            ":hover": {
+                              backgroundColor: "#eee"
+                            }
+                          }}
+                        >
+                          {vibe}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Climate */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Palmtree className="w-4 h-4 text-gray-600" />
+                      <h4 className="text-sm">Climate</h4>
+                    </div>
+                    <div className="space-y-2">
+                      {climateTypes.map((climate) => (
+                        <div key={climate.value} className="flex items-center gap-2">
+                          <Checkbox
+                            id={climate.value}
+                            size='small'
+                            checked={selectedClimate.includes(climate.value)}
+                            onChange={() => handleClimateToggle(climate.value)}
+                          />
+                          <label
+                            htmlFor={climate.value}
+                            className="text-sm cursor-pointer flex-1"
+                          >
+                            {climate.label}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              {/* Search Bar */}
+              <div className="p-4 border-b bg-white flex-shrink-0">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      placeholder="Search destinations, countries, or activities..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 pr-9"
+                      sx={{
+                        width: "100%"
+                      }}
+                      startAdornment={<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />}
+                      endAdornment={searchQuery && (
+                        <Button
+                          onClick={() => setSearchQuery('')}
+                          sx={{
+                            color: '#bdbdbd',
+                            left: 40,
+                            ":hover": {
+                              color: '#757575'
+                            }
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    />
+                    
+                  </div>
+                  <Button
+                    variant="outlined"
+                    className="md:hidden"
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-sm text-gray-600">
+                    {filteredDestinations.length} {filteredDestinations.length === 1 ? 'destination' : 'destinations'} found
+                  </p>
+                </div>
+              </div>
+
+              {/* Results */}
+              <ScrollArea className="flex-1" style={{
+                height: "38%"
+              }}>
+                <div className="p-4 pr-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                  {filteredDestinations.map((destination) => (
+                    <DestinationCard
+                      key={destination.id}
+                      destination={destination}
+                      onSelect={() => onSelectDestination(destination)}
+                    />
+                  ))}
+                  {filteredDestinations.length === 0 && (
+                    <div className="col-span-full text-center py-12">
+                      <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <h3 className="text-lg mb-2">No destinations found</h3>
+                      <p className="text-gray-600 text-sm">Try adjusting your filters or search terms</p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </ThemeProvider>
   );
 }
 

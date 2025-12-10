@@ -2,7 +2,7 @@
 
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
-import { Button } from '@mui/material';
+import Button from '@mui/material/Button';
 import { MapPin, DollarSign, Calendar, Sparkles } from 'lucide-react';
 import { Destination } from '@/data/destinations';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';

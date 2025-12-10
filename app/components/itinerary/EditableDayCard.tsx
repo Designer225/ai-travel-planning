@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Card } from '@/app/components/ui/card';
-import { Button } from '@/app/components/ui/button';
-import { Input } from '@/app/components/ui/input';
+import { Button, Input } from '@mui/material';
 import { Calendar as CalendarIcon, Edit2, Check, X, Plus } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/app/components/ui/popover';
 import { Calendar } from '@/app/components/ui/calendar';
@@ -22,7 +21,7 @@ interface EditableDayCardProps {
   onAddActivity: () => void;
 }
 
-export function EditableDayCard({
+export default function EditableDayCard({
   day,
   dayIndex,
   onUpdateDay,
@@ -105,8 +104,18 @@ export function EditableDayCard({
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal text-sm"
+                          variant="outlined"
+                          className="font-normal text-sm"
+                          sx={{
+                            width: "100%",
+                            justifyContent: "start",
+                            textAlign: "left",
+                            color: "#000",
+                            borderColor: "#000",
+                            ":hover": {
+                              backgroundColor: "#eee"
+                            }
+                          }}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {parsedEditDate ? (
@@ -147,9 +156,17 @@ export function EditableDayCard({
             </div>
             <Button
               onClick={handleToggleEditMode}
-              variant={isEditMode ? "default" : "ghost"}
-              size="sm"
+              variant={isEditMode ? "contained" : "outlined"}
               className="gap-2"
+              sx={{
+                color: isEditMode ? "#fff" : "#000",
+                background: isEditMode ? "#000" : "#fff",
+                gap: 1,
+                border: "none",
+                ":hover": {
+                  backgroundColor: isEditMode ? "#333" : "#eeeeee"
+                }
+              }}
             >
               {isEditMode ? (
                 <>
@@ -216,9 +233,18 @@ export function EditableDayCard({
         {/* Add Activity Button */}
         <Button
           onClick={onAddActivity}
-          variant="outline"
-          size="sm"
-          className="w-full border-dashed gap-2 hover:bg-purple-50 hover:border-purple-300"
+          variant="outlined"
+          className="w-full border-dashed gap-2"
+          sx={{
+            width: "100%",
+            border: "dashed 1px",
+            gap: 1,
+            color: "#000",
+            ":hover": {
+              backgroundColor: "#f3e5f5",
+              borderColor: "#ba68c8"
+            }
+          }}
         >
           <Plus className="w-4 h-4" />
           Add Activity
