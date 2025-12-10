@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/app/components/ui/alert-dialog';
-import { Calendar, MapPin, DollarSign, Users, Plane, Utensils, Hotel, Navigation, Save, Edit2, X } from 'lucide-react';
+import { Calendar, MapPin, DollarSign, Users, Plane, Utensils, Hotel, Navigation, Save, Edit2, X, Plus, Coffee, Download } from 'lucide-react';
 import { TripPlan, TripDay, DayActivity } from '@/types';
 import { createTrip, saveItinerary } from '@/app/lib/tripActions';
 import { setCurrentItinerary } from '@/app/lib/itineraryActions';
@@ -25,13 +25,15 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // Dynamically import editable components - only load when in edit mode
-const EditableTripHeader = dynamic(() => import('../itinerary/EditableTripHeader'), {
-  ssr: false,
-});
+const EditableTripHeader = dynamic(
+  () => import('../itinerary/EditableTripHeader').then((mod) => mod.EditableTripHeader),
+  { ssr: false }
+);
 
-const EditableDayCard = dynamic(() => import('../itinerary/EditableDayCard'), {
-  ssr: false,
-});
+const EditableDayCard = dynamic(
+  () => import('../itinerary/EditableDayCard').then((mod) => mod.EditableDayCard),
+  { ssr: false }
+);
 
 interface TripPanelProps {
   tripPlan: TripPlan | null;
@@ -53,6 +55,24 @@ const categoryColors = {
   food: 'bg-orange-100 text-orange-700 border-orange-200',
   accommodation: 'bg-green-100 text-green-700 border-green-200',
   other: 'bg-gray-100 text-gray-700 border-gray-200',
+};
+
+const formatTimeTo12Hour = (time?: string) => {
+  if (!time) return '';
+  const [hourStr, minuteStr = '00'] = time.split(':');
+  const hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  if (isNaN(hour) || isNaN(minute)) return time;
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = ((hour + 11) % 12) + 1;
+  return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+};
+
+const formatDisplayDate = (dateStr?: string) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSendMessage }: TripPanelProps) {
@@ -240,6 +260,36 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
     });
   };
 
+  const handleQuickAction = (action: string) => {
+    if (!onSendMessage) return;
+    onSendMessage(action);
+  };
+
+  const handleExportJSON = () => {
+    if (!tripPlan) {
+      toast.error('No itinerary to export');
+      return;
+    }
+
+    try {
+      const jsonString = JSON.stringify(tripPlan, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const filename = `${tripPlan.destination?.replace(/[^a-z0-9]/gi, '_') || 'itinerary'}_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Itinerary exported successfully!');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export itinerary');
+    }
+  };
+
   if (!tripPlan) {
     const examplePrompts = [
       "Plan a 5-day trip to Tokyo",
@@ -334,6 +384,16 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
               {tripPlan.days.length > 0 && (
                 <>
                   <Button
+                    onClick={handleExportJSON}
+                    variant="outline"
+                    className="gap-2"
+                    size="sm"
+                    title="Export as JSON"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export
+                  </Button>
+                  <Button
                     onClick={handleEdit}
                     variant="outline"
                     className="gap-2"
@@ -367,6 +427,144 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
         )}
       </div>
 
+      {/* Cost Estimation */}
+      {!isEditMode && tripPlan && tripPlan.days.length > 0 && (() => {
+        // Calculate cost estimates from activity descriptions
+        const costRegex = /\$(\d+(?:,\d{3})*(?:\.\d{2})?)/g;
+        const categoryCosts: Record<string, number> = {
+          transport: 0,
+          activity: 0,
+          food: 0,
+          accommodation: 0,
+          other: 0,
+        };
+        let totalEstimated = 0;
+        const travelers = tripPlan.travelers || 1;
+
+        tripPlan.days.forEach(day => {
+          day.activities.forEach(activity => {
+            const desc = activity.description || '';
+            const matches = [...desc.matchAll(costRegex)];
+            if (matches.length > 0) {
+              const cost = parseFloat(matches[0][1].replace(/,/g, ''));
+              categoryCosts[activity.category] += cost;
+              totalEstimated += cost;
+            } else {
+              // Estimate based on category if no cost mentioned
+              const estimates: Record<string, number> = {
+                transport: 20,
+                activity: 30,
+                food: 25,
+                accommodation: 80,
+                other: 15,
+              };
+              const estimated = estimates[activity.category] || 15;
+              categoryCosts[activity.category] += estimated;
+              totalEstimated += estimated;
+            }
+          });
+        });
+
+        // Adjust for number of travelers (food and activities)
+        categoryCosts.food *= travelers;
+        categoryCosts.activity *= travelers;
+        totalEstimated = Object.values(categoryCosts).reduce((sum, cost) => sum + cost, 0);
+
+        return (
+          <div className="px-6 py-4 bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Estimated Cost Breakdown</h3>
+                <div className="flex flex-wrap gap-4 text-xs">
+                  {categoryCosts.transport > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Plane className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="text-gray-600">Transport:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.transport)}</span>
+                    </div>
+                  )}
+                  {categoryCosts.activity > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Navigation className="w-3.5 h-3.5 text-purple-600" />
+                      <span className="text-gray-600">Activities:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.activity)}</span>
+                    </div>
+                  )}
+                  {categoryCosts.food > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Utensils className="w-3.5 h-3.5 text-orange-600" />
+                      <span className="text-gray-600">Food:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.food)}</span>
+                    </div>
+                  )}
+                  {categoryCosts.accommodation > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Hotel className="w-3.5 h-3.5 text-green-600" />
+                      <span className="text-gray-600">Accommodation:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.accommodation)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-600 mb-1">Total Estimated</div>
+                <div className="text-2xl font-bold text-blue-600">${Math.round(totalEstimated)}</div>
+                {tripPlan.days.length > 0 && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    ~${Math.round(totalEstimated / tripPlan.days.length)}/day
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Quick Actions */}
+      {!isEditMode && tripPlan && tripPlan.days.length > 0 && (
+        <div className="px-6 py-4 bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-b">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 mr-2">Quick actions:</span>
+            <Button
+              onClick={() => handleQuickAction('Make this itinerary more budget-friendly')}
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs"
+            >
+              <DollarSign className="w-3.5 h-3.5" />
+              More Budget-Friendly
+            </Button>
+            <Button
+              onClick={() => handleQuickAction('Add more activities to this itinerary')}
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Activities
+            </Button>
+            <Button
+              onClick={() => handleQuickAction('Make this itinerary more relaxed with fewer activities per day')}
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs"
+            >
+              <Coffee className="w-3.5 h-3.5" />
+              More Relaxed
+            </Button>
+            <Button
+              onClick={() => handleQuickAction('Focus this itinerary on food experiences and restaurants')}
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs"
+            >
+              <Utensils className="w-3.5 h-3.5" />
+              Focus on Food
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Itinerary */}
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {isEditMode ? (
@@ -377,9 +575,11 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                   key={day.day}
                   day={day}
                   dayIndex={index}
-                  onUpdateDay={(updates) => handleUpdateDay(index, updates)}
-                  onUpdateActivity={(activityId, updates) => handleUpdateActivity(index, activityId, updates)}
-                  onDeleteActivity={(activityId) => handleDeleteActivity(index, activityId)}
+                  onUpdateDay={(updates: Partial<TripDay>) => handleUpdateDay(index, updates)}
+                  onUpdateActivity={(activityId: string, updates: Partial<DayActivity>) =>
+                    handleUpdateActivity(index, activityId, updates)
+                  }
+                  onDeleteActivity={(activityId: string) => handleDeleteActivity(index, activityId)}
                   onMoveActivity={handleMoveActivity}
                   onAddActivity={() => handleAddActivity(index)}
                 />
@@ -398,7 +598,11 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl mb-1">{day.title}</h3>
-                    {day.date && <p className="text-sm text-gray-600">{day.date}</p>}
+                    {day.date && (
+                      <p className="text-sm text-gray-600">
+                        {formatDisplayDate(day.date)}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -419,7 +623,9 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                           <div className="flex-1 pb-6">
                             <div className="flex items-start justify-between gap-2 mb-1">
                               <h4 className="font-medium">{activity.title}</h4>
-                              <span className="text-sm text-gray-500 flex-shrink-0">{activity.time}</span>
+                              <span className="text-sm text-gray-500 flex-shrink-0">
+                                {formatTimeTo12Hour(activity.time)}
+                              </span>
                             </div>
                             <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
                             {activity.location && (

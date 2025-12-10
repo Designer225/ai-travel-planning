@@ -38,7 +38,7 @@ export default function AIChatbot() {
                   <Sparkles className="w-4 h-4 text-purple-500 absolute -top-1 -right-1" />
                 </div>
                 <div>
-                  <h1 className="text-xl">TripAI</h1>
+                  <h1 className="text-xl font-semibold">TripAI</h1>
                   <p className="text-sm text-gray-600">Your AI Travel Planning Assistant</p>
                 </div>
               </div>
