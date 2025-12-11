@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Card } from '@/app/components/ui/card';
 import Button from '@mui/material/Button';
 import Input from '@mui/material/Input';
@@ -18,6 +18,10 @@ interface EditableDayCardProps {
   onDeleteActivity: (activityId: string) => void;
   onMoveActivity: (fromDayIndex: number, fromActivityId: string, toDayIndex: number, toPosition: number) => void;
   onAddActivity: () => void;
+  onDeleteDay: () => void;
+  enableDragAndDrop?: boolean;
+  onFocusDayByIndex?: (dayIndex: number) => void;
+  registerDayRef?: (node: HTMLDivElement | null) => void;
 }
 
 export default function EditableDayCard({
@@ -28,6 +32,10 @@ export default function EditableDayCard({
   onDeleteActivity,
   onMoveActivity,
   onAddActivity,
+  onDeleteDay,
+  enableDragAndDrop = false,
+  onFocusDayByIndex,
+  registerDayRef,
 }: EditableDayCardProps) {
   const formatDisplayDate = (dateStr?: string) => {
     if (!dateStr) return null;
@@ -37,8 +45,12 @@ export default function EditableDayCard({
   };
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isChildEditing, setIsChildEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(day.title);
   const [editDate, setEditDate] = useState(day.date || '');
+  const cardRef = useRef<HTMLDivElement>(null);
+  const activitiesContainerRef = useRef<HTMLDivElement>(null);
+  const dayLabel = day.title || `Day ${day.day}`;
 
   const parsedEditDate = useMemo(() => {
     if (!editDate) return undefined;
@@ -85,8 +97,65 @@ export default function EditableDayCard({
     onMoveActivity(fromDayIndex, activityId, dayIndex, position);
   };
 
+  const focusDayCard = (targetIndex: number) => {
+    if (onFocusDayByIndex) {
+      onFocusDayByIndex(targetIndex);
+      return;
+    }
+    const cards = document.querySelectorAll<HTMLElement>('[data-day-card]');
+    if (targetIndex >= 0 && targetIndex < cards.length) {
+      cards[targetIndex].focus();
+    }
+  };
+
+  const focusActivityByIndex = (targetIndex: number) => {
+    const nodes = activitiesContainerRef.current?.querySelectorAll<HTMLElement>('[data-activity-id]');
+    if (!nodes || targetIndex < 0 || targetIndex >= nodes.length) return;
+    nodes[targetIndex].focus();
+  };
+
+  const allowDrag = enableDragAndDrop || isEditMode;
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    const tagName = target?.tagName;
+    const isFormField = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(tagName || '');
+    if (isFormField && event.key !== 'Escape') {
+      return;
+    }
+    if (event.key === 'Enter' && !isChildEditing) {
+      event.preventDefault();
+      handleToggleEditMode();
+      return;
+    }
+    if (event.key === 'Escape' && isEditMode) {
+      event.preventDefault();
+      handleCancelTitle();
+      setIsEditMode(false);
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      focusDayCard(dayIndex + 1);
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      focusDayCard(dayIndex - 1);
+    }
+  };
+
   return (
-    <Card className="p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
+    <Card
+      className="p-6 bg-white shadow-sm hover:shadow-md transition-shadow"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      data-day-card
+      aria-label={`Day ${day.day}: ${dayLabel}`}
+      ref={(node) => {
+        cardRef.current = node;
+        if (registerDayRef) registerDayRef(node);
+      }}
+    >
       <div className="flex items-start gap-4 mb-6">
         <div className="flex-shrink-0">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white">
@@ -104,12 +173,14 @@ export default function EditableDayCard({
                     onChange={(e) => setEditTitle(e.target.value)}
                     placeholder="Day title"
                     className="text-xl"
+                    aria-label={`Edit title for day ${day.day}`}
                   />
                   <div className="flex flex-col gap-1">
                     <label className="text-xs text-gray-600">Date</label>
                     <Input
                       type="date"
                       value={editDate}
+                      aria-label={`Pick a date for day ${day.day}`}
                       onChange={(e) => {
                         const date = new Date(e.target.value);
                         if (isNaN(date.getTime())) {
@@ -132,6 +203,42 @@ export default function EditableDayCard({
                         borderColor: "#000",
                       }}
                     />
+                    {/* <label className="text-xs text-gray-700">Date</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal text-sm"
+                          aria-label={`Pick a date for day ${day.day}`}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {parsedEditDate ? (
+                            formattedDisplayDate
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="p-0 w-auto">
+                        <Calendar
+                          numberOfMonths={1}
+                          mode="single"
+                          selected={parsedEditDate}
+                          onSelect={(date) => {
+                            if (!date) {
+                              setEditDate('');
+                              return;
+                            }
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const dayOfMonth = String(date.getDate()).padStart(2, '0');
+                            const formatted = `${year}-${month}-${dayOfMonth}`;
+                            setEditDate(formatted);
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover> */}
                   </div>
                 </div>
               ) : (
@@ -149,15 +256,18 @@ export default function EditableDayCard({
               onClick={handleToggleEditMode}
               variant={isEditMode ? "contained" : "outlined"}
               className="gap-2"
+              size='small'
               sx={{
                 color: isEditMode ? "#fff" : "#000",
                 background: isEditMode ? "#000" : "#fff",
                 gap: 1,
                 border: "none",
+                marginRight: 1,
                 ":hover": {
                   backgroundColor: isEditMode ? "#333" : "#eeeeee"
                 }
               }}
+              aria-label={isEditMode ? `Save edits for day ${day.day}` : `Edit details for day ${day.day}`}
             >
               {isEditMode ? (
                 <>
@@ -171,24 +281,42 @@ export default function EditableDayCard({
                 </>
               )}
             </Button>
+            <Button
+              onClick={onDeleteDay}
+              variant="outlined"
+              size="small"
+              sx={{
+                color: '#e53935',
+                borderColor: "#ef9a9a",
+                ":hover": {
+                  backgroundColor: '#ffebee'
+                }
+              }}
+              className="gap-2"
+              aria-label={`Delete ${dayLabel}`}
+            >
+              <X className="w-4 h-4" />
+              Delete
+            </Button>
           </div>
         </div>
       </div>
 
-      <div className="space-y-3 ml-16">
+      <div className="space-y-3 ml-16" ref={activitiesContainerRef}>
         {/* Drop zone before first activity */}
-        {isEditMode && (
+        {allowDrag && (
           <ActivityDropZone
             dayIndex={dayIndex}
             position={0}
             onDrop={handleDrop}
             isFirst={true}
+            aria-label={`Drop activity at start of ${dayLabel}`}
           />
         )}
 
         {day.activities.map((activity, actIndex) => (
           <div key={activity.id}>
-            {isEditMode ? (
+            {allowDrag ? (
               <DraggableActivity
                 activity={activity}
                 dayIndex={dayIndex}
@@ -199,6 +327,12 @@ export default function EditableDayCard({
                   onUpdate={(updates) => onUpdateActivity(activity.id, updates)}
                   onDelete={() => onDeleteActivity(activity.id)}
                   showDragHandle={true}
+                  onFocusNext={day.activities[actIndex + 1] ? () => focusActivityByIndex(actIndex + 1) : undefined}
+                  onFocusPrev={day.activities[actIndex - 1] ? () => focusActivityByIndex(actIndex - 1) : undefined}
+                  onFocusNextDay={() => focusDayCard(dayIndex + 1)}
+                  onFocusPrevDay={() => focusDayCard(dayIndex - 1)}
+                  dayLabel={day.title}
+                  setIsChildEditing={setIsChildEditing}
                 />
               </DraggableActivity>
             ) : (
@@ -207,15 +341,22 @@ export default function EditableDayCard({
                 onUpdate={(updates) => onUpdateActivity(activity.id, updates)}
                 onDelete={() => onDeleteActivity(activity.id)}
                 showDragHandle={false}
+                onFocusNext={day.activities[actIndex + 1] ? () => focusActivityByIndex(actIndex + 1) : undefined}
+                onFocusPrev={day.activities[actIndex - 1] ? () => focusActivityByIndex(actIndex - 1) : undefined}
+                onFocusNextDay={() => focusDayCard(dayIndex + 1)}
+                onFocusPrevDay={() => focusDayCard(dayIndex - 1)}
+                dayLabel={day.title}
+                setIsChildEditing={setIsChildEditing}
               />
             )}
             
             {/* Drop zone after each activity */}
-            {isEditMode && (
+            {allowDrag && (
               <ActivityDropZone
                 dayIndex={dayIndex}
                 position={actIndex + 1}
                 onDrop={handleDrop}
+                aria-label={`Drop activity after ${activity.title}`}
               />
             )}
           </div>
@@ -226,6 +367,7 @@ export default function EditableDayCard({
           onClick={onAddActivity}
           variant="outlined"
           className="w-full border-dashed gap-2"
+          size='small'
           sx={{
             width: "100%",
             border: "dashed 1px",
@@ -236,6 +378,10 @@ export default function EditableDayCard({
               borderColor: "#ba68c8"
             }
           }}
+          // variant="outline"
+          // size="sm"
+          // className="w-full border-dashed gap-2 hover:bg-purple-50 hover:border-purple-300"
+          // aria-label={`Add activity to ${dayLabel}`}
         >
           <Plus className="w-4 h-4" />
           Add Activity

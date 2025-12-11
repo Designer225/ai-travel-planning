@@ -58,3 +58,7 @@ next-env.d.ts
 
 /app/generated/prisma
 localhost_3000-20251210T212948.json
+scripts/import-to-remote.js
+scripts/export-local-data.js
+.gitignore
+test-db-connection.js

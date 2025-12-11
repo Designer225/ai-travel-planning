@@ -37,17 +37,18 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         placeholder="Ask me anything about travel..."
         disabled={disabled}
         sx={{ flex: 1 }}
+        inputProps={{ 'aria-label': 'Chat message input' }}
       />
       <Button
         onClick={handleSend}
         disabled={!input.trim() || disabled}
         className="gradient-button"
+        aria-label="Send chat message"
       >
         <Send className="w-4 h-4" color="#fff" />
       </Button>
     </Box>
   );
 }
-
 
 
