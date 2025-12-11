@@ -4,7 +4,6 @@ import { startTransition, useState } from 'react';
 import { Navigation } from '../layout/Navigation';
 import { TripsHeader } from './TripsHeader';
 import { TripsList } from './TripsList';
-import { Button } from '../ui/button';
 import { TripsListHeader } from './TripsListHeader';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { ThemeProvider } from '@mui/material';

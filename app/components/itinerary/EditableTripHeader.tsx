@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Card } from '@/app/components/ui/card';
-import { Button, Input } from '@mui/material';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
 import { Badge } from '@/app/components/ui/badge';
 import { Calendar, MapPin, DollarSign, Users, Edit2, Check, X } from 'lucide-react';
 import { TripPlan } from '@/types';

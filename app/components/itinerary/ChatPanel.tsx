@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
-import { Button } from '@mui/material';
+import Button from '@mui/material/Button';
 import { Sparkles, Search } from 'lucide-react';
 import { TripPlan } from '@/types';
 import { DestinationSearch } from './DestinationSearch';

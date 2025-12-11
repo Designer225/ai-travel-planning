@@ -4,7 +4,7 @@ import { startTransition, useState, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft, ShoppingCart } from 'lucide-react';
-import { Button } from '@mui/material';
+import Button from '@mui/material/Button';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
 import EditableTripHeader from './EditableTripHeader';
 import EditableDayCard from './EditableDayCard';

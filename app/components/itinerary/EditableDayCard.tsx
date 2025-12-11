@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { Card } from '@/app/components/ui/card';
-import { Button, Input } from '@mui/material';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
 import { Calendar as CalendarIcon, Edit2, Check, X, Plus } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/app/components/ui/popover';
 import { Calendar } from '@/app/components/ui/calendar';

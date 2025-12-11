@@ -1,7 +1,11 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { Button, Input, TextField, Select, MenuItem } from '@mui/material';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Edit2, Check, X, Trash2, MapPin, GripVertical } from 'lucide-react';
 import { Plane, Utensils, Hotel, Navigation } from 'lucide-react';

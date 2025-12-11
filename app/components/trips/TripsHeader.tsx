@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
 import { Plus, Search } from 'lucide-react';
 
 interface TripsHeaderProps {
@@ -16,7 +16,7 @@ export function TripsHeader({ searchQuery, onSearchChange, onCreateTrip }: Trips
       <h1 className="text-4xl mb-6">My Trips</h1>
       
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <Button onClick={onCreateTrip} className="bg-blue-600 hover:bg-blue-700" aria-label="Create a new trip">
+        <Button onClick={onCreateTrip} variant='contained' className="gradient-button" aria-label="Create a new trip">
           <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
           Create new trip
         </Button>
@@ -31,6 +31,7 @@ export function TripsHeader({ searchQuery, onSearchChange, onCreateTrip }: Trips
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
+            fullWidth
             aria-label="Search your trips by title or location"
           />
         </div>
