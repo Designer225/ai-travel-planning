@@ -19,9 +19,11 @@ export default function Landing() {
       >
         <Navigation />
         
-        <HeroSection />
-        <FeaturesSection />
-        <CTASection />
+        <main>
+          <HeroSection />
+          <FeaturesSection />
+          <CTASection />
+        </main>
       </Box>
     </ThemeProvider>
   );

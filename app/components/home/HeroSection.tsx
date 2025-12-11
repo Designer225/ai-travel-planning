@@ -1,6 +1,9 @@
 'use client'
 
-import { Box, Button, Typography } from '@mui/material';
+// import { Box, Button, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import { ImageWithFallback } from '@/app/components/ui/image-with-fallback';
 import { tryEnterDashboard } from '@/app/lib/clientUserGate';
 import { useRouter } from 'next/navigation';
