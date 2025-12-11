@@ -102,50 +102,31 @@ export default function EditableDayCard({
                   />
                   <div className="flex flex-col gap-1">
                     <label className="text-xs text-gray-600">Date</label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outlined"
-                          className="font-normal text-sm"
-                          sx={{
-                            width: "100%",
-                            justifyContent: "start",
-                            textAlign: "left",
-                            color: "#000",
-                            borderColor: "#000",
-                            ":hover": {
-                              backgroundColor: "#eee"
-                            }
-                          }}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {parsedEditDate ? (
-                            formattedDisplayDate
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent align="start" className="p-0 w-auto">
-                        <Calendar
-                          numberOfMonths={1}
-                          mode="single"
-                          selected={parsedEditDate}
-                          onSelect={(date) => {
-                            if (!date) {
-                              setEditDate('');
-                              return;
-                            }
-                            const year = date.getFullYear();
-                            const month = String(date.getMonth() + 1).padStart(2, '0');
-                            const dayOfMonth = String(date.getDate()).padStart(2, '0');
-                            const formatted = `${year}-${month}-${dayOfMonth}`;
-                            setEditDate(formatted);
-                          }}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <Input
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value);
+                        if (isNaN(date.getTime())) {
+                          // Invalid date
+                          setEditDate('');
+                          return;
+                        }
+                        
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const dayOfMonth = String(date.getDate()).padStart(2, '0');
+                        const formatted = `${year}-${month}-${dayOfMonth}`;
+                        setEditDate(formatted);
+                      }}
+                      sx={{
+                        width: "100%",
+                        justifyContent: "start",
+                        textAlign: "left",
+                        color: "#000",
+                        borderColor: "#000",
+                      }}
+                    />
                   </div>
                 </div>
               ) : (
