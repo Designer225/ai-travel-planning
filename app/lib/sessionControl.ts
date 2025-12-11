@@ -5,12 +5,17 @@ import { cookies } from "next/headers";
 import { getIronSession } from 'iron-session';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
+import { redirect } from 'next/navigation';
 
 type SessionData = {
     user?: SiteUser;
 }
 
-const SESSION_SECRET = process.env.SESSION_SECRET || "o1~vaK?G%,Uisuy^3yzNyT=G@KC1#%fmM6*].Pgb4ziktL+GjZTaf:.jLP]i+BrsHUovoDG0@)3Ed9+jL]";
+if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required');
+}
+
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 async function getSession() {
     const session = await getIronSession<SessionData>(await cookies(), {
@@ -139,8 +144,8 @@ export async function login(
 
 export async function logout() {
     const session = await getSession();
-    session.user = undefined;
-    await session.save();
+    session.destroy();
+    redirect('/');
 }
 
 // Note: copyItinerary, setCurrentItinerary, addDestinationToCurrentItinerary,

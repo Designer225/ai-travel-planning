@@ -241,17 +241,8 @@ html {
   background-color: #99a1af;
 }
 
-/* * {
-  border-color: var(--color-border);
-}
-
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-} */
-
-/* Screen reader only utility */
-/* .sr-only {
+/* Screen reader only utility - for accessibility */
+.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -262,14 +253,3 @@ body {
   white-space: nowrap;
   border-width: 0;
 }
-
-.focus\:not-sr-only:focus {
-  position: static;
-  width: auto;
-  height: auto;
-  padding: inherit;
-  margin: inherit;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
-} */
