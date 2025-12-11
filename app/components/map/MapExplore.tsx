@@ -1138,11 +1138,25 @@ export function MapExplore() {
     }
   };
 
+  const getLocationLabel = (destination: Destination) => {
+    const { lat, lng } = destination;
+    if (lat > 37 && lat < 38 && lng < -122 && lng > -123) return "San Francisco";
+    if (lat > 48 && lat < 49 && lng > 2 && lng < 3) return "Paris";
+    if (lat > 35 && lat < 36 && lng > 139 && lng < 140.5) return "Tokyo";
+    return undefined;
+  };
+
   const handleAddToItinerary = () => {
     if (selectedDestination === null) return;
     toast.message('Adding to the current itinerary...');
     startTransition(async () => {
-      await tryEnterItineraryBuilder(router, selectedDestination.id);
+      await tryEnterItineraryBuilder(
+        router,
+        selectedDestination.name,
+        selectedDestination.type,
+        undefined,
+        getLocationLabel(selectedDestination)
+      );
     });
   }
 

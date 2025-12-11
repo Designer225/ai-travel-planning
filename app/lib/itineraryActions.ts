@@ -5,7 +5,7 @@ import { getIronSession } from 'iron-session';
 import { prisma } from './prisma';
 import { getCurrentUser } from './sessionControl';
 import { getTripById } from './tripActions';
-import { TripPlan, DayActivity } from '@/types';
+import { TripPlan, DayActivity, DestinationType } from '@/types';
 import { ActivityCategory } from '@prisma/client';
 
 type SessionData = {
@@ -135,6 +135,108 @@ export async function addDestinationToCurrentItinerary(
     } catch (error) {
         console.error('Add destination to itinerary error:', error);
         return { success: false, error: "Failed to add destination" };
+    }
+}
+
+const mapDestinationTypeToCategory = (type?: DestinationType): DayActivity['category'] => {
+    if (type === 'food') return 'food';
+    if (type === 'lodging') return 'accommodation';
+    return 'activity';
+};
+
+export async function addPlaceToCurrentItinerary(
+    destinationName: string,
+    destinationType?: DestinationType,
+    destinationLocationLabel?: string,
+): Promise<{ success: boolean; tripId?: number; error?: string }> {
+    try {
+        const user = await getCurrentUser();
+        if (!user) {
+            return { success: false, error: "Not authenticated" };
+        }
+
+        const session = await getItinerarySession();
+        let itineraryId = session.currentItineraryId;
+
+        const tripDestination = destinationLocationLabel || destinationName;
+
+        const shouldStartNewTrip = async () => {
+            if (!itineraryId) return true;
+            const existingTrip = await prisma.trip.findFirst({
+                where: { id: itineraryId, userId: user.id },
+                select: { destination: true },
+            });
+            if (!existingTrip) return true;
+            if (destinationLocationLabel && existingTrip.destination && existingTrip.destination !== destinationLocationLabel) {
+                return true;
+            }
+            return false;
+        };
+
+        if (await shouldStartNewTrip()) {
+            const newTrip = await prisma.trip.create({
+                data: {
+                    userId: user.id,
+                    title: tripDestination,
+                    destination: tripDestination,
+                    status: 'SAVED' as any,
+                },
+            });
+            itineraryId = newTrip.id;
+            session.currentItineraryId = itineraryId;
+            await session.save();
+        } else if (itineraryId) {
+            const existingTrip = await prisma.trip.findFirst({
+                where: { id: itineraryId, userId: user.id },
+                select: { destination: true, title: true },
+            });
+            if (existingTrip && !existingTrip.destination) {
+                await prisma.trip.updateMany({
+                    where: { id: itineraryId, userId: user.id },
+                    data: { destination: tripDestination, title: tripDestination },
+                });
+            }
+        }
+
+        // Prefer the earliest existing day; create Day 1 only if no days exist
+        const existingDay = await prisma.tripDay.findFirst({
+            where: { tripId: itineraryId },
+            orderBy: { dayNumber: 'asc' },
+        });
+
+        const day = existingDay
+            ? existingDay
+            : await prisma.tripDay.create({
+                data: {
+                    tripId: itineraryId,
+                    dayNumber: 1,
+                    title: 'Day 1',
+                },
+            });
+
+        const currentActivities = await prisma.dayActivity.findMany({
+            where: { tripDayId: day.id },
+            select: { order: true },
+            orderBy: { order: 'asc' },
+        });
+        const nextOrder = currentActivities.length;
+
+        await prisma.dayActivity.create({
+            data: {
+                tripDayId: day.id,
+                time: '10:00',
+                title: destinationName,
+                description: 'Added from Map Explore',
+                category: mapDestinationTypeToCategory(destinationType) as ActivityCategory,
+                location: destinationName,
+                order: nextOrder,
+            },
+        });
+
+        return { success: true, tripId: itineraryId };
+    } catch (error) {
+        console.error('Add place to itinerary error:', error);
+        return { success: false, error: "Failed to add place to itinerary" };
     }
 }
 
@@ -386,4 +488,3 @@ export async function reorderActivities(
         return { success: false, error: "Failed to reorder activities" };
     }
 }
-

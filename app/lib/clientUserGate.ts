@@ -1,7 +1,7 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { getCurrentUser, login, logout } from "./sessionControl";
-import { setCurrentItinerary, clearCurrentItinerary, addDestinationToCurrentItinerary } from "./itineraryActions";
-import { TripPlan } from "@/types";
+import { setCurrentItinerary, clearCurrentItinerary, addDestinationToCurrentItinerary, addPlaceToCurrentItinerary } from "./itineraryActions";
+import { TripPlan, DestinationType } from "@/types";
 
 export async function tryEnterDashboard(router: AppRouterInstance) {
     router.push('/dashboard');
@@ -29,11 +29,17 @@ export async function tryCopyItinerary(tripId: number, router: AppRouterInstance
     router.push('/itinerary-builder');
 }
 
-export async function tryEnterItineraryBuilder(router: AppRouterInstance, destId?: number, tripId?: number) {
+export async function tryEnterItineraryBuilder(
+    router: AppRouterInstance,
+    destName?: string,
+    destType?: DestinationType,
+    tripId?: number,
+    destinationLocationLabel?: string,
+) {
     if (tripId !== undefined) {
         await setCurrentItinerary(tripId);
-    } else if (destId !== undefined) {
-        await addDestinationToCurrentItinerary(`Destination ${destId}`);
+    } else if (destName !== undefined) {
+        await addPlaceToCurrentItinerary(destName, destType, destinationLocationLabel);
     } else {
         await clearCurrentItinerary();
     }

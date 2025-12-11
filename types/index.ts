@@ -46,4 +46,6 @@ export interface Destination {
   tags: string[];
   rating: number;
   priceLevel?: string;
+  region?: string;
+  country?: string;
 }

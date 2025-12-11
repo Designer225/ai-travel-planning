@@ -66,7 +66,7 @@ export function TripsList({ tripType, searchQuery }: TripsListProps) {
 
   const handleEditTrip = (tripId: number) => {
     startTransition(async () => {
-      await tryEnterItineraryBuilder(router, undefined, tripId);
+      await tryEnterItineraryBuilder(router, undefined, undefined, tripId);
     });
   };
 
@@ -75,7 +75,7 @@ export function TripsList({ tripType, searchQuery }: TripsListProps) {
     if (result.success && result.newTripId) {
       toast.success('Trip copied successfully');
       startTransition(async () => {
-        await tryEnterItineraryBuilder(router, undefined, result.newTripId);
+        await tryEnterItineraryBuilder(router, undefined, undefined, result.newTripId);
       });
     } else {
       toast.error(result.error || 'Failed to copy trip');

@@ -58,7 +58,7 @@ export function PaymentDetails({ showToast }: Props) {
   const handleCancel = () => {
     showToast("Checkout canceled", "info", "You can resume whenever you're ready.");
     startTransition(async () => {
-      await tryEnterItineraryBuilder(router, undefined, /* whatever trip is in the cart */)
+      await tryEnterItineraryBuilder(router, undefined, undefined, /* whatever trip is in the cart */)
     })
   };
 
