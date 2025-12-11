@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Textarea } from '@/app/components/ui/textarea';
@@ -17,6 +17,8 @@ interface EditableActivityProps {
   onFocusNext?: () => void;
   onFocusPrev?: () => void;
   dayLabel?: string;
+  onFocusNextDay?: () => void;
+  onFocusPrevDay?: () => void;
 }
 
 const categoryIcons = {
@@ -51,8 +53,11 @@ export function EditableActivity({
   onFocusNext,
   onFocusPrev,
   dayLabel,
+  onFocusNextDay,
+  onFocusPrevDay,
 }: EditableActivityProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const fieldRefs = useRef<(HTMLElement | null)[]>([]);
   const [editValues, setEditValues] = useState({
     time: activity.time,
     title: activity.title,
@@ -97,6 +102,26 @@ export function EditableActivity({
     return `${hour12}:${paddedMinutes} ${suffix}`;
   };
 
+  const focusField = (index: number) => {
+    const el = fieldRefs.current[index];
+    if (el) {
+      el.focus();
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+        el.select();
+      }
+    }
+  };
+
+  const handleFieldKeyDown = (event: React.KeyboardEvent<HTMLElement>, index: number) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      focusField(index + 1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      focusField(index - 1);
+    }
+  };
+
   const handleKeyboardNavigation = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (!isEditing && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
@@ -115,6 +140,13 @@ export function EditableActivity({
     if (!isEditing && event.key === 'ArrowUp' && onFocusPrev) {
       event.preventDefault();
       onFocusPrev();
+    } else if (!isEditing && event.key === 'ArrowUp' && onFocusPrevDay) {
+      event.preventDefault();
+      onFocusPrevDay();
+    }
+    if (!isEditing && event.key === 'ArrowDown' && !onFocusNext && onFocusNextDay) {
+      event.preventDefault();
+      onFocusNextDay();
     }
   };
 
@@ -136,6 +168,8 @@ export function EditableActivity({
                 value={editValues.time}
                 onChange={(e) => setEditValues({ ...editValues, time: e.target.value })}
                 aria-label="Activity start time"
+                ref={(el) => { fieldRefs.current[0] = el; }}
+                onKeyDown={(e) => handleFieldKeyDown(e, 0)}
               />
             </div>
             <div>
@@ -144,7 +178,11 @@ export function EditableActivity({
                 value={editValues.category}
                 onValueChange={(value) => setEditValues({ ...editValues, category: value as typeof editValues.category })}
               >
-                <SelectTrigger aria-label="Activity category">
+                <SelectTrigger
+                  aria-label="Activity category"
+                  ref={(el) => { fieldRefs.current[1] = el; }}
+                  onKeyDown={(e) => handleFieldKeyDown(e, 1)}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -165,6 +203,8 @@ export function EditableActivity({
               onChange={(e) => setEditValues({ ...editValues, title: e.target.value })}
               placeholder="Activity title"
               aria-label="Activity title"
+              ref={(el) => { fieldRefs.current[2] = el; }}
+              onKeyDown={(e) => handleFieldKeyDown(e, 2)}
             />
           </div>
 
@@ -176,6 +216,8 @@ export function EditableActivity({
               placeholder="Activity description"
               rows={2}
               aria-label="Activity description"
+              ref={(el) => { fieldRefs.current[3] = el; }}
+              onKeyDown={(e) => handleFieldKeyDown(e, 3)}
             />
           </div>
 
@@ -186,19 +228,44 @@ export function EditableActivity({
               onChange={(e) => setEditValues({ ...editValues, location: e.target.value })}
               placeholder="Location (optional)"
               aria-label="Activity location"
+              ref={(el) => { fieldRefs.current[4] = el; }}
+              onKeyDown={(e) => handleFieldKeyDown(e, 4)}
             />
           </div>
 
           <div className="flex gap-2 pt-1">
-            <Button onClick={handleSave} size="sm" className="gap-2" aria-label={`Save changes to ${activity.title}`}>
+            <Button
+              onClick={handleSave}
+              size="sm"
+              className="gap-2"
+              aria-label={`Save changes to ${activity.title}`}
+              ref={(el) => { fieldRefs.current[5] = el; }}
+              onKeyDown={(e) => handleFieldKeyDown(e, 5)}
+            >
               <Check className="w-4 h-4" />
               Save
             </Button>
-            <Button onClick={handleCancel} variant="outline" size="sm" className="gap-2" aria-label={`Cancel editing ${activity.title}`}>
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              aria-label={`Cancel editing ${activity.title}`}
+              ref={(el) => { fieldRefs.current[6] = el; }}
+              onKeyDown={(e) => handleFieldKeyDown(e, 6)}
+            >
               <X className="w-4 h-4" />
               Cancel
             </Button>
-            <Button onClick={onDelete} variant="destructive" size="sm" className="gap-2 ml-auto" aria-label={`Delete ${activity.title}`}>
+            <Button
+              onClick={onDelete}
+              variant="destructive"
+              size="sm"
+              className="gap-2 ml-auto"
+              aria-label={`Delete ${activity.title}`}
+              ref={(el) => { fieldRefs.current[7] = el; }}
+              onKeyDown={(e) => handleFieldKeyDown(e, 7)}
+            >
               <Trash2 className="w-4 h-4" />
               Delete
             </Button>

@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { startTransition, useState, useEffect, useMemo } from 'react';
+import { startTransition, useState, useEffect, useMemo, useRef } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft, ShoppingCart } from 'lucide-react';
@@ -132,6 +132,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   const [tripId, setTripId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [reorderMode, setReorderMode] = useState(false);
+  const dayRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [tripPlan, setTripPlan] = useState<TripPlan>({
     // Blank slate for new trips; other flows that load an existing trip
@@ -513,6 +514,10 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                       onAddActivity={() => handleAddActivity(index)}
                       onDeleteDay={() => handleDeleteDay(index)}
                       enableDragAndDrop={reorderMode}
+                      onFocusDayByIndex={focusDayByIndex}
+                      registerDayRef={(node) => {
+                        dayRefs.current[index] = node;
+                      }}
                     />
                   ))}
                 </div>
@@ -540,3 +545,9 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     </DndProvider>
   );
 }
+  const focusDayByIndex = (index: number) => {
+    const ref = dayRefs.current[index];
+    if (ref) {
+      ref.focus();
+    }
+  };

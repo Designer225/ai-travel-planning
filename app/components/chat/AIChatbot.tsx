@@ -8,14 +8,21 @@ import { TripPlan } from '@/types';
 import { Navigation } from '../layout/Navigation';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { theme } from '@/app/lib/themes';
+import Link from 'next/link';
 
 export default function AIChatbot() {
   const [tripPlan, setTripPlan] = useState<TripPlan | null>(null);
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-100 via-white to-purple-100">
       {/* Header */}
       <ThemeProvider theme={theme}>
+        <Link
+          href="#chat-main"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-white focus:text-blue-700 focus:px-3 focus:py-2 focus:rounded-md focus:shadow-lg"
+        >
+          Skip to main content
+        </Link>
         <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm">
           <CssBaseline />
           <Navigation />
@@ -50,7 +57,7 @@ export default function AIChatbot() {
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div id="chat-main" role="main" className="flex-1 flex overflow-hidden">
           {/* Chat Panel - Left Side */}
           <div className="w-full md:w-1/2 lg:w-2/5 border-r bg-white flex flex-col">
             <ChatPanel tripPlan={tripPlan} setTripPlan={setTripPlan} />
@@ -65,6 +72,5 @@ export default function AIChatbot() {
     </div>
   );
 }
-
 
 

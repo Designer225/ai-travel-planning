@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
-import { Box, Container, Typography, CssBaseline, Snackbar, Alert } from "@mui/material";
+import { Box, Container, Typography, CssBaseline, Snackbar, Alert, Link as MuiLink } from "@mui/material";
 import { Navigation } from "../components/layout/Navigation";
 import { ProfileSection } from "../components/account/ProfileSection";
 import { AccountSettings } from "../components/account/AccountSettings";
@@ -51,10 +51,27 @@ export default function AccountPage() {
           background: "linear-gradient(147.631deg, rgb(239, 246, 255) 0%, rgb(255, 255, 255) 50%, rgb(250, 245, 255) 100%)",
         }}
       >
+        <MuiLink
+          href="#account-main"
+          sx={{
+            position: "absolute",
+            top: -40,
+            left: 16,
+            backgroundColor: "#fff",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+            color: "primary.main",
+            zIndex: 2000,
+            "&:focus": { top: 16 },
+          }}
+        >
+          Skip to main content
+        </MuiLink>
         <Navigation />
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Container id="account-main" role="main" maxWidth="lg" sx={{ py: 4 }}>
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" sx={{ color: "neutral.950", mb: 1 }}>
+            <Typography variant="h4" component="h1" sx={{ color: "neutral.950", mb: 1 }}>
               My Account
             </Typography>
             <Typography variant="body1" sx={{ color: "#4a5565" }}>

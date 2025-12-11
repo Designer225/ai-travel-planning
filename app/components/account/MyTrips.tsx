@@ -202,7 +202,7 @@ export function MyTrips() {
         border: "1px solid rgba(0,0,0,0.1)",
       }}
     >
-      <Typography variant="h6" sx={{ mb: 2 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
         My Trips
       </Typography>
 

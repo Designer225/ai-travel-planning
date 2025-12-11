@@ -22,6 +22,8 @@ interface EditableDayCardProps {
   onAddActivity: () => void;
   onDeleteDay: () => void;
   enableDragAndDrop?: boolean;
+  onFocusDayByIndex?: (dayIndex: number) => void;
+  registerDayRef?: (node: HTMLDivElement | null) => void;
 }
 
 export function EditableDayCard({
@@ -34,6 +36,8 @@ export function EditableDayCard({
   onAddActivity,
   onDeleteDay,
   enableDragAndDrop = false,
+  onFocusDayByIndex,
+  registerDayRef,
 }: EditableDayCardProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState(day.title);
@@ -88,6 +92,10 @@ export function EditableDayCard({
   };
 
   const focusDayCard = (targetIndex: number) => {
+    if (onFocusDayByIndex) {
+      onFocusDayByIndex(targetIndex);
+      return;
+    }
     const cards = document.querySelectorAll<HTMLElement>('[data-day-card]');
     if (targetIndex >= 0 && targetIndex < cards.length) {
       cards[targetIndex].focus();
@@ -137,7 +145,10 @@ export function EditableDayCard({
       onKeyDown={handleKeyDown}
       data-day-card
       aria-label={`Day ${day.day}: ${dayLabel}`}
-      ref={cardRef}
+      ref={(node) => {
+        cardRef.current = node;
+        if (registerDayRef) registerDayRef(node);
+      }}
     >
       <div className="flex items-start gap-4 mb-6">
         <div className="flex-shrink-0">
@@ -262,8 +273,10 @@ export function EditableDayCard({
                   onUpdate={(updates) => onUpdateActivity(activity.id, updates)}
                   onDelete={() => onDeleteActivity(activity.id)}
                   showDragHandle={true}
-                  onFocusNext={() => focusActivityByIndex(actIndex + 1)}
-                  onFocusPrev={() => focusActivityByIndex(actIndex - 1)}
+                  onFocusNext={day.activities[actIndex + 1] ? () => focusActivityByIndex(actIndex + 1) : undefined}
+                  onFocusPrev={day.activities[actIndex - 1] ? () => focusActivityByIndex(actIndex - 1) : undefined}
+                  onFocusNextDay={() => focusDayCard(dayIndex + 1)}
+                  onFocusPrevDay={() => focusDayCard(dayIndex - 1)}
                   dayLabel={day.title}
                 />
               </DraggableActivity>
@@ -273,8 +286,10 @@ export function EditableDayCard({
                 onUpdate={(updates) => onUpdateActivity(activity.id, updates)}
                 onDelete={() => onDeleteActivity(activity.id)}
                 showDragHandle={false}
-                onFocusNext={() => focusActivityByIndex(actIndex + 1)}
-                onFocusPrev={() => focusActivityByIndex(actIndex - 1)}
+                onFocusNext={day.activities[actIndex + 1] ? () => focusActivityByIndex(actIndex + 1) : undefined}
+                onFocusPrev={day.activities[actIndex - 1] ? () => focusActivityByIndex(actIndex - 1) : undefined}
+                onFocusNextDay={() => focusDayCard(dayIndex + 1)}
+                onFocusPrevDay={() => focusDayCard(dayIndex - 1)}
                 dayLabel={day.title}
               />
             )}
