@@ -1,56 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TripAI — AI Travel Planner
 
-## Getting Started
+AI-assisted trip planning with Gemini, conversational refinements, inline itinerary editing, drag-and-drop builder, maps, and trip management.
+
+## Quick Start
 
 ### Prerequisites
+- Node.js 18+
+- PostgreSQL database
+- Google Gemini API key
 
-1. Node.js 18+ installed
-2. A Google Gemini API key (for AI chatbot features)
+### Environment variables (`.env.local`)
+```
+DATABASE_URL="postgres://user:pass@host:5432/dbname"
+SESSION_SECRET="replace_with_strong_secret"
+GEMINI_API_KEY="your_gemini_key"
+```
 
-### Setup
-
-1. Install dependencies:
+### Install & run
 ```bash
 npm install
-```
-
-2. Set up environment variables:
-   - Create a `.env.local` file in the root directory
-   - Add your Google Gemini API key:
-   ```
-   GEMINI_API_KEY=your_api_key_here
-   ```
-   - To get an API key, visit [Google AI Studio](https://aistudio.google.com/app/apikey) and create a new API key
-
-3. Run the development server:
-
-```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# visit http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Seeding demo data
+```bash
+npx prisma db seed
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
+- AI chatbot (Gemini) generates and refines itineraries; rate-limit fallback and retries.
+- Structured itineraries with cost estimates, AM/PM times, future-date defaults.
+- Follow-up suggestions + quick actions to budget/relax/focus on food/add activities.
+- TripPanel inline edit, save, discard, export JSON.
+- My Trips with saved itineraries and gradient fallback images.
+- Itinerary Builder with drag-and-drop activities and editable headers.
+- Map Explorer page for destination browsing.
+- Account and checkout pages for profile/payment flows.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Navigation (key routes)
+- `/chat` — TripAI chat + itinerary panel
+- `/my-trips` — Saved trips
+- `/itinerary-builder` — Drag-and-drop builder
+- `/map-explore` — Map explorer
+- `/account` — Profile & payments
+- `/dashboard` — Hub (links to all)
 
-## Learn More
+## Screenshots
+- Chat with itinerary: ![Chat + Itinerary](docs/chat-itinerary.png)
+- My Trips grid: ![My Trips](docs/my-trips.png)
+- Itinerary Builder: ![Itinerary Builder](docs/itinerary-builder.png)
+- Map Explorer: ![Map Explorer](docs/explore.png)
+- Dashboard: ![Dashboard](docs/dashboard.png)
 
-To learn more about Next.js, take a look at the following resources:
+## AI Tooling Disclosure
+This app uses **Google Gemini** via `@google/generative-ai` to generate and refine travel itineraries and responses. API keys are kept server-side; prompts and outputs are processed on your infrastructure/API provider.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Notes
+- Framework: Next.js (App Router) + React 19 + TypeScript
+- UI: Tailwind + shadcn/ui + MUI (select pages)
+- State: React hooks; Prisma + PostgreSQL for data; iron-session for sessions
+- Drag-and-drop: `react-dnd`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Team & Contributions
+Commit history reflects contributions from all teammates. Add your names/roles here if desired.
