@@ -107,14 +107,14 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
       // Generate follow-up suggestions based on context
       const suggestions = generateSuggestions(data.tripPlan, data.responseText, content);
 
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
+    const aiResponse: Message = {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
         content: data.responseText,
-        timestamp: new Date(),
+      timestamp: new Date(),
         suggestions: suggestions.length > 0 ? suggestions : undefined,
-      };
-      setMessages((prev) => [...prev, aiResponse]);
+    };
+    setMessages((prev) => [...prev, aiResponse]);
     } catch (error: any) {
       console.error('Error calling AI service:', error);
       
@@ -138,7 +138,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
-      setIsTyping(false);
+    setIsTyping(false);
     }
   };
 
@@ -296,11 +296,11 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     try {
       // Create a basic trip plan first
       const basicPlan: TripPlan = {
-        destination: `${destination.name}, ${destination.country}`,
-        days: [],
-        budget: `$${destination.averageBudgetPerDay.budget} - $${destination.averageBudgetPerDay.luxury}/day`,
-        travelers: 1,
-      };
+      destination: `${destination.name}, ${destination.country}`,
+      days: [],
+      budget: `$${destination.averageBudgetPerDay.budget} - $${destination.averageBudgetPerDay.luxury}/day`,
+      travelers: 1,
+    };
 
       setTripPlan(basicPlan);
 
@@ -361,17 +361,17 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
       setTripPlan(basicPlan);
       const errorContent = `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`;
       const suggestions = generateSuggestions(basicPlan, errorContent, `I want to visit ${destination.name}, ${destination.country}`);
-      
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
+
+    const aiResponse: Message = {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
         content: errorContent,
-        timestamp: new Date(),
+      timestamp: new Date(),
         suggestions: suggestions.length > 0 ? suggestions : undefined,
-      };
-      setMessages((prev) => [...prev, aiResponse]);
+    };
+    setMessages((prev) => [...prev, aiResponse]);
     } finally {
-      setIsTyping(false);
+    setIsTyping(false);
     }
   };
 
@@ -428,7 +428,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
               <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
                 <div className="flex gap-1.5 items-center">
                   <span className="text-sm text-gray-500 mr-2">TripAI is thinking</span>
-                  <div className="flex gap-1">
+                <div className="flex gap-1">
                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }} />
                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.4s' }} />
                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.4s' }} />
@@ -438,7 +438,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
             </div>
           )}
         </div>
-      </div>
+        </div>
 
       <div className="border-t p-4 bg-white">
         <ChatInput onSend={handleSendMessage} disabled={isTyping} />

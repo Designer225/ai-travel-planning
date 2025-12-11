@@ -352,35 +352,35 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
             </div>
           </div>
         ) : (
-          <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h2 className="text-2xl mb-2">{tripPlan.destination}</h2>
-              <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                {tripPlan.startDate && (
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{tripPlan.startDate}</span>
-                    {tripPlan.endDate && <span> - {tripPlan.endDate}</span>}
-                  </div>
-                )}
-                {tripPlan.travelers && (
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    <span>{tripPlan.travelers} {tripPlan.travelers === 1 ? 'traveler' : 'travelers'}</span>
-                  </div>
-                )}
-                {tripPlan.budget && (
-                  <div className="flex items-center gap-1">
-                    <DollarSign className="w-4 h-4" />
-                    <span>{tripPlan.budget}</span>
-                  </div>
-                )}
-              </div>
+            <h2 className="text-2xl mb-2">{tripPlan.destination}</h2>
+            <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+              {tripPlan.startDate && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{tripPlan.startDate}</span>
+                  {tripPlan.endDate && <span> - {tripPlan.endDate}</span>}
+                </div>
+              )}
+              {tripPlan.travelers && (
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4" />
+                  <span>{tripPlan.travelers} {tripPlan.travelers === 1 ? 'traveler' : 'travelers'}</span>
+                </div>
+              )}
+              {tripPlan.budget && (
+                <div className="flex items-center gap-1">
+                  <DollarSign className="w-4 h-4" />
+                  <span>{tripPlan.budget}</span>
+                </div>
+              )}
             </div>
+          </div>
             <div className="flex items-center gap-3 ml-4">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                {tripPlan.days.length} {tripPlan.days.length === 1 ? 'day' : 'days'}
-              </Badge>
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            {tripPlan.days.length} {tripPlan.days.length === 1 ? 'day' : 'days'}
+          </Badge>
               {tripPlan.days.length > 0 && (
                 <>
                   <Button
@@ -561,8 +561,8 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
               <Utensils className="w-3.5 h-3.5" />
               Focus on Food
             </Button>
-          </div>
         </div>
+      </div>
       )}
 
       {/* Itinerary */}
@@ -587,62 +587,62 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
             </div>
           </DndProvider>
         ) : (
-          <div className="p-6 space-y-6">
-            {tripPlan.days.map((day, index) => (
-              <Card key={day.day} className="p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white">
-                      <span className="text-lg">{day.day}</span>
-                    </div>
+        <div className="p-6 space-y-6">
+          {tripPlan.days.map((day, index) => (
+            <Card key={day.day} className="p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white">
+                    <span className="text-lg">{day.day}</span>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl mb-1">{day.title}</h3>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl mb-1">{day.title}</h3>
                     {day.date && (
                       <p className="text-sm text-gray-600">
                         {formatDisplayDate(day.date)}
                       </p>
                     )}
-                  </div>
                 </div>
+              </div>
 
-                <div className="space-y-4 ml-16">
-                  {day.activities.map((activity, actIndex) => {
-                    const Icon = categoryIcons[activity.category];
-                    return (
-                      <div key={activity.id} className="relative">
-                        {actIndex !== day.activities.length - 1 && (
-                          <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-200" />
-                        )}
-                        <div className="flex gap-4">
-                          <div className="flex-shrink-0 pt-1">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${categoryColors[activity.category]}`}>
-                              <Icon className="w-4 h-4" />
-                            </div>
+              <div className="space-y-4 ml-16">
+                {day.activities.map((activity, actIndex) => {
+                  const Icon = categoryIcons[activity.category];
+                  return (
+                    <div key={activity.id} className="relative">
+                      {actIndex !== day.activities.length - 1 && (
+                        <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-200" />
+                      )}
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0 pt-1">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${categoryColors[activity.category]}`}>
+                            <Icon className="w-4 h-4" />
                           </div>
-                          <div className="flex-1 pb-6">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <h4 className="font-medium">{activity.title}</h4>
+                        </div>
+                        <div className="flex-1 pb-6">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h4 className="font-medium">{activity.title}</h4>
                               <span className="text-sm text-gray-500 flex-shrink-0">
                                 {formatTimeTo12Hour(activity.time)}
                               </span>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
-                            {activity.location && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500">
-                                <MapPin className="w-3 h-3" />
-                                <span>{activity.location}</span>
-                              </div>
-                            )}
                           </div>
+                          <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
+                          {activity.location && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <MapPin className="w-3 h-3" />
+                              <span>{activity.location}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </Card>
-            ))}
-          </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          ))}
+        </div>
         )}
       </div>
 
