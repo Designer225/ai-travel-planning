@@ -383,7 +383,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-600" aria-hidden="true" />
-            <h2 className="text-lg">Chat with TripA</h2>
+            <h2 className="text-lg">Chat with TripAI</h2>
           </div>
           <Button
             variant="outlined"

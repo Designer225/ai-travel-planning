@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { tryCopyItinerary, tryEnterItineraryBuilder } from '@/app/lib/clientUserGate';
 import { useRouter } from 'next/navigation';
 import { getUserTrips, deleteTrip, copyTrip, updateTrip } from '@/app/lib/tripActions';
-import { CircularProgress } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export interface Trip {
   id: number;

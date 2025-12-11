@@ -1,7 +1,12 @@
 'use client';
 
 import { useState } from "react";
-import { Paper, Chip, Button, Box, Typography, Divider } from "@mui/material";
+import Paper from '@mui/material/Paper';
+import Chip from '@mui/material/Chip';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
 import { 
   Check, 
   CalendarMonth, 

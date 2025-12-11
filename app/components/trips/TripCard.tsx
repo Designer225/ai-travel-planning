@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/app/components/ui/card';
 import Button from '@mui/material/Button';
 import {
   Dialog,
@@ -8,10 +8,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
+} from '@/app/components/ui/dialog';
 import { Calendar, Clock, MapPin, Pencil, Trash2, Copy, Plane } from 'lucide-react';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/app/components/ui/badge';
 import type { Trip } from './TripsList';
+import Image from 'next/image';
 
 interface TripCardProps {
   trip: Trip;
@@ -85,11 +86,21 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
         {/* Image */}
         <div className="relative h-48 w-full overflow-hidden">
           {hasImage && !imageError ? (
-            <img
+            // <img
+            //   src={trip.imageUrl}
+            //   alt={trip.title || trip.destination}
+            //   className="w-full h-full object-cover"
+            //   onError={() => setImageError(true)}
+            // />
+            <Image
               src={trip.imageUrl}
               alt={trip.title || trip.destination}
               className="w-full h-full object-cover"
+              width={400}
+              height={200}
               onError={() => setImageError(true)}
+              fetchPriority='high'
+              loading='eager'
             />
           ) : null}
           {/* Placeholder when no image or image fails */}
@@ -212,6 +223,7 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
                     backgroundColor: "#00000030"
                   }
                 }}
+                aria-label='edit-trip'
               >
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit
@@ -227,6 +239,7 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
                     backgroundColor: "#00000030"
                   }
                 }}
+                aria-label='copy-trip'
               >
                 <Copy className="h-4 w-4 mr-2" />
                 Copy
@@ -241,6 +254,7 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
                     backgroundColor: "#ff5252"
                   }
                 }}
+                aria-label='delete-trip'
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete

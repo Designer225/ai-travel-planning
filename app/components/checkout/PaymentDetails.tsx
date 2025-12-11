@@ -1,17 +1,15 @@
 'use client';
 
 import React, { startTransition, useState } from "react";
-import {
-  Paper,
-  Box,
-  Typography,
-  Radio,
-  Stack,
-  Divider,
-  Button,
-  Chip,
-  TextField,
-} from "@mui/material";
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Radio from '@mui/material/Radio';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import TextField from '@mui/material/TextField'
 import { CreditCard, Lock } from "@mui/icons-material";
 import { tryEnterItineraryBuilder, tryEnterMyTrips } from "@/app/lib/clientUserGate";
 import { useRouter } from "next/navigation";
@@ -123,8 +121,12 @@ export function PaymentDetails({ showToast }: Props) {
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1}>
-            <Radio checked={useExisting} />
-            <Typography variant="body2" sx={{ flex: 1 }}>
+            <Radio checked={useExisting} slotProps={{
+              input: {
+                "aria-labelledby": "use-existing-method"
+              }
+            }}/>
+            <Typography variant="body2" sx={{ flex: 1 }} id='use-existing-method'>
               Use existing payment method
             </Typography>
             <CreditCard sx={{ color: "#4a5565", fontSize: 18 }} />
@@ -145,8 +147,12 @@ export function PaymentDetails({ showToast }: Props) {
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1}>
-            <Radio checked={!useExisting} />
-            <Typography variant="body2" sx={{ flex: 1 }}>
+            <Radio checked={!useExisting} slotProps={{
+              input: {
+                "aria-labelledby": "add-new-method"
+              }
+            }}/>
+            <Typography variant="body2" sx={{ flex: 1 }} id='add-new-method'>
               Add new payment method
             </Typography>
             <CreditCard sx={{ color: "#4a5565", fontSize: 18 }} />
@@ -176,10 +182,14 @@ export function PaymentDetails({ showToast }: Props) {
                   onClick={() => setSelectedCardId(card.id)}
                 >
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <Radio checked={isSelected} />
+                    <Radio checked={isSelected} slotProps={{
+                      input: {
+                        'aria-labelledby': `${card.label}-${card.last4}`
+                      }
+                    }}/>
                     <Box sx={{ flex: 1 }}>
                       <Stack direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }} id={`${card.label}-${card.last4}`}>
                           {card.label} •••• {card.last4}
                         </Typography>
                         {index === 0 && (

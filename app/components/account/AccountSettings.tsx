@@ -1,16 +1,14 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import {
-  Paper,
-  TextField,
-  Button,
-  Switch,
-  Box,
-  Typography,
-  FormControlLabel,
-  Divider,
-} from "@mui/material";
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Switch from '@mui/material/Switch';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Divider from '@mui/material/Divider';
 
 interface ProfileData {
   firstName: string;
@@ -179,7 +177,7 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500 }} id='email-notifications' >
               Email Notifications
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -189,13 +187,17 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
           <Switch
             checked={notifications.emailNotifications}
             onChange={(e) => setNotifications({ ...notifications, emailNotifications: e.target.checked })}
-            inputProps={{ 'aria-label': 'Email notifications' }}
+            slotProps={{
+              input: {
+                "aria-labelledby": "email-notifications"
+              }
+            }}
           />
         </Box>
 
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500 }} id='travel-recommendations'>
               Travel Recommendations
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -205,13 +207,17 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
           <Switch
             checked={notifications.travelRecommendations}
             onChange={(e) => setNotifications({ ...notifications, travelRecommendations: e.target.checked })}
-            inputProps={{ 'aria-label': 'Travel recommendations' }}
+            slotProps={{
+              input: {
+                "aria-labelledby": "travel-recommendations"
+              }
+            }}
           />
         </Box>
 
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500 }} id='price-alerts'>
               Price Alerts
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -221,7 +227,11 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
           <Switch
             checked={notifications.priceAlerts}
             onChange={(e) => setNotifications({ ...notifications, priceAlerts: e.target.checked })}
-            inputProps={{ 'aria-label': 'Price alerts' }}
+            slotProps={{
+              input: {
+                "aria-labelledby": "price-alerts"
+              }
+            }}
           />
         </Box>
       </Box>

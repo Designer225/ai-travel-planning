@@ -1,19 +1,17 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import {
-  Paper,
-  Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Box,
-  Typography,
-  IconButton,
-  Chip,
-} from "@mui/material";
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Chip from '@mui/material/Chip';
 import { CreditCard, Add, Delete } from "@mui/icons-material";
 import { getUserPaymentMethods, addPaymentMethod, deletePaymentMethod, setDefaultPaymentMethod, PaymentMethod } from "@/app/lib/userActions";
 

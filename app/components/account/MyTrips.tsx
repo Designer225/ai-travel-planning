@@ -1,16 +1,14 @@
 'use client';
 
 import { startTransition, useEffect, useState } from "react";
-import {
-  Paper,
-  Tabs,
-  Tab,
-  Box,
-  Typography,
-  IconButton,
-  Button,
-  CircularProgress,
-} from "@mui/material";
+import Paper from '@mui/material/Paper';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import { CalendarToday, AccessTime, Delete, Bookmark, LocationOn } from "@mui/icons-material";
 import { Plane } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -63,8 +61,8 @@ function TripCard({ trip, isPast }: { trip: TripCardTrip; isPast: boolean }) {
               {trip.destination}
             </Typography>
             {!isPast && (
-              <IconButton size="small">
-                <Delete fontSize="small" sx={{ color: "#4a5565" }} />
+              <IconButton size="small" aria-label="delete trip">
+                <Delete fontSize="small" sx={{ color: "#4a5565" }}/>
               </IconButton>
             )}
           </Box>

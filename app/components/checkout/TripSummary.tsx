@@ -1,7 +1,11 @@
 'use client';
 
 import React from "react";
-import { Paper, Box, Typography, Divider, Stack } from "@mui/material";
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import Stack from '@mui/material/Stack';
 import { FlightTakeoff, Hotel, LocalAtm, LocationOn, CalendarMonth } from "@mui/icons-material";
 
 type SummaryItem = {
