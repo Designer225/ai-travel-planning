@@ -1203,17 +1203,17 @@ export function MapExplore() {
                   transition: 'all',
                   ... selectedType === "attraction" ? {
                     color: '#fff',
-                    backgroundColor: '#FF6B6B',
-                    borderColor: '#FF6B6B',
+                    backgroundColor: '#c62828',
+                    borderColor: '#c62828',
                     ":hover": {
                       backgroundColor: '#FF5252'
                     }
                   } : {
-                    color: '#FF6B6B',
-                    borderColor: '#FF6B6B30',
+                    color: '#c62828',
+                    borderColor: '#c6282830',
                     ":hover": {
-                      backgroundColor: '#FF6B6B10',
-                      borderColor: '#FF6B6B'
+                      backgroundColor: '#c6282810',
+                      borderColor: '#c62828'
                     } 
                   }
                 }}
@@ -1230,17 +1230,17 @@ export function MapExplore() {
                   transition: 'all',
                   ... selectedType === "food" ? {
                     color: '#fff',
-                    backgroundColor: '#4ECDC4',
-                    borderColor: '#4ECDC4',
+                    backgroundColor: '#2e7d32',
+                    borderColor: '#2e7d32',
                     ":hover": {
                       backgroundColor: '#3EBDB4'
                     }
                   } : {
-                    color: '#4ECDC4',
-                    borderColor: '#4ECDC430',
+                    color: '#2e7d32',
+                    borderColor: '#2e7d3230',
                     ":hover": {
-                      backgroundColor: '#4ECDC410',
-                      borderColor: '#4ECDC4'
+                      backgroundColor: '#2e7d3210',
+                      borderColor: '#2e7d32'
                     } 
                   }
                 }}
@@ -1257,18 +1257,18 @@ export function MapExplore() {
                   transition: 'all',
                   ... selectedType === "lodging" ? {
                     color: '#fff',
-                    backgroundColor: '#FFD93D',
-                    borderColor: '#FFD93D',
+                    backgroundColor: '#f9a825',
+                    borderColor: '#f9a825',
                     ":hover": {
                       backgroundColor: '#FFC91D',
                       color: '#212121'
                     }
                   } : {
-                    color: '#FFD93D',
-                    borderColor: '#FFD93D30',
+                    color: '#f9a825',
+                    borderColor: '#f9a825',
                     ":hover": {
-                      backgroundColor: '#FFD93D10',
-                      borderColor: '#FFD93D'
+                      backgroundColor: '#f9a82510',
+                      borderColor: '#f9a825'
                     } 
                   }
                 }}
