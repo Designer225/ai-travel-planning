@@ -2,7 +2,27 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+1. Node.js 18+ installed
+2. A Google Gemini API key (for AI chatbot features)
+
+### Setup
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Set up environment variables:
+   - Create a `.env.local` file in the root directory
+   - Add your Google Gemini API key:
+   ```
+   GEMINI_API_KEY=your_api_key_here
+   ```
+   - To get an API key, visit [Google AI Studio](https://aistudio.google.com/app/apikey) and create a new API key
+
+3. Run the development server:
 
 ```bash
 npm run dev

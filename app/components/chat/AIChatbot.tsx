@@ -1,14 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { ChatPanel } from './ChatPanel';
-import { TripPanel } from './TripPanel';
 import { MapPin, Sparkles } from 'lucide-react';
 import { TripPlan } from '@/types';
 import { Navigation } from '../layout/Navigation';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { theme } from '@/app/lib/themes';
 import Link from 'next/link';
+
+// Dynamically import TripPanel to reduce initial bundle size
+// Only load when needed (when tripPlan exists or on larger screens)
+const TripPanel = dynamic(() => import('./TripPanel').then(mod => ({ default: mod.TripPanel })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="text-gray-500">Loading itinerary panel...</div>
+    </div>
+  ),
+});
 
 export default function AIChatbot() {
   const [tripPlan, setTripPlan] = useState<TripPlan | null>(null);
@@ -34,7 +45,7 @@ export default function AIChatbot() {
                   <Sparkles className="w-4 h-4 text-purple-500 absolute -top-1 -right-1" />
                 </div>
                 <div>
-                  <h1 className="text-xl">TripAI</h1>
+                  <h1 className="text-xl font-semibold">TripAI</h1>
                   <p className="text-sm text-gray-600">Your AI Travel Planning Assistant</p>
                 </div>
               </div>
@@ -65,7 +76,15 @@ export default function AIChatbot() {
 
           {/* Trip Planning Panel - Right Side */}
           <div className="hidden md:flex md:w-1/2 lg:w-3/5 flex-col bg-gradient-to-br from-gray-50 to-blue-50/30">
-            <TripPanel tripPlan={tripPlan} />
+            <TripPanel 
+              tripPlan={tripPlan} 
+              setTripPlan={setTripPlan}
+              onSendMessage={(message) => {
+                // Trigger message in ChatPanel via a custom event or ref
+                // For now, we'll use a custom event
+                window.dispatchEvent(new CustomEvent('chat-send-message', { detail: { message } }));
+              }}
+            />
           </div>
         </div>
       </ThemeProvider>
