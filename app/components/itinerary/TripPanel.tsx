@@ -26,6 +26,24 @@ const categoryColors = {
   other: 'bg-gray-100 text-gray-700 border-gray-200',
 };
 
+const formatTimeTo12Hour = (time?: string) => {
+  if (!time) return '';
+  const [hourStr, minuteStr = '00'] = time.split(':');
+  const hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  if (isNaN(hour) || isNaN(minute)) return time;
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = ((hour + 11) % 12) + 1;
+  return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+};
+
+const formatDisplayDate = (dateStr?: string) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
 export function TripPanel({ tripPlan }: TripPanelProps) {
   if (!tripPlan) {
     return (
@@ -110,7 +128,11 @@ export function TripPanel({ tripPlan }: TripPanelProps) {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl mb-1">{day.title}</h3>
-                  {day.date && <p className="text-sm text-gray-600">{day.date}</p>}
+                  {day.date && (
+                    <p className="text-sm text-gray-600">
+                      {formatDisplayDate(day.date)}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -131,7 +153,9 @@ export function TripPanel({ tripPlan }: TripPanelProps) {
                         <div className="flex-1 pb-6">
                           <div className="flex items-start justify-between gap-2 mb-1">
                             <h4 className="font-medium">{activity.title}</h4>
-                            <span className="text-sm text-gray-500 flex-shrink-0">{activity.time}</span>
+                            <span className="text-sm text-gray-500 flex-shrink-0">
+                              {formatTimeTo12Hour(activity.time)}
+                            </span>
                           </div>
                           <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
                           {activity.location && (

@@ -1,20 +1,21 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
-import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { Button } from '@mui/material';
 import { Sparkles, Search } from 'lucide-react';
 import { TripPlan } from '@/types';
 import { DestinationSearch } from './DestinationSearch';
 import { Destination } from '@/data/destinations';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  suggestions?: string[];
 }
 
 interface ChatPanelProps {
@@ -25,7 +26,7 @@ interface ChatPanelProps {
 const INITIAL_MESSAGE: Message = {
   id: '1',
   role: 'assistant',
-  content: "Hi! I'm your AI travel planning assistant. I can help you:\n\n✈️ Discover amazing destinations\n📅 Create day-by-day itineraries\n🏨 Plan accommodations and logistics\n🍽️ Find the best local experiences\n\nWhere would you like to go? Just tell me about your dream trip!",
+  content: "Hi! I'm your AI travel planning assistant. Where would you like to go? Just tell me about your dream trip and I'll create a personalized itinerary for you!",
   timestamp: new Date(),
 };
 
@@ -33,322 +34,24 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [isTyping, setIsTyping] = useState(false);
   const [showDestinationSearch, setShowDestinationSearch] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Scroll to bottom when messages change or typing state changes
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
 
-  const generateResponse = (userMessage: string): { response: string; updatePlan?: TripPlan } => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Example: Planning a trip to Tokyo
-    if ((lowerMessage.includes('tokyo') || lowerMessage.includes('japan')) && !tripPlan) {
-      const plan: TripPlan = {
-        destination: 'Tokyo, Japan',
-        startDate: '2025-04-01',
-        endDate: '2025-04-05',
-        days: [
-          {
-            day: 1,
-            date: 'April 1, 2025',
-            title: 'Arrival & Shibuya Exploration',
-            activities: [
-              {
-                id: '1',
-                time: '14:00',
-                title: 'Arrive at Narita Airport',
-                description: 'Take the Narita Express to Shibuya Station (90 min, ¥3,250)',
-                category: 'transport',
-              },
-              {
-                id: '2',
-                time: '16:00',
-                title: 'Check-in at Hotel',
-                description: 'Hotel in Shibuya district',
-                location: 'Shibuya',
-                category: 'accommodation',
-              },
-              {
-                id: '3',
-                time: '18:00',
-                title: 'Shibuya Crossing & Hachiko Statue',
-                description: "Experience the world's busiest pedestrian crossing",
-                location: 'Shibuya',
-                category: 'activity',
-              },
-              {
-                id: '4',
-                time: '20:00',
-                title: 'Dinner at Ichiran Ramen',
-                description: 'Famous tonkotsu ramen in private booth',
-                location: 'Shibuya',
-                category: 'food',
-              },
-            ],
-          },
-          {
-            day: 2,
-            date: 'April 2, 2025',
-            title: 'Traditional Tokyo - Asakusa & Ueno',
-            activities: [
-              {
-                id: '5',
-                time: '09:00',
-                title: 'Visit Senso-ji Temple',
-                description: "Tokyo's oldest temple with traditional shopping street",
-                location: 'Asakusa',
-                category: 'activity',
-              },
-              {
-                id: '6',
-                time: '12:00',
-                title: 'Lunch at Nakamise Shopping Street',
-                description: 'Try traditional snacks and street food',
-                location: 'Asakusa',
-                category: 'food',
-              },
-              {
-                id: '7',
-                time: '14:00',
-                title: 'Ueno Park & Museums',
-                description: 'Visit museums or enjoy cherry blossoms if in season',
-                location: 'Ueno',
-                category: 'activity',
-              },
-              {
-                id: '8',
-                time: '18:00',
-                title: 'Explore Ameyoko Market',
-                description: 'Bustling market street with food stalls',
-                location: 'Ueno',
-                category: 'activity',
-              },
-            ],
-          },
-          {
-            day: 3,
-            date: 'April 3, 2025',
-            title: 'Modern Tokyo - Harajuku & Shinjuku',
-            activities: [
-              {
-                id: '9',
-                time: '10:00',
-                title: 'Meiji Shrine',
-                description: 'Peaceful Shinto shrine in forested area',
-                location: 'Harajuku',
-                category: 'activity',
-              },
-              {
-                id: '10',
-                time: '12:00',
-                title: 'Takeshita Street Shopping',
-                description: 'Trendy fashion and quirky shops',
-                location: 'Harajuku',
-                category: 'activity',
-              },
-              {
-                id: '11',
-                time: '15:00',
-                title: 'teamLab Borderless',
-                description: 'Immersive digital art museum',
-                location: 'Odaiba',
-                category: 'activity',
-              },
-              {
-                id: '12',
-                time: '19:00',
-                title: 'Shinjuku Golden Gai',
-                description: 'Tiny bars and izakayas in atmospheric alleyways',
-                location: 'Shinjuku',
-                category: 'food',
-              },
-            ],
-          },
-        ],
-        budget: '$2,000 - $2,500',
-        travelers: 1,
-      };
-
-      return {
-        response: "Excellent choice! Tokyo is an incredible city that perfectly blends tradition and modernity. 🇯🇵\n\nI've created a 3-day itinerary for you covering the best of Tokyo:\n\n📍 Day 1: Arrival & Shibuya\n📍 Day 2: Traditional Tokyo (Asakusa & Ueno)\n📍 Day 3: Modern Tokyo (Harajuku & Shinjuku)\n\nYou can see the full day-by-day plan on the right. Would you like me to:\n- Add more days?\n- Focus on specific interests (food, culture, shopping)?\n- Adjust the pace?\n- Add day trips outside Tokyo?",
-        updatePlan: plan,
-      };
-    }
-
-    // Example: Planning Paris trip
-    if ((lowerMessage.includes('paris') || lowerMessage.includes('france')) && !tripPlan) {
-      const plan: TripPlan = {
-        destination: 'Paris, France',
-        startDate: '2025-05-15',
-        endDate: '2025-05-19',
-        days: [
-          {
-            day: 1,
-            date: 'May 15, 2025',
-            title: 'Iconic Paris - Eiffel Tower & Seine',
-            activities: [
-              {
-                id: '1',
-                time: '10:00',
-                title: 'Eiffel Tower',
-                description: 'Book tickets in advance, visit summit for best views',
-                location: 'Champ de Mars',
-                category: 'activity',
-              },
-              {
-                id: '2',
-                time: '13:00',
-                title: 'Lunch at Café de l\'Homme',
-                description: 'Restaurant with Eiffel Tower views',
-                location: 'Trocadéro',
-                category: 'food',
-              },
-              {
-                id: '3',
-                time: '15:00',
-                title: 'Seine River Cruise',
-                description: 'See Paris from the water',
-                location: 'Seine River',
-                category: 'activity',
-              },
-              {
-                id: '4',
-                time: '19:00',
-                title: 'Dinner in Le Marais',
-                description: 'Historic district with great restaurants',
-                location: 'Le Marais',
-                category: 'food',
-              },
-            ],
-          },
-          {
-            day: 2,
-            date: 'May 16, 2025',
-            title: 'Art & Culture - Louvre & Musée d\'Orsay',
-            activities: [
-              {
-                id: '5',
-                time: '09:00',
-                title: 'Louvre Museum',
-                description: 'Book timed entry, see Mona Lisa early to avoid crowds',
-                location: 'Louvre',
-                category: 'activity',
-              },
-              {
-                id: '6',
-                time: '13:00',
-                title: 'Lunch at Café Marly',
-                description: 'Elegant café overlooking Louvre courtyard',
-                location: 'Louvre',
-                category: 'food',
-              },
-              {
-                id: '7',
-                time: '15:00',
-                title: 'Musée d\'Orsay',
-                description: 'Impressionist masterpieces in beautiful train station',
-                location: 'Left Bank',
-                category: 'activity',
-              },
-              {
-                id: '8',
-                time: '18:00',
-                title: 'Stroll Saint-Germain-des-Prés',
-                description: 'Charming neighborhood with cafés and boutiques',
-                location: 'Saint-Germain',
-                category: 'activity',
-              },
-            ],
-          },
-          {
-            day: 3,
-            date: 'May 17, 2025',
-            title: 'Montmartre & Sacré-Cœur',
-            activities: [
-              {
-                id: '9',
-                time: '10:00',
-                title: 'Sacré-Cœur Basilica',
-                description: 'Stunning white basilica with panoramic views',
-                location: 'Montmartre',
-                category: 'activity',
-              },
-              {
-                id: '10',
-                time: '12:00',
-                title: 'Explore Montmartre Streets',
-                description: 'Artists, cafés, and charming cobblestone streets',
-                location: 'Montmartre',
-                category: 'activity',
-              },
-              {
-                id: '11',
-                time: '14:00',
-                title: 'Lunch at La Maison Rose',
-                description: 'Instagram-famous pink café',
-                location: 'Montmartre',
-                category: 'food',
-              },
-              {
-                id: '12',
-                time: '17:00',
-                title: 'Moulin Rouge Show',
-                description: 'Iconic cabaret performance (book in advance)',
-                location: 'Pigalle',
-                category: 'activity',
-              },
-            ],
-          },
-        ],
-        budget: '$2,500 - $3,000',
-        travelers: 2,
-      };
-
-      return {
-        response: "Magnifique! Paris is the perfect destination for romance, art, and incredible food. 🗼\n\nI've created a 3-day itinerary covering Paris highlights:\n\n📍 Day 1: Eiffel Tower & Seine River\n📍 Day 2: World-class museums (Louvre & Musée d'Orsay)\n📍 Day 3: Bohemian Montmartre\n\nCheck out the detailed itinerary on the right! Would you like to:\n- Add more days?\n- Include Versailles day trip?\n- Focus more on food experiences?\n- Add shopping locations?",
-        updatePlan: plan,
-      };
-    }
-
-    // Modify existing trip
-    if (tripPlan && (lowerMessage.includes('add') || lowerMessage.includes('more day'))) {
-      return {
-        response: "I can add more days to your itinerary! What would you like to do on the additional day(s)? Some suggestions:\n\n• Day trips to nearby areas\n• More time in specific neighborhoods\n• Special activities (cooking class, guided tour)\n• Shopping and relaxation\n\nTell me what interests you!",
-      };
-    }
-
-    // Start new trip
-    if (lowerMessage.includes('new trip') || lowerMessage.includes('start over')) {
-      return {
-        response: "Let's plan a new trip! Where would you like to go?",
-        updatePlan: undefined,
-      };
-    }
-
-    // General destination inquiry
-    if (lowerMessage.includes('where') || lowerMessage.includes('suggest') || lowerMessage.includes('recommend') || lowerMessage.includes('browse') || lowerMessage.includes('explore')) {
-      return {
-        response: "I'd love to help you find the perfect destination! You can:\n\n🔍 Click 'Browse Destinations' to explore our curated collection with filters\n💬 Tell me what you're looking for:\n  🏖️ Beach & relaxation\n  🏔️ Mountains & adventure\n  🏛️ History & culture\n  🍜 Food experiences\n  🌆 Urban exploration\n  💰 Budget-friendly or luxury\n\nWhat type of experience are you dreaming of?",
-      };
-    }
-
-    // Budget questions
-    if (lowerMessage.includes('budget') || lowerMessage.includes('cost') || lowerMessage.includes('price')) {
-      return {
-        response: tripPlan 
-          ? `For your trip to ${tripPlan.destination}, here's a rough budget breakdown:\n\n💰 Estimated: ${tripPlan.budget || '$2,000 - $3,000'}\n\nThis typically includes:\n• Accommodation\n• Food & dining\n• Activities & attractions\n• Local transportation\n\nWould you like me to adjust the itinerary for a different budget?`
-          : "I can help you plan a trip for any budget! What's your budget range per person? I'll suggest destinations and create an itinerary that fits.",
-      };
-    }
-
-    // Default response
-    return {
-      response: "I'm here to help you plan an amazing trip! You can ask me about:\n\n✨ Destination recommendations\n📅 Creating detailed itineraries\n💰 Budget planning\n🗺️ Day-by-day activities\n🏨 Accommodations and logistics\n\nWhat would you like to explore?",
-    };
-  };
+  // Memoize conversation history for API calls
+  const conversationHistory = useMemo(() => {
+    return messages
+      .filter((msg) => msg.role !== 'user' || msg.content !== INITIAL_MESSAGE.content)
+      .map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+  }, [messages]);
 
   const handleSendMessage = async (content: string) => {
     const userMessage: Message = {
@@ -360,23 +63,221 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     setMessages((prev) => [...prev, userMessage]);
 
     setIsTyping(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
 
-    const { response, updatePlan } = generateResponse(content);
-    
-    if (updatePlan !== undefined) {
-      setTripPlan(updatePlan);
-    }
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userMessage: content,
+          existingTripPlan: tripPlan,
+          conversationHistory: conversationHistory.slice(-12), // Last 12 messages for richer context
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        // Show error toast with appropriate styling
+        const errorMsg = data.responseText || 'Failed to generate response';
+        toast.error(errorMsg, {
+          duration: 5000,
+        });
+        
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: errorMsg,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        setIsTyping(false);
+        return;
+      }
+
+      // Update trip plan ONLY if explicitly provided and valid
+      // For general questions, tripPlan will be undefined/null, so we preserve the existing one
+      if (data.tripPlan && data.tripPlan.days && data.tripPlan.days.length > 0) {
+        setTripPlan(data.tripPlan);
+      }
+      // If tripPlan is not provided or is empty, keep the existing tripPlan unchanged
+
+      // Generate follow-up suggestions based on context
+      const suggestions = generateSuggestions(data.tripPlan, data.responseText, content);
 
     const aiResponse: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
-      content: response,
+        content: data.responseText,
       timestamp: new Date(),
+        suggestions: suggestions.length > 0 ? suggestions : undefined,
     };
     setMessages((prev) => [...prev, aiResponse]);
+    } catch (error: any) {
+      console.error('Error calling AI service:', error);
+      
+      // Determine error message based on error type
+      let errorMessage = 'I encountered an unexpected error. Please try again.';
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        errorMessage = 'Network connection error. Please check your internet connection and try again.';
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = 'The request took too long. Please try again with a simpler request.';
+      }
+      
+      toast.error(errorMessage, {
+        duration: 5000,
+      });
+      
+      const errorMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: errorMessage,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
     setIsTyping(false);
+    }
   };
+
+  // Listen for messages from TripPanel example prompts
+  useEffect(() => {
+    const handleCustomMessage = (event: CustomEvent<{ message: string }>) => {
+      if (event.detail?.message && !isTyping) {
+        handleSendMessage(event.detail.message);
+      }
+    };
+
+    window.addEventListener('chat-send-message', handleCustomMessage as EventListener);
+    return () => {
+      window.removeEventListener('chat-send-message', handleCustomMessage as EventListener);
+    };
+  }, [isTyping, tripPlan, conversationHistory]);
+
+  /**
+   * Generates contextual follow-up suggestions based on the conversation
+   */
+  function generateSuggestions(
+    tripPlan: TripPlan | null | undefined,
+    responseText: string,
+    lastUserMessage: string
+  ): string[] {
+    const suggestions: string[] = [];
+    const lowerResponse = responseText.toLowerCase();
+    const lowerUserMessage = lastUserMessage.toLowerCase();
+
+    // Detect trip type from activities and conversation
+    const detectTripType = (): 'food' | 'adventure' | 'culture' | 'family' | 'romantic' | 'budget' | 'general' => {
+      if (!tripPlan) return 'general';
+      
+      const allText = `${responseText} ${lastUserMessage}`.toLowerCase();
+      const activities = tripPlan.days.flatMap(d => d.activities.map(a => a.title.toLowerCase()));
+      const allActivityText = activities.join(' ');
+      
+      if (allText.includes('food') || allText.includes('restaurant') || allText.includes('culinary') || 
+          allActivityText.includes('restaurant') || allActivityText.includes('food') || allActivityText.includes('dining')) {
+        return 'food';
+      }
+      if (allText.includes('adventure') || allText.includes('outdoor') || allText.includes('hiking') || 
+          allActivityText.includes('hiking') || allActivityText.includes('adventure')) {
+        return 'adventure';
+      }
+      if (allText.includes('museum') || allText.includes('culture') || allText.includes('art') || 
+          allActivityText.includes('museum') || allActivityText.includes('gallery')) {
+        return 'culture';
+      }
+      if (allText.includes('family') || allText.includes('kid') || allText.includes('children')) {
+        return 'family';
+      }
+      if (allText.includes('romantic') || allText.includes('couple') || allText.includes('honeymoon')) {
+        return 'romantic';
+      }
+      if (allText.includes('budget') || allText.includes('cheap') || allText.includes('affordable')) {
+        return 'budget';
+      }
+      return 'general';
+    };
+
+    const tripType = detectTripType();
+    const destination = tripPlan?.destination || 'this destination';
+
+    // If itinerary was just generated
+    if (tripPlan && tripPlan.days.length > 0) {
+      // Trip type-specific suggestions
+      if (tripType === 'food') {
+        suggestions.push(`Add a cooking class or food tour`);
+        suggestions.push(`Find the best local markets`);
+        suggestions.push(`Suggest more budget-friendly dining options`);
+      } else if (tripType === 'adventure') {
+        suggestions.push(`Add more outdoor activities`);
+        suggestions.push(`Find hiking or nature trails`);
+        suggestions.push(`Suggest adventure sports`);
+      } else if (tripType === 'culture') {
+        suggestions.push(`Add more museums and galleries`);
+        suggestions.push(`Find cultural performances or shows`);
+        suggestions.push(`Suggest historical sites`);
+      } else if (tripType === 'family') {
+        suggestions.push(`Add more kid-friendly activities`);
+        suggestions.push(`Find family-friendly restaurants`);
+        suggestions.push(`Suggest activities suitable for all ages`);
+      } else if (tripType === 'romantic') {
+        suggestions.push(`Add romantic dining experiences`);
+        suggestions.push(`Find scenic spots for couples`);
+        suggestions.push(`Suggest sunset or evening activities`);
+      } else if (tripType === 'budget') {
+        suggestions.push(`Find more free activities`);
+        suggestions.push(`Suggest cheaper accommodation options`);
+        suggestions.push(`Show cost breakdown by day`);
+      } else {
+        // General suggestions based on context
+        const foodCount = tripPlan.days.reduce((sum, day) => 
+          sum + day.activities.filter(a => a.category === 'food').length, 0
+        );
+        const activityCount = tripPlan.days.reduce((sum, day) => 
+          sum + day.activities.filter(a => a.category === 'activity').length, 0
+        );
+        
+        if (foodCount < 3) {
+          suggestions.push(`Add more food experiences`);
+        }
+        if (activityCount < tripPlan.days.length * 2) {
+          suggestions.push(`Add more activities`);
+        }
+        suggestions.push(`Make the itinerary more relaxed`);
+      }
+
+      // Destination-specific suggestions
+      if (suggestions.length < 3) {
+        suggestions.push(`Add a day trip near ${destination}`);
+        if (suggestions.length < 3) {
+          suggestions.push(`What's the weather like in ${destination}?`);
+        }
+      }
+
+      // Budget-related suggestions if mentioned
+      if (lowerResponse.includes('budget') || lowerResponse.includes('cost') || lowerUserMessage.includes('budget')) {
+        if (!suggestions.some(s => s.toLowerCase().includes('budget'))) {
+          suggestions[0] = `Make it more budget-friendly`;
+        }
+      }
+    } else {
+      // No itinerary yet - general suggestions
+      if (lowerResponse.includes('destination') || lowerUserMessage.includes('visit') || lowerUserMessage.includes('go')) {
+        suggestions.push(`Tell me more about this destination`);
+        suggestions.push(`What's the best time to visit?`);
+        suggestions.push(`What's the budget for this trip?`);
+      } else {
+        suggestions.push(`Plan a 5-day trip`);
+        suggestions.push(`Create a romantic getaway`);
+        suggestions.push(`Suggest budget-friendly destinations`);
+      }
+    }
+
+    // Limit to 3 suggestions
+    return suggestions.slice(0, 3);
+  }
 
   const handleDestinationSelect = async (destination: Destination) => {
     setShowDestinationSearch(false);
@@ -390,28 +291,88 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     };
     setMessages((prev) => [...prev, userMessage]);
 
-    // Simulate AI response
     setIsTyping(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
 
-    // Create a basic trip plan
-    const plan: TripPlan = {
+    try {
+      // Create a basic trip plan first
+      const basicPlan: TripPlan = {
       destination: `${destination.name}, ${destination.country}`,
       days: [],
       budget: `$${destination.averageBudgetPerDay.budget} - $${destination.averageBudgetPerDay.luxury}/day`,
       travelers: 1,
     };
 
-    setTripPlan(plan);
+      setTripPlan(basicPlan);
+
+      // Call AI to generate detailed itinerary
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userMessage: `Create a detailed ${destination.idealDuration}-day itinerary for ${destination.name}, ${destination.country}. Include information about: ${destination.highlights.slice(0, 3).join(', ')}. Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}.`,
+          existingTripPlan: basicPlan,
+          conversationHistory: conversationHistory.slice(-10),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.tripPlan) {
+          setTripPlan(data.tripPlan);
+        }
+        
+        // Generate follow-up suggestions
+        const suggestions = generateSuggestions(data.tripPlan, data.responseText, `I want to visit ${destination.name}, ${destination.country}`);
+        
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.responseText,
+          timestamp: new Date(),
+          suggestions: suggestions.length > 0 ? suggestions : undefined,
+        };
+        setMessages((prev) => [...prev, aiResponse]);
+      } else {
+        // Fallback to basic response if AI fails
+        const fallbackContent = `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`;
+        const suggestions = generateSuggestions(null, fallbackContent, `I want to visit ${destination.name}, ${destination.country}`);
+        
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: fallbackContent,
+          timestamp: new Date(),
+          suggestions: suggestions.length > 0 ? suggestions : undefined,
+        };
+        setMessages((prev) => [...prev, aiResponse]);
+      }
+    } catch (error: any) {
+      console.error('Error calling AI service:', error);
+      // Fallback response
+      const basicPlan: TripPlan = {
+        destination: `${destination.name}, ${destination.country}`,
+        days: [],
+        budget: `$${destination.averageBudgetPerDay.budget} - $${destination.averageBudgetPerDay.luxury}/day`,
+        travelers: 1,
+      };
+      setTripPlan(basicPlan);
+      const errorContent = `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`;
+      const suggestions = generateSuggestions(basicPlan, errorContent, `I want to visit ${destination.name}, ${destination.country}`);
 
     const aiResponse: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
-      content: `Great choice! ${destination.name} is ${destination.description}\n\n✨ Highlights:\n${destination.highlights.slice(0, 5).map(h => `• ${h}`).join('\n')}\n\n📅 Best time to visit: ${destination.bestMonths.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}\n💰 Budget: $${destination.averageBudgetPerDay.budget}-$${destination.averageBudgetPerDay.luxury}/day\n⏱️ Ideal duration: ${destination.idealDuration} days\n\nI'm ready to create a detailed itinerary! How many days would you like to spend in ${destination.name}?`,
+        content: errorContent,
       timestamp: new Date(),
+        suggestions: suggestions.length > 0 ? suggestions : undefined,
     };
     setMessages((prev) => [...prev, aiResponse]);
+    } finally {
     setIsTyping(false);
+    }
   };
 
   return (
@@ -420,7 +381,7 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-600" />
-            <h2 className="text-lg">Chat with AI</h2>
+            <h2 className="text-lg">Chat with TripAI</h2>
           </div>
           <Button
             variant="outlined"
@@ -434,28 +395,50 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
         <p className="text-sm text-gray-600">Describe your dream trip and I'll plan it for you</p>
       </div>
 
-      <ScrollArea className="flex-1 p-4 overflow-auto">
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4"
+        style={{ scrollBehavior: 'smooth' }}
+      >
         <div className="space-y-4 max-w-2xl">
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+          {messages.map((message, index) => (
+            <div 
+              key={message.id}
+              className="animate-in fade-in slide-in-from-bottom-2"
+              style={{ 
+                animationDelay: `${index * 50}ms`,
+                animationDuration: '300ms'
+              }}
+            >
+              <ChatMessage 
+                message={message}
+                onSuggestionClick={(suggestion) => {
+                  if (!isTyping) {
+                    handleSendMessage(suggestion);
+                  }
+                }}
+              />
+            </div>
           ))}
           {isTyping && (
-            <div className="flex gap-2 items-start">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center flex-shrink-0">
+            <div className="flex gap-3 items-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center flex-shrink-0 animate-pulse">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3">
+              <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                <div className="flex gap-1.5 items-center">
+                  <span className="text-sm text-gray-500 mr-2">TripAI is thinking</span>
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }} />
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.4s' }} />
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.4s' }} />
+                  </div>
                 </div>
               </div>
             </div>
           )}
-          <div ref={scrollRef} />
         </div>
-      </ScrollArea>
+        </div>
 
       <div className="border-t p-4 bg-white">
         <ChatInput onSend={handleSendMessage} disabled={isTyping} />
