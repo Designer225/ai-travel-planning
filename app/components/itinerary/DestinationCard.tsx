@@ -5,7 +5,7 @@ import { Badge } from '@/app/components/ui/badge';
 import Button from '@mui/material/Button';
 import { MapPin, DollarSign, Calendar, Sparkles } from 'lucide-react';
 import { Destination } from '@/data/destinations';
-import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
+import Image from 'next/image';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -28,11 +28,18 @@ export function DestinationCard({ destination, onSelect }: DestinationCardProps)
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer">
       <div className="relative h-48 overflow-hidden bg-gray-100">
-        <ImageWithFallback
+        <Image
           src={placeholderImage}
           alt={`${destination.name} travel inspiration`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          width={911}
+          height={300}
         />
+        {/* <ImageWithFallback
+          src={placeholderImage}
+          alt={`${destination.name} travel inspiration`}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        /> */}
         <div className="absolute top-3 right-3">
           <Badge className="bg-white/90 text-gray-900 hover:bg-white">
             {destination.region}

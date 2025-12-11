@@ -11,7 +11,6 @@ import {
 } from '../ui/dialog';
 import { Calendar, Clock, MapPin, Pencil, Trash2, Copy, Plane } from 'lucide-react';
 import { Badge } from '../ui/badge';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
 import type { Trip } from './TripsList';
 
 interface TripCardProps {
