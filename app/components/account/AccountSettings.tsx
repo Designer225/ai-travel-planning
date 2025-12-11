@@ -189,6 +189,7 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
           <Switch
             checked={notifications.emailNotifications}
             onChange={(e) => setNotifications({ ...notifications, emailNotifications: e.target.checked })}
+            inputProps={{ 'aria-label': 'Email notifications' }}
           />
         </Box>
 
@@ -204,6 +205,7 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
           <Switch
             checked={notifications.travelRecommendations}
             onChange={(e) => setNotifications({ ...notifications, travelRecommendations: e.target.checked })}
+            inputProps={{ 'aria-label': 'Travel recommendations' }}
           />
         </Box>
 
@@ -219,6 +221,7 @@ export function AccountSettings({ profileData, setProfileData, showToast }: Acco
           <Switch
             checked={notifications.priceAlerts}
             onChange={(e) => setNotifications({ ...notifications, priceAlerts: e.target.checked })}
+            inputProps={{ 'aria-label': 'Price alerts' }}
           />
         </Box>
       </Box>

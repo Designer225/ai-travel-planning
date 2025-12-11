@@ -119,7 +119,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
       }}
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h6">Payment Settings</Typography>
+        <Typography variant="h6" component="h2">Payment Settings</Typography>
         <Button
           onClick={() => setIsAddDialogOpen(true)}
           variant="contained"
@@ -197,6 +197,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
                 <IconButton
                   size="small"
                   onClick={() => handleRemove(method.id)}
+                  aria-label={`Delete card ending in ${method.last4}`}
                 >
                   <Delete fontSize="small" sx={{ color: "#4a5565" }} />
                 </IconButton>
@@ -213,7 +214,7 @@ export function PaymentSettings({ showToast }: PaymentSettingsProps) {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Add Payment Method</DialogTitle>
+      <DialogTitle component="h3">Add Payment Method</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Add a new credit or debit card to your account.

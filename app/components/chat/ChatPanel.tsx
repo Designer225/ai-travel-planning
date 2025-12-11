@@ -30,6 +30,8 @@ const INITIAL_MESSAGE: Message = {
   timestamp: new Date(),
 };
 
+const AI_PLAN_STORAGE_KEY = 'ai-itinerary-plan';
+
 export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [isTyping, setIsTyping] = useState(false);
@@ -380,19 +382,20 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
       <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-600" />
-            <h2 className="text-lg">Chat with TripAI</h2>
+            <Sparkles className="w-5 h-5 text-purple-600" aria-hidden="true" />
+            <h2 className="text-lg">Chat with TripA</h2>
           </div>
           <Button
             variant="outlined"
             onClick={() => setShowDestinationSearch(true)}
             className="gap-2"
+            aria-label="Browse destinations"
           >
             <Search className="w-4 h-4" />
             Browse Destinations
           </Button>
         </div>
-        <p className="text-sm text-gray-600">Describe your dream trip and I'll plan it for you</p>
+        <p className="text-sm text-gray-700">Describe your dream trip and I'll plan it for you</p>
       </div>
 
       <div 
@@ -452,6 +455,3 @@ export function ChatPanel({ tripPlan, setTripPlan }: ChatPanelProps) {
     </>
   );
 }
-
-
-

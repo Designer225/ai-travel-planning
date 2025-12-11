@@ -35,6 +35,10 @@ export function DraggableActivity({ activity, dayIndex, activityIndex, children 
         opacity: isDragging ? 0.5 : 1,
         cursor: 'move',
       }}
+      aria-label={`Reorder ${activity.title}`}
+      aria-grabbed={isDragging}
+      role="group"
+      tabIndex={-1}
     >
       {children}
     </div>

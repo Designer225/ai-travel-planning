@@ -30,7 +30,7 @@ export function DestinationCard({ destination, onSelect }: DestinationCardProps)
       <div className="relative h-48 overflow-hidden bg-gray-100">
         <ImageWithFallback
           src={placeholderImage}
-          alt={destination.name}
+          alt={`${destination.name} travel inspiration`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute top-3 right-3">

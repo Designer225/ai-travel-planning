@@ -53,7 +53,7 @@ function TripCard({ trip, isPast }: { trip: TripCardTrip; isPast: boolean }) {
         >
           <img
             src={trip.image}
-            alt={trip.destination}
+            alt={`Preview image for ${trip.destination} trip`}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </Box>
@@ -202,7 +202,7 @@ export function MyTrips() {
         border: "1px solid rgba(0,0,0,0.1)",
       }}
     >
-      <Typography variant="h6" sx={{ mb: 2 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
         My Trips
       </Typography>
 
