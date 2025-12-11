@@ -29,6 +29,13 @@ export default function EditableDayCard({
   onMoveActivity,
   onAddActivity,
 }: EditableDayCardProps) {
+  const formatDisplayDate = (dateStr?: string) => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState(day.title);
   const [editDate, setEditDate] = useState(day.date || '');
@@ -130,7 +137,11 @@ export default function EditableDayCard({
               ) : (
                 <div>
                   <h3 className="text-xl mb-1">{day.title}</h3>
-                  {day.date && <p className="text-sm text-gray-600">{day.date}</p>}
+                  {day.date && (
+                    <p className="text-sm text-gray-600">
+                      {formatDisplayDate(day.date)}
+                    </p>
+                  )}
                 </div>
               )}
             </div>

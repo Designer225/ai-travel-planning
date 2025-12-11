@@ -10,7 +10,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Calendar, MapPin, DollarSign, Users, Plane, Utensils, Hotel, Navigation, Save, Edit2, X } from 'lucide-react';
+import { Calendar, MapPin, DollarSign, Users, Plane, Utensils, Hotel, Navigation, Save, Edit2, X, Plus, Coffee, Download } from 'lucide-react';
 import { TripPlan, TripDay, DayActivity } from '@/types';
 import { createTrip, saveItinerary } from '@/app/lib/tripActions';
 import { setCurrentItinerary } from '@/app/lib/itineraryActions';
@@ -20,13 +20,15 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // Dynamically import editable components - only load when in edit mode
-const EditableTripHeader = dynamic(() => import('../itinerary/EditableTripHeader'), {
-  ssr: false,
-});
+const EditableTripHeader = dynamic(
+  () => import('../itinerary/EditableTripHeader'),
+  { ssr: false }
+);
 
-const EditableDayCard = dynamic(() => import('../itinerary/EditableDayCard'), {
-  ssr: false,
-});
+const EditableDayCard = dynamic(
+  () => import('../itinerary/EditableDayCard'),
+  { ssr: false }
+);
 
 interface TripPanelProps {
   tripPlan: TripPlan | null;
@@ -48,6 +50,24 @@ const categoryColors = {
   food: 'bg-orange-100 text-orange-700 border-orange-200',
   accommodation: 'bg-green-100 text-green-700 border-green-200',
   other: 'bg-gray-100 text-gray-700 border-gray-200',
+};
+
+const formatTimeTo12Hour = (time?: string) => {
+  if (!time) return '';
+  const [hourStr, minuteStr = '00'] = time.split(':');
+  const hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  if (isNaN(hour) || isNaN(minute)) return time;
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = ((hour + 11) % 12) + 1;
+  return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+};
+
+const formatDisplayDate = (dateStr?: string) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSendMessage }: TripPanelProps) {
@@ -235,6 +255,36 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
     });
   };
 
+  const handleQuickAction = (action: string) => {
+    if (!onSendMessage) return;
+    onSendMessage(action);
+  };
+
+  const handleExportJSON = () => {
+    if (!tripPlan) {
+      toast.error('No itinerary to export');
+      return;
+    }
+
+    try {
+      const jsonString = JSON.stringify(tripPlan, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const filename = `${tripPlan.destination?.replace(/[^a-z0-9]/gi, '_') || 'itinerary'}_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Itinerary exported successfully!');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export itinerary');
+    }
+  };
+
   if (!tripPlan) {
     const examplePrompts = [
       "Plan a 5-day trip to Tokyo",
@@ -307,40 +357,59 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
             </div>
           </div>
         ) : (
-          <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h2 className="text-2xl mb-2">{tripPlan.destination}</h2>
-              <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                {tripPlan.startDate && (
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{tripPlan.startDate}</span>
-                    {tripPlan.endDate && <span> - {tripPlan.endDate}</span>}
-                  </div>
-                )}
-                {tripPlan.travelers && (
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    <span>{tripPlan.travelers} {tripPlan.travelers === 1 ? 'traveler' : 'travelers'}</span>
-                  </div>
-                )}
-                {tripPlan.budget && (
-                  <div className="flex items-center gap-1">
-                    <DollarSign className="w-4 h-4" />
-                    <span>{tripPlan.budget}</span>
-                  </div>
-                )}
-              </div>
+            <h2 className="text-2xl mb-2">{tripPlan.destination}</h2>
+            <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+              {tripPlan.startDate && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{tripPlan.startDate}</span>
+                  {tripPlan.endDate && <span> - {tripPlan.endDate}</span>}
+                </div>
+              )}
+              {tripPlan.travelers && (
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4" />
+                  <span>{tripPlan.travelers} {tripPlan.travelers === 1 ? 'traveler' : 'travelers'}</span>
+                </div>
+              )}
+              {tripPlan.budget && (
+                <div className="flex items-center gap-1">
+                  <DollarSign className="w-4 h-4" />
+                  <span>{tripPlan.budget}</span>
+                </div>
+              )}
             </div>
+          </div>
             <div className="flex items-center gap-3 ml-4">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                {tripPlan.days.length} {tripPlan.days.length === 1 ? 'day' : 'days'}
-              </Badge>
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            {tripPlan.days.length} {tripPlan.days.length === 1 ? 'day' : 'days'}
+          </Badge>
               {tripPlan.days.length > 0 && (
                 <>
                   <Button
+                    onClick={handleExportJSON}
+                    variant="outlined"
+                    className="gap-2"
+                    size="small"
+                    title="Export as JSON"
+                    sx={{
+                      gap: 1,
+                      color: "#000",
+                      border: "1px #888",
+                      ":hover": {
+                        backgroundColor: "#eee"
+                      }
+                    }}
+                  >
+                    <Download className="w-4 h-4" />
+                    Export
+                  </Button>
+                  <Button
                     onClick={handleEdit}
                     variant="outlined"
+                    size="small"
                     sx={{
                       gap: 1,
                       color: "#000",
@@ -358,6 +427,7 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                     disabled={isSaving}
                     variant='contained'
                     className="gap-2"
+                    size="small"
                     sx={{
                       color: "#fff",
                       backgroundColor: "#000",
@@ -372,6 +442,7 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                   <Button
                     onClick={handleDiscard}
                     variant="outlined"
+                    size="small"
                     sx={{
                       gap: 1,
                       color: "#e53935",
@@ -393,6 +464,172 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
         )}
       </div>
 
+      {/* Cost Estimation */}
+      {!isEditMode && tripPlan && tripPlan.days.length > 0 && (() => {
+        // Calculate cost estimates from activity descriptions
+        const costRegex = /\$(\d+(?:,\d{3})*(?:\.\d{2})?)/g;
+        const categoryCosts: Record<string, number> = {
+          transport: 0,
+          activity: 0,
+          food: 0,
+          accommodation: 0,
+          other: 0,
+        };
+        let totalEstimated = 0;
+        const travelers = tripPlan.travelers || 1;
+
+        tripPlan.days.forEach(day => {
+          day.activities.forEach(activity => {
+            const desc = activity.description || '';
+            const matches = [...desc.matchAll(costRegex)];
+            if (matches.length > 0) {
+              const cost = parseFloat(matches[0][1].replace(/,/g, ''));
+              categoryCosts[activity.category] += cost;
+              totalEstimated += cost;
+            } else {
+              // Estimate based on category if no cost mentioned
+              const estimates: Record<string, number> = {
+                transport: 20,
+                activity: 30,
+                food: 25,
+                accommodation: 80,
+                other: 15,
+              };
+              const estimated = estimates[activity.category] || 15;
+              categoryCosts[activity.category] += estimated;
+              totalEstimated += estimated;
+            }
+          });
+        });
+
+        // Adjust for number of travelers (food and activities)
+        categoryCosts.food *= travelers;
+        categoryCosts.activity *= travelers;
+        totalEstimated = Object.values(categoryCosts).reduce((sum, cost) => sum + cost, 0);
+
+        return (
+          <div className="px-6 py-4 bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Estimated Cost Breakdown</h3>
+                <div className="flex flex-wrap gap-4 text-xs">
+                  {categoryCosts.transport > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Plane className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="text-gray-600">Transport:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.transport)}</span>
+                    </div>
+                  )}
+                  {categoryCosts.activity > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Navigation className="w-3.5 h-3.5 text-purple-600" />
+                      <span className="text-gray-600">Activities:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.activity)}</span>
+                    </div>
+                  )}
+                  {categoryCosts.food > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Utensils className="w-3.5 h-3.5 text-orange-600" />
+                      <span className="text-gray-600">Food:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.food)}</span>
+                    </div>
+                  )}
+                  {categoryCosts.accommodation > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Hotel className="w-3.5 h-3.5 text-green-600" />
+                      <span className="text-gray-600">Accommodation:</span>
+                      <span className="font-semibold text-gray-900">${Math.round(categoryCosts.accommodation)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-600 mb-1">Total Estimated</div>
+                <div className="text-2xl font-bold text-blue-600">${Math.round(totalEstimated)}</div>
+                {tripPlan.days.length > 0 && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    ~${Math.round(totalEstimated / tripPlan.days.length)}/day
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Quick Actions */}
+      {!isEditMode && tripPlan && tripPlan.days.length > 0 && (
+        <div className="px-6 py-4 bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-b">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 mr-2">Quick actions:</span>
+            <Button
+              onClick={() => handleQuickAction('Make this itinerary more budget-friendly')}
+              variant="outlined"
+              size="small"
+              className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
+            >
+              <DollarSign className="w-3.5 h-3.5" />
+              More Budget-Friendly
+            </Button>
+            <Button
+              onClick={() => handleQuickAction('Add more activities to this itinerary')}
+              variant="outlined"
+              size="small"
+              className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Activities
+            </Button>
+            <Button
+              onClick={() => handleQuickAction('Make this itinerary more relaxed with fewer activities per day')}
+              variant="outlined"
+              size="small"
+              className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
+            >
+              <Coffee className="w-3.5 h-3.5" />
+              More Relaxed
+            </Button>
+            <Button
+              onClick={() => handleQuickAction('Focus this itinerary on food experiences and restaurants')}
+              variant="outlined"
+              size="small"
+              className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
+            >
+              <Utensils className="w-3.5 h-3.5" />
+              Focus on Food
+            </Button>
+        </div>
+      </div>
+      )}
+
       {/* Itinerary */}
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {isEditMode ? (
@@ -403,9 +640,11 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                   key={day.day}
                   day={day}
                   dayIndex={index}
-                  onUpdateDay={(updates) => handleUpdateDay(index, updates)}
-                  onUpdateActivity={(activityId, updates) => handleUpdateActivity(index, activityId, updates)}
-                  onDeleteActivity={(activityId) => handleDeleteActivity(index, activityId)}
+                  onUpdateDay={(updates: Partial<TripDay>) => handleUpdateDay(index, updates)}
+                  onUpdateActivity={(activityId: string, updates: Partial<DayActivity>) =>
+                    handleUpdateActivity(index, activityId, updates)
+                  }
+                  onDeleteActivity={(activityId: string) => handleDeleteActivity(index, activityId)}
                   onMoveActivity={handleMoveActivity}
                   onAddActivity={() => handleAddActivity(index)}
                 />
@@ -413,56 +652,62 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
             </div>
           </DndProvider>
         ) : (
-          <div className="p-6 space-y-6">
-            {tripPlan.days.map((day, index) => (
-              <Card key={day.day} className="p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white">
-                      <span className="text-lg">{day.day}</span>
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl mb-1">{day.title}</h3>
-                    {day.date && <p className="text-sm text-gray-600">{day.date}</p>}
+        <div className="p-6 space-y-6">
+          {tripPlan.days.map((day, index) => (
+            <Card key={day.day} className="p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white">
+                    <span className="text-lg">{day.day}</span>
                   </div>
                 </div>
+                <div className="flex-1">
+                  <h3 className="text-xl mb-1">{day.title}</h3>
+                    {day.date && (
+                      <p className="text-sm text-gray-600">
+                        {formatDisplayDate(day.date)}
+                      </p>
+                    )}
+                </div>
+              </div>
 
-                <div className="space-y-4 ml-16">
-                  {day.activities.map((activity, actIndex) => {
-                    const Icon = categoryIcons[activity.category];
-                    return (
-                      <div key={activity.id} className="relative">
-                        {actIndex !== day.activities.length - 1 && (
-                          <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-200" />
-                        )}
-                        <div className="flex gap-4">
-                          <div className="flex-shrink-0 pt-1">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${categoryColors[activity.category]}`}>
-                              <Icon className="w-4 h-4" />
-                            </div>
-                          </div>
-                          <div className="flex-1 pb-6">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <h4 className="font-medium">{activity.title}</h4>
-                              <span className="text-sm text-gray-500 flex-shrink-0">{activity.time}</span>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
-                            {activity.location && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500">
-                                <MapPin className="w-3 h-3" />
-                                <span>{activity.location}</span>
-                              </div>
-                            )}
+              <div className="space-y-4 ml-16">
+                {day.activities.map((activity, actIndex) => {
+                  const Icon = categoryIcons[activity.category];
+                  return (
+                    <div key={activity.id} className="relative">
+                      {actIndex !== day.activities.length - 1 && (
+                        <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-200" />
+                      )}
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0 pt-1">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${categoryColors[activity.category]}`}>
+                            <Icon className="w-4 h-4" />
                           </div>
                         </div>
+                        <div className="flex-1 pb-6">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h4 className="font-medium">{activity.title}</h4>
+                              <span className="text-sm text-gray-500 flex-shrink-0">
+                                {formatTimeTo12Hour(activity.time)}
+                              </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
+                          {activity.location && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <MapPin className="w-3 h-3" />
+                              <span>{activity.location}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </Card>
-            ))}
-          </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          ))}
+        </div>
         )}
       </div>
 

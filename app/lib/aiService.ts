@@ -10,8 +10,9 @@ if (!API_KEY) {
 // Initialize Gemini
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
-// Use gemini-2.5-flash-lite for faster responses
+// Primary and fallback models
 const MODEL_NAME = 'gemini-2.5-flash-lite';
+const FALLBACK_MODEL_NAME = 'gemini-2.0-flash';
 
 // Response cache configuration
 interface CacheEntry {
@@ -119,7 +120,55 @@ export interface GenerateItineraryResponse {
 }
 
 /**
- * Generates a structured travel itinerary using Google Gemini AI
+ * Sleep utility for retry delays
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Determines if an error is retryable
+ */
+function isRetryableError(error: any): boolean {
+  const errorMessage = error?.message?.toLowerCase() || '';
+  const errorCode = error?.code || '';
+  
+  // Retry on network errors, timeouts, and rate limits
+  if (
+    errorMessage.includes('network') ||
+    errorMessage.includes('timeout') ||
+    errorMessage.includes('429') ||
+    errorMessage.includes('rate limit') ||
+    errorMessage.includes('econnreset') ||
+    errorMessage.includes('etimedout') ||
+    errorCode === 'ECONNRESET' ||
+    errorCode === 'ETIMEDOUT'
+  ) {
+    return true;
+  }
+  
+  // Don't retry on authentication errors, invalid requests, etc.
+  if (
+    errorMessage.includes('api_key') ||
+    errorMessage.includes('401') ||
+    errorMessage.includes('403') ||
+    errorMessage.includes('400') ||
+    errorMessage.includes('invalid')
+  ) {
+    return false;
+  }
+  
+  // Default to retryable for unknown errors
+  return true;
+}
+
+function isRateLimitError(error: any): boolean {
+  const msg = error?.message?.toLowerCase() || '';
+  return msg.includes('429') || msg.includes('rate limit');
+}
+
+/**
+ * Generates a structured travel itinerary using Google Gemini AI with retry logic
  */
 export async function generateItinerary(
   params: GenerateItineraryParams
@@ -140,120 +189,205 @@ export async function generateItinerary(
     return cachedResponse;
   }
 
-  try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+  const MAX_RETRIES = 3;
+  let lastError: any = null;
 
-    // Build the system prompt
-    const systemPrompt = buildSystemPrompt(params.existingTripPlan);
-
-    // Build the user prompt with context
-    const userPrompt = buildUserPrompt(
-      params.userMessage,
-      params.existingTripPlan,
-      params.conversationHistory
-    );
-
-    // Create a timeout promise (30 seconds)
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
-    });
-
-    // Combine system and user prompts
-    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-
-    // Build conversation history for Gemini API (if available)
-    const history = params.conversationHistory?.slice(-8) || []; // Last 8 messages
-    const conversationParts = history.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }],
-    }));
-
-    // Make the API call with timeout
-    const generateContentPromise = model.generateContent({
-      contents: [
-        ...conversationParts,
-        { role: 'user', parts: [{ text: fullPrompt }] },
-      ],
-      generationConfig: {
-        temperature: 0.8, // Slightly higher for more conversational responses
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 4096,
-        responseMimeType: 'application/json',
-      },
-    });
-
-    const apiResult = await Promise.race([generateContentPromise, timeoutPromise]);
-    const response = apiResult.response;
-    const text = response.text();
-
-    // Parse the JSON response
-    let parsedResponse: any;
+  // Retry loop
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      // Try to extract JSON from markdown code blocks if present
-      const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/);
-      const jsonText = jsonMatch ? jsonMatch[1] : text;
-      parsedResponse = JSON.parse(jsonText.trim());
-    } catch (parseError) {
-      console.error('Failed to parse AI response as JSON:', text);
-      // Fallback: return the text response without structured data
-      return {
-        success: true,
-        responseText: text || 'I apologize, but I had trouble generating a structured itinerary. Please try rephrasing your request.',
-      };
+      const modelsToTry = [MODEL_NAME, FALLBACK_MODEL_NAME];
+      let lastModelError: any = null;
+      const triedModels: string[] = [];
+
+      for (const modelName of modelsToTry) {
+        try {
+          triedModels.push(modelName);
+          const model = genAI.getGenerativeModel({ model: modelName });
+
+          // Build the system prompt
+          const systemPrompt = buildSystemPrompt(params.existingTripPlan);
+
+          // Build the user prompt with context
+          const userPrompt = buildUserPrompt(
+            params.userMessage,
+            params.existingTripPlan,
+            params.conversationHistory
+          );
+
+          // Create a timeout promise (30 seconds)
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
+          });
+
+          // Combine system and user prompts
+          const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+
+          // Build conversation history for Gemini API (if available)
+          const history = params.conversationHistory?.slice(-8) || []; // Last 8 messages
+          const conversationParts = history.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }],
+          }));
+
+          // Make the API call with timeout
+          const generateContentPromise = model.generateContent({
+            contents: [
+              ...conversationParts,
+              { role: 'user', parts: [{ text: fullPrompt }] },
+            ],
+            generationConfig: {
+              temperature: 0.8, // Slightly higher for more conversational responses
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 4096,
+              responseMimeType: 'application/json',
+            },
+          });
+
+          const apiResult = await Promise.race([generateContentPromise, timeoutPromise]);
+          const response = apiResult.response;
+          const text = response.text();
+
+          // Parse the JSON response
+          let parsedResponse: any;
+          try {
+            // Try to extract JSON from markdown code blocks if present
+            const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/);
+            const jsonText = jsonMatch ? jsonMatch[1] : text;
+            parsedResponse = JSON.parse(jsonText.trim());
+          } catch (parseError) {
+            // Second attempt: try to grab the first JSON object in the text
+            try {
+              const fallbackMatch = text.match(/\{[\s\S]*\}/);
+              if (fallbackMatch) {
+                parsedResponse = JSON.parse(fallbackMatch[0]);
+              }
+            } catch (secondaryParseError) {
+              console.error('Failed to parse AI response as JSON:', text);
+              // Fallback: return a friendly text response without structured data
+              return {
+                success: true,
+                responseText:
+                  'I updated your itinerary. Please try again if you want more details, or ask me to adjust anything specific.',
+              };
+            }
+          }
+
+          // Extract response text and trip plan
+          let responseText = parsedResponse.responseText || parsedResponse.message || text;
+          // Guard against accidental object/stringified JSON showing to users
+          if (typeof responseText !== 'string' || responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            responseText = 'I updated your itinerary. Let me know if you want further changes or more details.';
+          }
+
+          // Only process tripPlan if it exists in the response
+          // For general questions, tripPlan should not be included
+          let tripPlan: TripPlan | undefined = undefined;
+          if (parsedResponse.tripPlan) {
+            const validatedTripPlan = validateAndTransformTripPlan(parsedResponse.tripPlan, params.existingTripPlan);
+            // Only include tripPlan if it's valid and has days (or is explicitly modifying the trip)
+            if (validatedTripPlan && validatedTripPlan.days.length > 0) {
+              tripPlan = validatedTripPlan;
+            } else if (validatedTripPlan && validatedTripPlan.destination) {
+              // If it has a destination but no days, it might be a partial update - preserve existing
+              tripPlan = validatedTripPlan;
+            }
+          }
+          // If no tripPlan in response, preserve existing tripPlan by not including it in result
+
+          const result: GenerateItineraryResponse = {
+            success: true,
+            responseText,
+            tripPlan: tripPlan,
+          };
+
+          // Cache the successful response
+          setCachedResponse(cacheKey, result);
+
+          return result;
+        } catch (error: any) {
+          lastModelError = error;
+          // If primary model hits rate limit, try fallback
+          if (modelName !== FALLBACK_MODEL_NAME && isRateLimitError(error)) {
+            console.warn(`Primary model ${modelName} rate limited. Trying fallback model ${FALLBACK_MODEL_NAME}...`);
+            continue; // try next model
+          }
+          // Otherwise, throw to outer catch
+          throw error;
+        }
+      }
+
+      // If we get here, all models failed
+      // Attach info about models tried
+      if (lastModelError) {
+        lastModelError.triedModels = triedModels;
+      }
+      throw lastModelError;
+    } catch (error: any) {
+      lastError = error;
+      console.error(`Error generating itinerary (attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
+
+      // Check if error is retryable
+      if (!isRetryableError(error)) {
+        // Non-retryable error, return immediately
+        break;
+      }
+
+      // If this is the last attempt, don't retry
+      if (attempt === MAX_RETRIES - 1) {
+        break;
+      }
+
+      // Calculate exponential backoff delay: 1s, 2s, 4s
+      const delay = Math.pow(2, attempt) * 1000;
+      console.log(`Retrying in ${delay}ms...`);
+      await sleep(delay);
     }
+  }
 
-    // Extract response text and trip plan
-    const responseText = parsedResponse.responseText || parsedResponse.message || text;
-    const tripPlanData = parsedResponse.tripPlan || parsedResponse;
-
-    // Validate and transform the trip plan
-    const tripPlan = validateAndTransformTripPlan(tripPlanData, params.existingTripPlan);
-
-    const result: GenerateItineraryResponse = {
-      success: true,
-      responseText,
-      tripPlan: tripPlan || undefined,
-    };
-
-    // Cache the successful response
-    setCachedResponse(cacheKey, result);
-
-    return result;
-  } catch (error: any) {
-    console.error('Error generating itinerary:', error);
-
-    // Handle specific error types
-    if (error.message?.includes('timeout')) {
-      return {
-        success: false,
-        responseText: 'The request took too long. Please try again with a simpler request.',
-        error: 'TIMEOUT',
-      };
-    }
-
-    if (error.message?.includes('API_KEY') || error.message?.includes('401')) {
-      return {
-        success: false,
-        responseText: 'Invalid API key. Please check your GEMINI_API_KEY configuration.',
-        error: 'INVALID_API_KEY',
-      };
-    }
-
-    if (error.message?.includes('429') || error.message?.includes('rate limit')) {
-      return {
-        success: false,
-        responseText: 'Rate limit exceeded. Please wait a moment and try again.',
-        error: 'RATE_LIMIT',
-      };
-    }
-
+  // All retries failed, return appropriate error
+  const error = lastError;
+  
+  // Handle specific error types with user-friendly messages
+  if (error?.message?.includes('timeout') || error?.message?.includes('30 seconds')) {
     return {
       success: false,
-      responseText: 'I encountered an error while generating your itinerary. Please try again.',
-      error: error.message || 'UNKNOWN_ERROR',
+      responseText: 'The request took too long to complete. This might be due to a slow connection. Please try again with a simpler request, or check your internet connection.',
+      error: 'TIMEOUT',
     };
   }
+
+  if (error?.message?.includes('API_KEY') || error?.message?.includes('401') || error?.message?.includes('403')) {
+    return {
+      success: false,
+      responseText: 'Invalid or missing API key. Please check your GEMINI_API_KEY configuration in your environment variables.',
+      error: 'INVALID_API_KEY',
+    };
+  }
+
+  if (error?.message?.includes('429') || error?.message?.includes('rate limit')) {
+    const tried = Array.isArray(error?.triedModels) ? error.triedModels.join(', ') : 'the available models';
+    return {
+      success: false,
+      responseText: `Rate limit exceeded. We tried ${tried}. Please wait 30-60 seconds and try again, or reduce request frequency.`,
+      error: 'RATE_LIMIT',
+    };
+  }
+
+  if (error?.message?.includes('network') || error?.message?.includes('ECONNRESET') || error?.message?.includes('ETIMEDOUT')) {
+    return {
+      success: false,
+      responseText: 'Network connection error. Please check your internet connection and try again. If the problem persists, the service might be temporarily unavailable.',
+      error: 'NETWORK_ERROR',
+    };
+  }
+
+  // Generic error fallback
+  return {
+    success: false,
+    responseText: 'I encountered an unexpected error. Please try again in a moment. If the problem continues, try rephrasing your request.',
+    error: error?.message || 'UNKNOWN_ERROR',
+  };
 }
 
 /**
@@ -300,6 +434,14 @@ When a user requests a trip plan or itinerary changes, return JSON with this str
   }
 }
 
+COST ESTIMATION:
+- When generating itineraries, include estimated costs in the activity description when relevant
+- Format costs as: "Estimated cost: $X" or "Cost: $X-Y" in the description
+- For accommodation, include per-night cost
+- For food, include per-person cost
+- For activities, include per-person or total cost
+- This helps users understand the budget needed
+
 CRITICAL RULES:
 1. If the user asks a QUESTION (weather, costs, recommendations, "what about X?", "how about Y?"), answer the question conversationally. ONLY include "tripPlan" if they explicitly ask to change the itinerary.
 2. If the user says "change to October" or "update the dates" - THEN modify the tripPlan
@@ -310,6 +452,7 @@ CRITICAL RULES:
 7. Each activity must have a unique ID (use simple strings like "1", "2", etc.)
 8. If modifying an existing trip, preserve existing days unless explicitly asked to change them
 9. Always return valid JSON - no markdown formatting
+10. Include cost estimates in activity descriptions when generating new itineraries
 
 For general questions that don't require itinerary changes, return:
 {
@@ -327,10 +470,10 @@ function buildUserPrompt(
 ): string {
   let prompt = '';
 
-  // Include conversation history for context (last 5-6 messages)
+  // Include conversation history for context (last 10 messages)
   if (conversationHistory && conversationHistory.length > 0) {
     prompt += 'CONVERSATION HISTORY (for context - understand what was just discussed):\n';
-    const recentHistory = conversationHistory.slice(-6); // Last 6 messages for context
+    const recentHistory = conversationHistory.slice(-10); // Last 10 messages for context
     recentHistory.forEach((msg) => {
       prompt += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
     });
@@ -437,10 +580,39 @@ function validateAndTransformTripPlan(
     });
   }
 
+  // Date normalization: ensure future defaults
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const defaultStart = new Date(today);
+  defaultStart.setDate(defaultStart.getDate() + 14); // two weeks from today
+
+  const parseDate = (value?: string | null) => {
+    if (!value) return null;
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const formatISODate = (d: Date | null) =>
+    d
+      ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      : undefined;
+
+  // Prefer AI-provided date, else existing trip date
+  let startDateParsed = parseDate(tripPlanData.startDate) || parseDate(existingTripPlan?.startDate);
+  if (!startDateParsed || startDateParsed < today) {
+    startDateParsed = defaultStart;
+  }
+
+  let endDateParsed = parseDate(tripPlanData.endDate) || parseDate(existingTripPlan?.endDate);
+  if ((!endDateParsed || (startDateParsed && endDateParsed < startDateParsed)) && days.length > 0) {
+    endDateParsed = new Date(startDateParsed);
+    endDateParsed.setDate(startDateParsed.getDate() + (days.length - 1));
+  }
+
   const tripPlan: TripPlan = {
     destination: tripPlanData.destination || existingTripPlan?.destination || '',
-    startDate: tripPlanData.startDate || existingTripPlan?.startDate,
-    endDate: tripPlanData.endDate || existingTripPlan?.endDate,
+    startDate: formatISODate(startDateParsed),
+    endDate: formatISODate(endDateParsed),
     title: tripPlanData.title || existingTripPlan?.title,
     budget: tripPlanData.budget || existingTripPlan?.budget,
     travelers: tripPlanData.travelers || existingTripPlan?.travelers || 1,
