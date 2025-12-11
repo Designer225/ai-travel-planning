@@ -130,7 +130,7 @@ export function TravelPreferences({ showToast }: TravelPreferencesProps) {
         border: "1px solid rgba(0,0,0,0.1)",
       }}
     >
-      <Typography variant="h6" sx={{ mb: 3 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 3 }}>
         Travel Preferences
       </Typography>
 

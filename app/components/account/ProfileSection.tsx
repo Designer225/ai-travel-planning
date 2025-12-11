@@ -124,17 +124,21 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
   return (
     <>
       <Paper 
-        elevation={0}
-        sx={{ 
-          p: 3, 
-          borderRadius: 4,
-          border: "1px solid rgba(0,0,0,0.1)",
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <Box sx={{ position: "relative", mb: 2 }}>
-            <Avatar
-              src={profileData.avatarUrl}
+      elevation={0}
+      sx={{ 
+        p: 3, 
+        borderRadius: 4,
+        border: "1px solid rgba(0,0,0,0.1)",
+      }}
+    >
+      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+        Profile
+      </Typography>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Box sx={{ position: "relative", mb: 2 }}>
+          <Avatar
+            src={profileData.avatarUrl}
+            alt={`${profileData.firstName} ${profileData.lastName} avatar`}
               className="gradient-background"
               sx={{
                 width: 120,
@@ -155,6 +159,7 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
                 width: 32,
                 height: 32,
               }}
+              aria-label="Change profile photo"
             >
               <CameraAlt sx={{ fontSize: 16 }} />
             </IconButton>
@@ -223,6 +228,7 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
             <Avatar
               src={editData.avatarUrl}
+              alt={`${editData.firstName} ${editData.lastName} avatar preview`}
               className="gradient-background"
               sx={{
                 width: 100,
@@ -236,6 +242,7 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
               variant="outlined"
               startIcon={<Upload />}
               onClick={() => dialogFileInputRef.current?.click()}
+              aria-label="Upload new profile photo"
             >
               Change Photo
             </Button>
