@@ -1382,8 +1382,8 @@ export function MapExplore() {
   
 
             <div className="flex gap-2 mt-4">
-              <Button className="flex-1" onClick={handleAddToItinerary}>Add to Itinerary</Button>
-              <Button variant="outline" className="flex-1">Get Directions</Button>
+              <Button className="flex-1 gradient-button" variant="contained" onClick={handleAddToItinerary}>Add to Itinerary</Button>
+              <Button variant="outlined" className="flex-1">Get Directions</Button>
             </div>
           </DialogContent>
         </Dialog>

@@ -160,6 +160,7 @@ export default function LoginPage() {
                 size="large"
                 disabled={isLoading}
                 sx={{ mt: 3, mb: 2 }}
+                className="gradient-button"
                 aria-label={isLoading ? "Signing in..." : "Sign in to your account"}
               >
                 {isLoading ? (
