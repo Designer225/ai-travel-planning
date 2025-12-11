@@ -5,16 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import Button from '@mui/material/Button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/app/components/ui/alert-dialog';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import { Calendar, MapPin, DollarSign, Users, Plane, Utensils, Hotel, Navigation, Save, Edit2, X } from 'lucide-react';
 import { TripPlan, TripDay, DayActivity } from '@/types';
 import { createTrip, saveItinerary } from '@/app/lib/tripActions';
@@ -472,25 +467,18 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
       </div>
 
       {/* Discard Confirmation Dialog */}
-      <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Discard Itinerary?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to discard this itinerary? This action cannot be undone and you'll lose all the generated content.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDiscard}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Discard
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={showDiscardDialog} onClose={() => setShowDiscardDialog(false)}>
+        <DialogTitle>Discard Itinerary?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to discard this itinerary? This action cannot be undone and you'll lose all the generated content.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDiscardDialog(false)}>Cancel</Button>
+          <Button onClick={confirmDiscard} color="error">Discard</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 });

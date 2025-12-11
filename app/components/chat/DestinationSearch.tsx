@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/app/components/ui/dialog';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
-import { Badge } from '@/app/components/ui/badge';
 import Button from '@mui/material/Button';
 import Input from '@mui/material/Input';
 import Checkbox from '@mui/material/Checkbox';
@@ -22,7 +21,7 @@ import {
 } from 'lucide-react';
 import { destinations, activityTypes, vibeTypes, climateTypes, budgetRanges, Destination } from '@/data/destinations';
 import { DestinationCard } from '@/app/components/itinerary/DestinationCard';
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider, Typography } from '@mui/material';
 import { theme } from '@/app/lib/themes';
 
 interface DestinationSearchProps {
@@ -164,7 +163,13 @@ export function DestinationSearch({ open, onClose, onSelectDestination }: Destin
                   )}
                 </div>
                 {activeFilterCount > 0 && (
-                  <Badge variant="secondary">{activeFilterCount} active</Badge>
+                  <Typography variant="body2" sx={{
+                    borderRadius: 5,
+                    backgroundColor: '#e0e0e0',
+                    width: 'fit-content',
+                    padding: '2px 8px',
+                    fontSize: '0.75rem'
+                  }}>{activeFilterCount} active</Typography>
                 )}
               </div>
 
