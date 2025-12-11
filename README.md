@@ -63,4 +63,4 @@ This app uses **Google Gemini** via `@google/generative-ai` to generate and refi
 - Drag-and-drop: `react-dnd`
 
 ## Team & Contributions
-Commit history reflects contributions from all teammates. Add your names/roles here if desired.
+Commit history reflects contributions from all teammates. 
