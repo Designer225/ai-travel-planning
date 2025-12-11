@@ -202,10 +202,8 @@ html {
   background: linear-gradient(135deg, #155dfc 0%, #9810fa 100%);
 }
 
-.gradient-button {}
-
 .gradient-button:hover {
-  background: "linear-gradient(135deg, #155dfc 0%, #9810fa 100%)";
+  background: linear-gradient(135deg, #155dfc 0%, #9810fa 100%);
   opacity: 0.9;
 }
 
@@ -240,6 +238,29 @@ html {
   height: 8;
   background-color: #99a1af;
 }
+
+.white-button, .white-button-with-dashed-outline {
+  color: #000;
+  background-color: #fff;
+  gap: 2;
+}
+
+.white-button-with-dashed-outline {
+  border: 1px #000 dashed
+}
+
+.white-button:hover, .white-button-with-dashed-outline:hover {
+  background-color: #eee;
+}
+
+/* * {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+} */
 
 /* Screen reader only utility - for accessibility */
 .sr-only {

@@ -4,12 +4,15 @@ import { startTransition, useState, useEffect } from 'react';
 import { Navigation } from '../layout/Navigation';
 import { TripsHeader } from './TripsHeader';
 import { TripsList } from './TripsList';
-import { Button } from '../ui/button';
 import { TripsListHeader } from './TripsListHeader';
 import { ScrollArea } from '../ui/scroll-area';
 import { tryEnterItineraryBuilder, tryGetCurrentUser } from '@/app/lib/clientUserGate';
 import { useRouter } from 'next/navigation';
-import { CircularProgress, Box } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider } from '@mui/material';
+import { theme } from '@/app/lib/themes';
 
 export default function Trips() {
   const router = useRouter();
@@ -49,33 +52,37 @@ export default function Trips() {
 
   return (
     <div className="h-screen w-full flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <header>
-        <Navigation/>
-      </header>
-      
-      <main id="main-content" className="flex flex-col flex-1 overflow-hidden container mx-auto px-4 py-8">
-        <TripsHeader
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onCreateTrip={handleCreateTrip}
-        />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+
+        <header>
+          <Navigation/>
+        </header>
         
-        {/* Tabs */}
-        <TripsListHeader
-          activeTab={activeTab}
-          onSetActiveTab={setActiveTab}
-        />
-        
-        <ScrollArea className='h-full overflow-auto'>
-          {/* Trips List */}
-          <div className="mt-6">
-            <TripsList 
-              tripType={activeTab} 
-              searchQuery={searchQuery}
-            />
-          </div>
-        </ScrollArea>
-      </main>
+        <main id="main-content" className="flex flex-col flex-1 overflow-hidden container mx-auto px-4 py-8">
+          <TripsHeader
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onCreateTrip={handleCreateTrip}
+          />
+          
+          {/* Tabs */}
+          <TripsListHeader
+            activeTab={activeTab}
+            onSetActiveTab={setActiveTab}
+          />
+          
+          <ScrollArea className='h-full overflow-auto'>
+            {/* Trips List */}
+            <div className="mt-6">
+              <TripsList 
+                tripType={activeTab} 
+                searchQuery={searchQuery}
+              />
+            </div>
+          </ScrollArea>
+        </main>
+      </ThemeProvider>
     </div>
   );
 }

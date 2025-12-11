@@ -2,11 +2,9 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { Card } from '@/app/components/ui/card';
-import { Button } from '@/app/components/ui/button';
-import { Input } from '@/app/components/ui/input';
-import { Calendar as CalendarIcon, Edit2, Check, X, Plus } from 'lucide-react';
-import { Popover, PopoverTrigger, PopoverContent } from '@/app/components/ui/popover';
-import { Calendar } from '@/app/components/ui/calendar';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
+import { Edit2, Check, X, Plus } from 'lucide-react';
 import { TripDay, DayActivity } from '@/types';
 import { EditableActivity } from './EditableActivity';
 import { DraggableActivity } from './DraggableActivity';
@@ -26,7 +24,7 @@ interface EditableDayCardProps {
   registerDayRef?: (node: HTMLDivElement | null) => void;
 }
 
-export function EditableDayCard({
+export default function EditableDayCard({
   day,
   dayIndex,
   onUpdateDay,
@@ -47,6 +45,7 @@ export function EditableDayCard({
   };
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isChildEditing, setIsChildEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(day.title);
   const [editDate, setEditDate] = useState(day.date || '');
   const cardRef = useRef<HTMLDivElement>(null);
@@ -124,7 +123,7 @@ export function EditableDayCard({
     if (isFormField && event.key !== 'Escape') {
       return;
     }
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !isChildEditing) {
       event.preventDefault();
       handleToggleEditMode();
       return;
@@ -177,7 +176,34 @@ export function EditableDayCard({
                     aria-label={`Edit title for day ${day.day}`}
                   />
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-gray-700">Date</label>
+                    <label className="text-xs text-gray-600">Date</label>
+                    <Input
+                      type="date"
+                      value={editDate}
+                      aria-label={`Pick a date for day ${day.day}`}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value);
+                        if (isNaN(date.getTime())) {
+                          // Invalid date
+                          setEditDate('');
+                          return;
+                        }
+                        
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const dayOfMonth = String(date.getDate()).padStart(2, '0');
+                        const formatted = `${year}-${month}-${dayOfMonth}`;
+                        setEditDate(formatted);
+                      }}
+                      sx={{
+                        width: "100%",
+                        justifyContent: "start",
+                        textAlign: "left",
+                        color: "#000",
+                        borderColor: "#000",
+                      }}
+                    />
+                    {/* <label className="text-xs text-gray-700">Date</label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -212,7 +238,7 @@ export function EditableDayCard({
                           initialFocus
                         />
                       </PopoverContent>
-                    </Popover>
+                    </Popover> */}
                   </div>
                 </div>
               ) : (
@@ -228,9 +254,19 @@ export function EditableDayCard({
             </div>
             <Button
               onClick={handleToggleEditMode}
-              variant={isEditMode ? "default" : "ghost"}
-              size="sm"
+              variant={isEditMode ? "contained" : "outlined"}
               className="gap-2"
+              size='small'
+              sx={{
+                color: isEditMode ? "#fff" : "#000",
+                background: isEditMode ? "#000" : "#fff",
+                gap: 1,
+                border: "none",
+                marginRight: 1,
+                ":hover": {
+                  backgroundColor: isEditMode ? "#333" : "#eeeeee"
+                }
+              }}
               aria-label={isEditMode ? `Save edits for day ${day.day}` : `Edit details for day ${day.day}`}
             >
               {isEditMode ? (
@@ -247,9 +283,16 @@ export function EditableDayCard({
             </Button>
             <Button
               onClick={onDeleteDay}
-              variant="outline"
-              size="sm"
-              className="gap-2 text-red-600 border-red-200 hover:bg-red-50"
+              variant="outlined"
+              size="small"
+              sx={{
+                color: '#e53935',
+                borderColor: "#ef9a9a",
+                ":hover": {
+                  backgroundColor: '#ffebee'
+                }
+              }}
+              className="gap-2"
               aria-label={`Delete ${dayLabel}`}
             >
               <X className="w-4 h-4" />
@@ -267,7 +310,7 @@ export function EditableDayCard({
             position={0}
             onDrop={handleDrop}
             isFirst={true}
-            ariaLabel={`Drop activity at start of ${dayLabel}`}
+            aria-label={`Drop activity at start of ${dayLabel}`}
           />
         )}
 
@@ -289,6 +332,7 @@ export function EditableDayCard({
                   onFocusNextDay={() => focusDayCard(dayIndex + 1)}
                   onFocusPrevDay={() => focusDayCard(dayIndex - 1)}
                   dayLabel={day.title}
+                  setIsChildEditing={setIsChildEditing}
                 />
               </DraggableActivity>
             ) : (
@@ -302,6 +346,7 @@ export function EditableDayCard({
                 onFocusNextDay={() => focusDayCard(dayIndex + 1)}
                 onFocusPrevDay={() => focusDayCard(dayIndex - 1)}
                 dayLabel={day.title}
+                setIsChildEditing={setIsChildEditing}
               />
             )}
             
@@ -311,7 +356,7 @@ export function EditableDayCard({
                 dayIndex={dayIndex}
                 position={actIndex + 1}
                 onDrop={handleDrop}
-                ariaLabel={`Drop activity after ${activity.title}`}
+                aria-label={`Drop activity after ${activity.title}`}
               />
             )}
           </div>
@@ -320,10 +365,23 @@ export function EditableDayCard({
         {/* Add Activity Button */}
         <Button
           onClick={onAddActivity}
-          variant="outline"
-          size="sm"
-          className="w-full border-dashed gap-2 hover:bg-purple-50 hover:border-purple-300"
-          aria-label={`Add activity to ${dayLabel}`}
+          variant="outlined"
+          className="w-full border-dashed gap-2"
+          size='small'
+          sx={{
+            width: "100%",
+            border: "dashed 1px",
+            gap: 1,
+            color: "#000",
+            ":hover": {
+              backgroundColor: "#f3e5f5",
+              borderColor: "#ba68c8"
+            }
+          }}
+          // variant="outline"
+          // size="sm"
+          // className="w-full border-dashed gap-2 hover:bg-purple-50 hover:border-purple-300"
+          // aria-label={`Add activity to ${dayLabel}`}
         >
           <Plus className="w-4 h-4" />
           Add Activity

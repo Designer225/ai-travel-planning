@@ -17,4 +17,13 @@ export const theme = createTheme({
   typography: {
     fontFamily: "'Inter', sans-serif",
   },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        style: {
+          textTransform: 'capitalize'
+        }
+      }
+    }
+  }
 });

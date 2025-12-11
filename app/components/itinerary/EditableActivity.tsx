@@ -1,10 +1,12 @@
 ﻿'use client';
 
-import { useRef, useState } from 'react';
-import { Button } from '@/app/components/ui/button';
-import { Input } from '@/app/components/ui/input';
-import { Textarea } from '@/app/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Edit2, Check, X, Trash2, MapPin, GripVertical } from 'lucide-react';
 import { Plane, Utensils, Hotel, Navigation } from 'lucide-react';
 import { DayActivity } from '@/types';
@@ -19,6 +21,7 @@ interface EditableActivityProps {
   dayLabel?: string;
   onFocusNextDay?: () => void;
   onFocusPrevDay?: () => void;
+  setIsChildEditing?: Dispatch<SetStateAction<boolean>>;
 }
 
 const categoryIcons = {
@@ -55,6 +58,7 @@ export function EditableActivity({
   dayLabel,
   onFocusNextDay,
   onFocusPrevDay,
+  setIsChildEditing
 }: EditableActivityProps) {
   const [isEditing, setIsEditing] = useState(false);
   const fieldRefs = useRef<(HTMLElement | null)[]>([]);
@@ -75,15 +79,18 @@ export function EditableActivity({
       category: activity.category,
     });
     setIsEditing(true);
+    if (setIsChildEditing) setIsChildEditing(true);
   };
 
   const handleSave = () => {
     onUpdate(editValues);
     setIsEditing(false);
+    if (setIsChildEditing) setIsChildEditing(false);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    if (setIsChildEditing) setIsChildEditing(false);
   };
 
   const Icon = categoryIcons[activity.category];
@@ -102,25 +109,25 @@ export function EditableActivity({
     return `${hour12}:${paddedMinutes} ${suffix}`;
   };
 
-  const focusField = (index: number) => {
-    const el = fieldRefs.current[index];
-    if (el) {
-      el.focus();
-      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-        el.select();
-      }
-    }
-  };
+  // const focusField = (index: number) => {
+  //   const el = fieldRefs.current[index];
+  //   if (el) {
+  //     el.focus();
+  //     if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+  //       el.select();
+  //     }
+  //   }
+  // };
 
-  const handleFieldKeyDown = (event: React.KeyboardEvent<HTMLElement>, index: number) => {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      focusField(index + 1);
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      focusField(index - 1);
-    }
-  };
+  // const handleFieldKeyDown = (event: React.KeyboardEvent<HTMLElement>, index: number) => {
+  //   if (event.key === 'ArrowDown') {
+  //     event.preventDefault();
+  //     focusField(index + 1);
+  //   } else if (event.key === 'ArrowUp') {
+  //     event.preventDefault();
+  //     focusField(index - 1);
+  //   }
+  // };
 
   const handleKeyboardNavigation = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (!isEditing && (event.key === 'Enter' || event.key === ' ')) {
@@ -139,7 +146,7 @@ export function EditableActivity({
     }
     if (!isEditing && event.key === 'ArrowUp' && onFocusPrev) {
       event.preventDefault();
-      onFocusPrev();
+      onFocusPrev(); 
     } else if (!isEditing && event.key === 'ArrowUp' && onFocusPrevDay) {
       event.preventDefault();
       onFocusPrevDay();
@@ -168,17 +175,28 @@ export function EditableActivity({
                 value={editValues.time}
                 onChange={(e) => setEditValues({ ...editValues, time: e.target.value })}
                 aria-label="Activity start time"
-                ref={(el) => { fieldRefs.current[0] = el; }}
-                onKeyDown={(e) => handleFieldKeyDown(e, 0)}
+                // ref={(el) => { fieldRefs.current[0] = el; }}
+                // onKeyDown={(e) => handleFieldKeyDown(e, 0)}
               />
             </div>
             <div>
               <label className="text-xs text-gray-700 mb-1 block">Category</label>
               <Select
                 value={editValues.category}
-                onValueChange={(value) => setEditValues({ ...editValues, category: value as typeof editValues.category })}
+                onChange={(e) => setEditValues({ ...editValues, category: e.target.value })}
+                aria-label="Activity category"
+                // ref={(el) => { fieldRefs.current[1] = el; }}
+                // onKeyDown={(e) => handleFieldKeyDown(e, 1)}
+                sx={{
+                  width: "100%"
+                }}
               >
-                <SelectTrigger
+                <MenuItem value="transport">Transport</MenuItem>
+                <MenuItem value="activity">Activity</MenuItem>
+                <MenuItem value="food">Food</MenuItem>
+                <MenuItem value="accommodation">Accommodation</MenuItem>
+                <MenuItem value="other">Other</MenuItem>
+                {/* <SelectTrigger
                   aria-label="Activity category"
                   ref={(el) => { fieldRefs.current[1] = el; }}
                   onKeyDown={(e) => handleFieldKeyDown(e, 1)}
@@ -191,7 +209,7 @@ export function EditableActivity({
                   <SelectItem value="food">Food</SelectItem>
                   <SelectItem value="accommodation">Accommodation</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
+                </SelectContent> */}
               </Select>
             </div>
           </div>
@@ -203,21 +221,33 @@ export function EditableActivity({
               onChange={(e) => setEditValues({ ...editValues, title: e.target.value })}
               placeholder="Activity title"
               aria-label="Activity title"
-              ref={(el) => { fieldRefs.current[2] = el; }}
-              onKeyDown={(e) => handleFieldKeyDown(e, 2)}
+              // ref={(el) => { fieldRefs.current[2] = el; }}
+              // onKeyDown={(e) => handleFieldKeyDown(e, 2)}
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-700 mb-1 block">Description</label>
-            <Textarea
+            <label className="text-xs text-gray-600 mb-1 block">Description</label>
+            <TextField
               value={editValues.description}
               onChange={(e) => setEditValues({ ...editValues, description: e.target.value })}
               placeholder="Activity description"
-              rows={2}
-              aria-label="Activity description"
-              ref={(el) => { fieldRefs.current[3] = el; }}
-              onKeyDown={(e) => handleFieldKeyDown(e, 3)}
+              rows={3}
+              multiline={true}
+              // ref={(el) => { fieldRefs.current[3] = el; }}
+              // onKeyDown={(e) => handleFieldKeyDown(e, 3)}
+              sx={{
+                width: "100%"
+              }}
+            // <label className="text-xs text-gray-700 mb-1 block">Description</label>
+            // <Textarea
+            //   value={editValues.description}
+            //   onChange={(e) => setEditValues({ ...editValues, description: e.target.value })}
+            //   placeholder="Activity description"
+            //   rows={2}
+            //   aria-label="Activity description"
+            //   ref={(el) => { fieldRefs.current[3] = el; }}
+            //   onKeyDown={(e) => handleFieldKeyDown(e, 3)}
             />
           </div>
 
@@ -228,13 +258,55 @@ export function EditableActivity({
               onChange={(e) => setEditValues({ ...editValues, location: e.target.value })}
               placeholder="Location (optional)"
               aria-label="Activity location"
-              ref={(el) => { fieldRefs.current[4] = el; }}
-              onKeyDown={(e) => handleFieldKeyDown(e, 4)}
+              // ref={(el) => { fieldRefs.current[4] = el; }}
+              // onKeyDown={(e) => handleFieldKeyDown(e, 4)}
             />
           </div>
 
           <div className="flex gap-2 pt-1">
             <Button
+              onClick={handleSave} variant='contained' sx={{
+                gap: 1,
+                backgroundColor: "#000",
+                ":hover": {
+                  backgroundColor: "#333"
+                }
+              }}
+              aria-label={`Save changes to ${activity.title}`}
+              // ref={(el) => { fieldRefs.current[5] = el; }}
+              // onKeyDown={(e) => handleFieldKeyDown(e, 5)}
+            >
+              <Check className="w-4 h-4" />
+              Save
+            </Button>
+            <Button onClick={handleCancel} variant="outlined" sx={{
+                gap: 1,
+                border: "#777 1px",
+                color: "#000",
+                ":hover": {
+                  backgroundColor: "#eee"
+                }
+              }}
+              aria-label={`Cancel editing ${activity.title}`}
+              // ref={(el) => { fieldRefs.current[6] = el; }}
+              // onKeyDown={(e) => handleFieldKeyDown(e, 6)}
+            >
+              <X className="w-4 h-4" />
+              Cancel
+            </Button>
+            <Button onClick={onDelete} variant="contained" sx={{
+                gap: 1,
+                backgroundColor: "#d50000",
+                ":hover": {
+                  backgroundColor: "#ff5252"
+                },
+                marginLeft: "auto"
+              }}
+              aria-label={`Delete ${activity.title}`}
+              // ref={(el) => { fieldRefs.current[7] = el; }}
+              // onKeyDown={(e) => handleFieldKeyDown(e, 7)}
+            >
+            {/* <Button
               onClick={handleSave}
               size="sm"
               className="gap-2"
@@ -265,7 +337,7 @@ export function EditableActivity({
               aria-label={`Delete ${activity.title}`}
               ref={(el) => { fieldRefs.current[7] = el; }}
               onKeyDown={(e) => handleFieldKeyDown(e, 7)}
-            >
+            > */}
               <Trash2 className="w-4 h-4" />
               Delete
             </Button>
@@ -313,15 +385,33 @@ export function EditableActivity({
         )}
       </div>
 
-      <div className="flex-shrink-0 flex items-start opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex-shrink-0 flex items-start">
         <Button
+          onClick={handleStartEdit}
+          variant="outlined"
+          size='small'
+          className='opacity-0 group-hover:opacity-100 transition-opacity group-focus:opacity-100 transition-opacity'
+          sx={{
+            gap: 1,
+            border: "none",
+            color: "#000",
+            ":hover": {
+              opacity: 100
+            },
+            ":focus": {
+              opacity: 100
+            }
+          }}
+          aria-label={`Edit activity ${activity.title}`}>
+          <Edit2 className="w-4 h-4" />
+        {/* <Button
           onClick={handleStartEdit}
           variant="ghost"
           size="sm"
           className="h-8 gap-1"
           aria-label={`Edit activity ${activity.title}`}
         >
-          <Edit2 className="w-3 h-3" />
+          <Edit2 className="w-3 h-3" /> */}
         </Button>
       </div>
     </div>

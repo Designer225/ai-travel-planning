@@ -14,7 +14,7 @@ export function CTASection() {
           <Typography variant='h2' id='cta-heading' marginBottom={4} fontSize='2.25rem' lineHeight='calc(2.5/2.25)'>Reading to start planning?</Typography>
         </Grid>
         <Grid size={1} marginBottom={4}>
-          <Typography variant='body1' fontSize='1.125rem' lineHeight='calc(1.75/1.25)' className='feature-subtitle'>
+          <Typography variant='body1' fontSize='1.125rem' lineHeight='calc(1.75/1.25)' className='feature-subtitle-darker'>
             Join thousands of travelers who trust TripAI to organize their adventures
           </Typography>
         </Grid>

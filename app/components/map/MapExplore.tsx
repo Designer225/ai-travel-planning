@@ -4,7 +4,7 @@ import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Map, Marker } from "pigeon-maps";
 import { MapPin, UtensilsCrossed, Bed, Compass, X } from "lucide-react";
-import { Button } from "@/app/components/ui/button";
+import Button from "@mui/material/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/app/components/ui/dialog";
 import { Badge } from "@/app/components/ui/badge";
 import { Navigation } from "../layout/Navigation";
@@ -1169,47 +1169,109 @@ export function MapExplore() {
             
             <div className="flex gap-2 flex-wrap">
               <Button
-                variant={selectedType === "all" ? "default" : "outline"}
+                variant='outlined'
                 onClick={() => setSelectedType("all")}
-                size="sm"
+                size="small"
+                sx={{
+                  gap: 1,
+                  transition: 'all',
+                  ... selectedType === "all" ? {
+                    color: '#fff',
+                    backgroundColor: '#000',
+                    borderColor: '#000',
+                    ":hover": {
+                      backgroundColor: '#333',
+                    }
+                  } : {
+                    color: '#000',
+                    borderColor: '#00000030',
+                    ":hover": {
+                      backgroundColor: '#00000010',
+                      borderColor: '#000'
+                    } 
+                  }
+                }}
               >
                 All Destinations
               </Button>
               <Button
-                variant="outline"
+                variant="outlined"
                 onClick={() => setSelectedType("attraction")}
-                size="sm"
-                className={`gap-2 transition-all ${
-                  selectedType === "attraction" 
-                    ? "bg-[#FF6B6B] text-white border-[#FF6B6B] hover:bg-[#FF5252] hover:text-white" 
-                    : "border-[#FF6B6B]/30 text-[#FF6B6B] hover:bg-[#FF6B6B]/10 hover:border-[#FF6B6B]"
-                }`}
+                size="small"
+                sx={{
+                  gap: 1,
+                  transition: 'all',
+                  ... selectedType === "attraction" ? {
+                    color: '#fff',
+                    backgroundColor: '#FF6B6B',
+                    borderColor: '#FF6B6B',
+                    ":hover": {
+                      backgroundColor: '#FF5252'
+                    }
+                  } : {
+                    color: '#FF6B6B',
+                    borderColor: '#FF6B6B30',
+                    ":hover": {
+                      backgroundColor: '#FF6B6B10',
+                      borderColor: '#FF6B6B'
+                    } 
+                  }
+                }}
               >
                 <Compass className="h-4 w-4" />
                 Attractions
               </Button>
               <Button
-                variant="outline"
+                variant="outlined"
                 onClick={() => setSelectedType("food")}
-                size="sm"
-                className={`gap-2 transition-all ${
-                  selectedType === "food" 
-                    ? "bg-[#4ECDC4] text-white border-[#4ECDC4] hover:bg-[#3EBDB4] hover:text-white" 
-                    : "border-[#4ECDC4]/30 text-[#4ECDC4] hover:bg-[#4ECDC4]/10 hover:border-[#4ECDC4]"
-                }`}
+                size="small"
+                sx={{
+                  gap: 1,
+                  transition: 'all',
+                  ... selectedType === "food" ? {
+                    color: '#fff',
+                    backgroundColor: '#4ECDC4',
+                    borderColor: '#4ECDC4',
+                    ":hover": {
+                      backgroundColor: '#3EBDB4'
+                    }
+                  } : {
+                    color: '#4ECDC4',
+                    borderColor: '#4ECDC430',
+                    ":hover": {
+                      backgroundColor: '#4ECDC410',
+                      borderColor: '#4ECDC4'
+                    } 
+                  }
+                }}
               >
                 <UtensilsCrossed className="h-4 w-4" />
                 Food & Dining
               </Button>
               <Button
-                variant="outline"
+                variant="outlined"
                 onClick={() => setSelectedType("lodging")}
-                size="sm"
-                className={`gap-2 transition-all ${
-                  selectedType === "lodging" 
-                    ? "bg-[#FFD93D] text-gray-900 border-[#FFD93D] hover:bg-[#FFC91D] hover:text-gray-900" 
-                    : "border-[#FFD93D]/30 text-[#FFD93D] hover:bg-[#FFD93D]/10 hover:border-[#FFD93D]"
-                }`}
+                size="small"
+                sx={{
+                  gap: 1,
+                  transition: 'all',
+                  ... selectedType === "lodging" ? {
+                    color: '#fff',
+                    backgroundColor: '#FFD93D',
+                    borderColor: '#FFD93D',
+                    ":hover": {
+                      backgroundColor: '#FFC91D',
+                      color: '#212121'
+                    }
+                  } : {
+                    color: '#FFD93D',
+                    borderColor: '#FFD93D30',
+                    ":hover": {
+                      backgroundColor: '#FFD93D10',
+                      borderColor: '#FFD93D'
+                    } 
+                  }
+                }}
               >
                 <Bed className="h-4 w-4" />
                 Lodging
@@ -1320,8 +1382,8 @@ export function MapExplore() {
   
 
             <div className="flex gap-2 mt-4">
-              <Button className="flex-1" onClick={handleAddToItinerary}>Add to Itinerary</Button>
-              <Button variant="outline" className="flex-1">Get Directions</Button>
+              <Button className="flex-1 gradient-button" variant="contained" onClick={handleAddToItinerary}>Add to Itinerary</Button>
+              <Button variant="outlined" className="flex-1">Get Directions</Button>
             </div>
           </DialogContent>
         </Dialog>

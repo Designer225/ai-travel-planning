@@ -4,10 +4,10 @@ import { startTransition, useState, useEffect, useMemo, useRef } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MapPin, Sparkles, Save, Share2, Download, Plus, ArrowLeft, ShoppingCart } from 'lucide-react';
-import { Button } from '@/app/components/ui/button';
+import Button from '@mui/material/Button';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
-import { EditableTripHeader } from './EditableTripHeader';
-import { EditableDayCard } from './EditableDayCard';
+import EditableTripHeader from './EditableTripHeader';
+import EditableDayCard from './EditableDayCard';
 import { TripPlan, DayActivity, TripDay } from '@/types';
 import { toast, Toaster } from 'sonner';
 import { Navigation } from '../layout/Navigation';
@@ -408,6 +408,13 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
       await tryCheckout(tripPlan, router);
     });
   };
+  
+  const focusDayByIndex = (index: number) => {
+    const ref = dayRefs.current[index];
+    if (ref) {
+      ref.focus();
+    }
+  };
 
   if (loading) {
     return (
@@ -429,7 +436,15 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   {onBack && (
-                    <Button variant="ghost" size="sm" className="gap-2" onClick={onBack} aria-label="Back to chat">
+                    <Button variant="outlined" size='small' sx={{
+                      gap: 2,
+                      border: "none",
+                      color: "#000",
+                      ":hover": {
+                        backgroundColor: "#eee"
+                      }
+                    }} onClick={onBack} aria-label="Back to chat">
+                    {/* <Button variant="ghost" size="sm" className="gap-2" onClick={onBack} aria-label="Back to chat"> */}
                       <ArrowLeft className="w-4 h-4" />
                       Back to Chat
                     </Button>
@@ -449,6 +464,34 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                 
                 <div className="flex items-center gap-2">
                   <Button
+                    variant={reorderMode ? "contained" : "outlined"}
+                    size="small"
+                    onClick={() => setReorderMode((prev) => !prev)}
+                    className="gap-2"
+                    aria-label={reorderMode ? "Disable drag and drop reordering" : "Enable drag and drop reordering"}
+                  >
+                    {reorderMode ? 'Reordering On' : 'Reorder Activities'}
+                  </Button>
+                  <Button variant="outlined" size='small' onClick={handleShare} sx={{
+                    color: "#000",
+                    border: "none",
+                    gap: 1,
+                    ":hover": {
+                      backgroundColor: "#eee"
+                    }
+                  }} aria-label="Share itinerary">
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </Button>
+                  <Button variant="outlined" size='small' onClick={handleExport} sx={{
+                    color: "#000",
+                    border: "none",
+                    gap: 1,
+                    ":hover": {
+                      backgroundColor: "#eee"
+                    }
+                  }} aria-label="Export itinerary to PDF">
+                  {/* <Button
                     variant={reorderMode ? "default" : "outline"}
                     size="sm"
                     onClick={() => setReorderMode((prev) => !prev)}
@@ -461,23 +504,33 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                     <Share2 className="w-4 h-4" />
                     Share
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExport} className="gap-2" aria-label="Export itinerary to PDF">
+                  <Button variant="outline" size="sm" onClick={handleExport} className="gap-2" aria-label="Export itinerary to PDF"> */}
                     <Download className="w-4 h-4" />
                     Export PDF
                   </Button>
                   <Button 
-                    size="sm" 
+                    variant='contained'
                     onClick={handleSave}
-                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    size='small'
+                    className="gradient-button"
+                    sx={{
+                      gap: 1
+                    }}
+                    // className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                     aria-label="Save itinerary changes"
                   >
                     <Save className="w-4 h-4" />
                     Save Changes
                   </Button>
                   <Button 
-                    size="sm" 
+                    variant='contained'
                     onClick={handleCheckout}
-                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="gradient-button"
+                    size='small'
+                    sx={{
+                      gap: 1
+                    }}
+                    // className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                     aria-label="Proceed to checkout for this itinerary"
                   >
                     <ShoppingCart className="w-4 h-4" />
@@ -520,9 +573,13 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
                 {/* Add Day Button */}
                 <div className="mt-6">
                   <Button
-                    variant="outline"
+                    variant="outlined"
                     onClick={handleAddDay}
                     className="w-full border-dashed border-2 h-16 gap-2 hover:bg-blue-50 hover:border-blue-300"
+                    sx={{
+                      border: "dashed 1px #000",
+                      color: "#000"
+                    }}
                     aria-label="Add another itinerary day"
                   >
                     <Plus className="w-5 h-5" />
@@ -540,9 +597,3 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
     </DndProvider>
   );
 }
-  const focusDayByIndex = (index: number) => {
-    const ref = dayRefs.current[index];
-    if (ref) {
-      ref.focus();
-    }
-  };

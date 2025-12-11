@@ -4,17 +4,12 @@ import { memo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
-import { Button } from '@/app/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/app/components/ui/alert-dialog';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import { Calendar, MapPin, DollarSign, Users, Plane, Utensils, Hotel, Navigation, Save, Edit2, X, Plus, Coffee, Download } from 'lucide-react';
 import { TripPlan, TripDay, DayActivity } from '@/types';
 import { createTrip, saveItinerary } from '@/app/lib/tripActions';
@@ -26,12 +21,12 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // Dynamically import editable components - only load when in edit mode
 const EditableTripHeader = dynamic(
-  () => import('../itinerary/EditableTripHeader').then((mod) => mod.EditableTripHeader),
+  () => import('../itinerary/EditableTripHeader'),
   { ssr: false }
 );
 
 const EditableDayCard = dynamic(
-  () => import('../itinerary/EditableDayCard').then((mod) => mod.EditableDayCard),
+  () => import('../itinerary/EditableDayCard'),
   { ssr: false }
 );
 
@@ -315,9 +310,13 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
             <p className="text-sm font-medium text-gray-700 mb-4">Try asking:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {examplePrompts.map((prompt, index) => (
-                <button
+                <Button
                   key={index}
-                  className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-100 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer text-left w-full"
+                  variant='outlined'
+                  className="p-4 rounded-lg border border-blue-100 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer text-left w-full"
+                  sx={{
+                    background: 'linear-gradient(135deg, #e3f2fd, #f3e5f5)'
+                  }}
                   onClick={() => {
                     if (onSendMessage) {
                       onSendMessage(prompt);
@@ -325,7 +324,7 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                   }}
                 >
                   <p className="text-sm text-gray-700 font-medium">"{prompt}"</p>
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -344,8 +343,14 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
             <div className="flex items-center justify-end gap-2 mt-4">
               <Button
                 onClick={() => setIsEditMode(false)}
-                variant="outline"
-                size="sm"
+                variant="outlined"
+                sx={{
+                  color: "#000",
+                  border: "1px #888",
+                  ":hover": {
+                    backgroundColor: "#eee"
+                  }
+                }}
               >
                 Exit Edit Mode
               </Button>
@@ -385,19 +390,34 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                 <>
                   <Button
                     onClick={handleExportJSON}
-                    variant="outline"
+                    variant="outlined"
                     className="gap-2"
-                    size="sm"
+                    size="small"
                     title="Export as JSON"
+                    sx={{
+                      gap: 1,
+                      color: "#000",
+                      border: "1px #888",
+                      ":hover": {
+                        backgroundColor: "#eee"
+                      }
+                    }}
                   >
                     <Download className="w-4 h-4" />
                     Export
                   </Button>
                   <Button
                     onClick={handleEdit}
-                    variant="outline"
-                    className="gap-2"
-                    size="sm"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      gap: 1,
+                      color: "#000",
+                      border: "1px #888",
+                      ":hover": {
+                        backgroundColor: "#eee"
+                      }
+                    }}
                   >
                     <Edit2 className="w-4 h-4" />
                     Edit
@@ -405,17 +425,34 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
                   <Button
                     onClick={handleSave}
                     disabled={isSaving}
+                    variant='contained'
                     className="gap-2"
-                    size="sm"
+                    size="small"
+                    sx={{
+                      color: "#fff",
+                      backgroundColor: "#000",
+                      ":hover": {
+                        backgroundColor: "#333"
+                      }
+                    }}
                   >
                     <Save className="w-4 h-4" />
                     {isSaving ? 'Saving...' : 'Save'}
                   </Button>
                   <Button
                     onClick={handleDiscard}
-                    variant="outline"
-                    className="gap-2 text-red-600 border-red-300 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors"
-                    size="sm"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      gap: 1,
+                      color: "#e53935",
+                      borderColor: "#e57373",
+                      ":hover": {
+                        color: "#fff",
+                        backgroundColor: "#e53935",
+                        borderColor: "#e53935"
+                      }
+                    }}
                   >
                     <X className="w-4 h-4" />
                     Discard
@@ -527,36 +564,64 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
             <span className="text-sm font-medium text-gray-700 mr-2">Quick actions:</span>
             <Button
               onClick={() => handleQuickAction('Make this itinerary more budget-friendly')}
-              variant="outline"
-              size="sm"
+              variant="outlined"
+              size="small"
               className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
             >
               <DollarSign className="w-3.5 h-3.5" />
               More Budget-Friendly
             </Button>
             <Button
               onClick={() => handleQuickAction('Add more activities to this itinerary')}
-              variant="outline"
-              size="sm"
+              variant="outlined"
+              size="small"
               className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
             >
               <Plus className="w-3.5 h-3.5" />
               Add Activities
             </Button>
             <Button
               onClick={() => handleQuickAction('Make this itinerary more relaxed with fewer activities per day')}
-              variant="outline"
-              size="sm"
+              variant="outlined"
+              size="small"
               className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
             >
               <Coffee className="w-3.5 h-3.5" />
               More Relaxed
             </Button>
             <Button
               onClick={() => handleQuickAction('Focus this itinerary on food experiences and restaurants')}
-              variant="outline"
-              size="sm"
+              variant="outlined"
+              size="small"
               className="gap-2 text-xs"
+              sx={{
+                color: '#000',
+                borderColor: '#888',
+                ':hover': {
+                  backgroundColor: '#00000020'
+               }
+              }}
             >
               <Utensils className="w-3.5 h-3.5" />
               Focus on Food
@@ -647,25 +712,18 @@ export const TripPanel = memo(function TripPanel({ tripPlan, setTripPlan, onSend
       </div>
 
       {/* Discard Confirmation Dialog */}
-      <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Discard Itinerary?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to discard this itinerary? This action cannot be undone and you'll lose all the generated content.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDiscard}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Discard
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={showDiscardDialog} onClose={() => setShowDiscardDialog(false)}>
+        <DialogTitle>Discard Itinerary?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to discard this itinerary? This action cannot be undone and you'll lose all the generated content.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDiscardDialog(false)}>Cancel</Button>
+          <Button onClick={confirmDiscard} color="error">Discard</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 });

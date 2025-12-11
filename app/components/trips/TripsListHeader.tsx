@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import Button from '@mui/material/Button';
 
 interface TripsListHeaderProps {
     activeTab: 'upcoming' | 'past' | 'saved',
@@ -9,33 +9,33 @@ export function TripsListHeader({ activeTab, onSetActiveTab } : TripsListHeaderP
     return <>
         <div className="flex gap-2 border-b border-gray-200">
             <Button
-            onClick={() => onSetActiveTab('upcoming')}
-            className={`px-4 py-2 border-b-2 transition-colors ${
-                activeTab === 'upcoming'
-                ? 'border-blue-600 text-white bg-blue-600'
-                : 'border-transparent text-gray-600 bg-white/20 hover:text-gray-900 hover:bg-blue-200'
-            }`}
-            aria-label="Upcoming">
+                onClick={() => onSetActiveTab('upcoming')}
+                variant={activeTab === 'upcoming' ? 'contained' : 'outlined'}
+                className={activeTab === 'upcoming' ? 'gradient-button' : undefined}
+                sx={activeTab === 'upcoming' ? {} : {
+                    border: 'none'
+                }}
+                aria-label="Upcoming">
             Upcoming
             </Button>
             <Button
-            onClick={() => onSetActiveTab('past')}
-            className={`px-4 py-2 border-b-2 transition-colors ${
-                activeTab === 'past'
-                ? 'border-blue-600 text-white bg-blue-600'
-                : 'border-transparent text-gray-600 bg-white/20 hover:text-gray-900 hover:bg-blue-200'
-            }`}
-            aria-label="Past">
+                onClick={() => onSetActiveTab('past')}
+                variant={activeTab === 'past' ? 'contained' : 'outlined'}
+                className={activeTab === 'past' ? 'gradient-button' : undefined}
+                sx={activeTab === 'past' ? {} : {
+                    border: 'none'
+                }}
+                aria-label="Past">
             Past
             </Button>
             <Button
-            onClick={() => onSetActiveTab('saved')}
-            className={`px-4 py-2 border-b-2 transition-colors ${
-                activeTab === 'saved'
-                ? 'border-blue-600 text-white bg-blue-600'
-                : 'border-transparent text-gray-600 bg-white/20 hover:text-gray-900 hover:bg-blue-200'
-            }`}
-            aria-label="Saved">
+                onClick={() => onSetActiveTab('saved')}
+                variant={activeTab === 'saved' ? 'contained' : 'outlined'}
+                className={activeTab === 'saved' ? 'gradient-button' : undefined}
+                sx={activeTab === 'saved' ? {} : {
+                    border: 'none'
+                }}
+                aria-label="Saved">
             Saved
             </Button>
         </div>

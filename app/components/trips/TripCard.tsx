@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
-import { Button } from '../ui/button';
+import Button from '@mui/material/Button';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,6 @@ import {
 } from '../ui/dialog';
 import { Calendar, Clock, MapPin, Pencil, Trash2, Copy, Plane } from 'lucide-react';
 import { Badge } from '../ui/badge';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
 import type { Trip } from './TripsList';
 
 interface TripCardProps {
@@ -153,17 +152,30 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
           {type === 'upcoming' && (
             <>
               <Button
-                variant="outline"
+                variant="outlined"
                 className="flex-1"
                 onClick={() => onEdit(trip.id)}
+                sx={{
+                  border: '1px solid #00000030',
+                  color: "#000",
+                  ":hover": {
+                    backgroundColor: "#00000030"
+                  }
+                }}
               >
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit
               </Button>
               <Button
-                variant="destructive"
+                variant="contained"
                 className="flex-1"
                 onClick={handlePrimaryAction}
+                sx={{
+                  backgroundColor: "#d50000",
+                  ":hover": {
+                    backgroundColor: "#ff5252"
+                  }
+                }}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Cancel
@@ -172,9 +184,16 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
           )}
           {type === 'past' && (
             <Button
-              variant="outline"
+              variant="outlined"
               className="w-full"
               onClick={() => onCopy(trip.id)}
+              sx={{
+                border: '1px solid #00000030',
+                color: "#000",
+                ":hover": {
+                  backgroundColor: "#00000030"
+                }
+              }}
             >
               <Copy className="h-4 w-4 mr-2" />
               Copy
@@ -183,25 +202,45 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
           {type === 'saved' && (
             <>
               <Button
-                variant="outline"
+                variant="outlined"
                 className="flex-1"
                 onClick={() => onEdit(trip.id)}
+                sx={{
+                  border: '1px solid #00000030',
+                  color: "#000",
+                  ":hover": {
+                    backgroundColor: "#00000030"
+                  }
+                }}
               >
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit
               </Button>
               <Button
-                variant="outline"
+                variant="outlined"
                 className="flex-1"
                 onClick={() => onCopy(trip.id)}
+                sx={{
+                  border: '1px solid #00000030',
+                  color: "#000",
+                  ":hover": {
+                    backgroundColor: "#00000030"
+                  }
+                }}
               >
                 <Copy className="h-4 w-4 mr-2" />
                 Copy
               </Button>
               <Button
-                variant="destructive"
+                variant="contained"
                 className="flex-1"
                 onClick={handlePrimaryAction}
+                sx={{
+                  backgroundColor: "#d50000",
+                  ":hover": {
+                    backgroundColor: "#ff5252"
+                  }
+                }}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
@@ -221,12 +260,25 @@ export function TripCard({ trip, type, onCancel, onDelete, onEdit, onCopy }: Tri
           </DialogHeader>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="outlined"
               onClick={() => setShowWarningDialog(false)}
+              sx={{
+                border: '1px solid #00000030',
+                color: "#000",
+                ":hover": {
+                  backgroundColor: "#00000030"
+                }
+              }}
             >
               No
             </Button>
-            <Button variant="destructive" onClick={handleConfirmAction}>
+            <Button variant="contained" onClick={handleConfirmAction} 
+              sx={{
+                backgroundColor: "#d50000",
+                ":hover": {
+                  backgroundColor: "#ff5252"
+                }
+              }}>
               Yes
             </Button>
           </DialogFooter>

@@ -1,9 +1,12 @@
 'use client'
 
-import { Box, Button, Typography } from '@mui/material';
-import { ImageWithFallback } from '@/app/components/ui/image-with-fallback';
+// import { Box, Button, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import { tryEnterDashboard } from '@/app/lib/clientUserGate';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export function HeroSection() {
   const router = useRouter();
@@ -11,11 +14,18 @@ export function HeroSection() {
   return (
     <Box position="relative" height="600px" display={'flex'} alignItems="center" justifyContent="center" overflow="hidden" aria-label='Hero section'>
       <Box position="absolute" zIndex={0} sx={{ inset: 0 }} aria-hidden={true}>
-        <ImageWithFallback
+        <Image
           src="https://images.unsplash.com/photo-1669986480140-2c90b8edb443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBhZHZlbnR1cmUlMjBtb3VudGFpbnxlbnwxfHx8fDE3NjI5MzUwNjJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
           alt="Mountain landscape representing travel adventure"
           className="w-full h-full object-cover"
+          width={1080}
+          height={600}
         />
+        {/* <ImageWithFallback
+          src="https://images.unsplash.com/photo-1669986480140-2c90b8edb443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBhZHZlbnR1cmUlMjBtb3VudGFpbnxlbnwxfHx8fDE3NjI5MzUwNjJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+          alt="Mountain landscape representing travel adventure"
+          className="w-full h-full object-cover"
+        /> */}
         <Box position="absolute" bgcolor="#00000065" sx={{ inset: 0 }} />
       </Box>
 

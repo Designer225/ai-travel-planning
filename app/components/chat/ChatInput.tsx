@@ -2,7 +2,9 @@
 
 import { useState, KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
-import { Box, Button, Input } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
