@@ -11,7 +11,7 @@ import EditableDayCard from './EditableDayCard';
 import { TripPlan, DayActivity, TripDay } from '@/types';
 import { toast, Toaster } from 'sonner';
 import { Navigation } from '../layout/Navigation';
-import { ThemeProvider } from '@mui/material';
+import { ThemeProvider, CircularProgress } from '@mui/material';
 import { theme } from '@/app/lib/themes';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { tryCheckout } from '@/app/lib/clientUserGate';
@@ -198,7 +198,6 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
       // No existing trip, start with default
       setTripId(null);
     } catch (error) {
-      console.error('Error loading trip:', error);
       toast.error('Failed to load trip');
     } finally {
       setLoading(false);
@@ -238,7 +237,6 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
         toast.error(result.error || 'Failed to save itinerary');
       }
     } catch (error) {
-      console.error('Save error:', error);
       toast.error('Failed to save itinerary');
     }
   };
@@ -246,19 +244,16 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   const handleShare = () => {
     // Simulate share
     toast.success('Share link copied to clipboard!');
-    console.log('Sharing itinerary:', tripPlan);
   };
 
   const handleExport = () => {
     // Simulate export to PDF
     toast.success('Exporting itinerary to PDF...');
-    console.log('Exporting itinerary:', tripPlan);
   };
 
   const handleCheckout = () => {
     // simulate checkout current trip
     toast.success('Checking out current itinerary...');
-    console.log('Checking out itinerary:', tripPlan);
     startTransition(async () => {
       await tryCheckout(tripPlan, router);
     });
@@ -267,7 +262,7 @@ export default function ItineraryBuilder({ onBack }: ItineraryBuilderProps = {})
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <p className="text-gray-500">Loading itinerary...</p>
+        <CircularProgress />
       </div>
     );
   }

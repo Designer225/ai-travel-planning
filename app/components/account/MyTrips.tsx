@@ -9,6 +9,7 @@ import {
   Typography,
   IconButton,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import { CalendarToday, AccessTime, Delete, Bookmark, LocationOn } from "@mui/icons-material";
 import { Plane } from "lucide-react";
@@ -168,7 +169,6 @@ export function MyTrips() {
           toast.error('Some trips could not be loaded');
         }
       } catch (error) {
-        console.error('Failed to load trips for account widget', error);
         toast.error('Failed to load trips');
         setUpcomingTrips([]);
         setPastTrips([]);
@@ -207,9 +207,9 @@ export function MyTrips() {
       </Typography>
 
       {loading && (
-        <Typography variant="body2" sx={{ mb: 2, color: "#4a5565" }}>
-          Loading your trips...
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+          <CircularProgress />
+        </Box>
       )}
 
       <Tabs 

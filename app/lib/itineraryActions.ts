@@ -12,7 +12,11 @@ type SessionData = {
     currentItineraryId?: number;
 }
 
-const SESSION_SECRET = process.env.SESSION_SECRET || "o1~vaK?G%,Uisuy^3yzNyT=G@KC1#%fmM6*].Pgb4ziktL+GjZTaf:.jLP]i+BrsHUovoDG0@)3Ed9+jL]";
+if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required');
+}
+
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 async function getItinerarySession() {
     const session = await getIronSession<SessionData>(await cookies(), {
@@ -100,7 +104,7 @@ export async function addDestinationToCurrentItinerary(
         const itineraryId = await getCurrentItineraryId();
         if (!itineraryId) {
             // Create a new trip if no current itinerary
-            const { tripId } = await prisma.trip.create({
+            const { id: tripId } = await prisma.trip.create({
                 data: {
                     userId: user.id,
                     title: destinationName,
