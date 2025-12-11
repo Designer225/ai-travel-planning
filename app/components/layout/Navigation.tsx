@@ -10,16 +10,16 @@ import SiteUser from "@/types";
 
 export function Navigation() {
   const router = useRouter();
-  const [showButtons, setShowButtons] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<SiteUser | undefined>(undefined);
 
   useEffect(() => {
+    setMounted(true);
     startTransition(async () => {
       const siteUser = await tryGetCurrentUser(router);
       setUser(siteUser);
-      setShowButtons(true);
     });
-  }, []);
+  }, [router]);
 
   const handleDashboard = () => {
     startTransition(async () => {
@@ -102,10 +102,13 @@ export function Navigation() {
               </Box>
             </Link>
             <Box>
-              { showButtons && (
+              { mounted && (
                 user === undefined
-                ? <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Login</Button>
-                : <Box>
+                ? <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button variant="outlined" component={Link} href="/login">Login</Button>
+                    <Button variant="contained" className="gradient-button" component={Link} href="/register">Sign Up</Button>
+                  </Box>
+                : <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button variant="contained" className="gradient-button" onClick={handleDashboard}>Dashboard</Button>
                     <Button variant="outlined" onClick={handleLogout}>Log out</Button>
                   </Box>

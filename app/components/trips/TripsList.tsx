@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { tryCopyItinerary, tryEnterItineraryBuilder } from '@/app/lib/clientUserGate';
 import { useRouter } from 'next/navigation';
 import { getUserTrips, deleteTrip, copyTrip, updateTrip } from '@/app/lib/tripActions';
+import { CircularProgress } from '@mui/material';
 
 export interface Trip {
   id: number;
@@ -92,7 +93,9 @@ export function TripsList({ tripType, searchQuery }: TripsListProps) {
 
   if (loading) {
     return (
-      <p className="text-gray-500 text-center py-12">Loading trips...</p>
+      <div className="flex justify-center py-12">
+        <CircularProgress />
+      </div>
     );
   }
 
