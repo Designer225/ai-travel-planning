@@ -5,7 +5,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import { Box, Container, Typography, CssBaseline, Snackbar, Alert, Link as MuiLink, CircularProgress  } from "@mui/material";
 import { Navigation } from "../components/layout/Navigation";
 import { ProfileSection } from "../components/account/ProfileSection";
-import { AccountSettings } from "../components/account/AccountSettings";
 import { TravelPreferences } from "../components/account/TravelPreferences";
 import { PaymentSettings } from "../components/account/PaymentSettings";
 import { MyTrips } from "../components/account/MyTrips";
@@ -132,11 +131,6 @@ export default function AccountPage() {
             </Box>
             
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <AccountSettings 
-                profileData={profileData}
-                setProfileData={setProfileData}
-                showToast={showToast}
-              />
               <PaymentSettings showToast={showToast} />
               <MyTrips />
               <TravelPreferences showToast={showToast} />
