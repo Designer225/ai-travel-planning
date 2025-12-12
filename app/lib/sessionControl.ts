@@ -36,6 +36,12 @@ export async function getCurrentUser(): Promise<SiteUser | undefined> {
     return session.user;
 }
 
+export async function updateSessionUser(user: SiteUser): Promise<void> {
+    const session = await getSession();
+    session.user = user;
+    await session.save();
+}
+
 export async function register(
     email: string,
     password: string,
