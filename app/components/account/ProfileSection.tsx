@@ -1,19 +1,17 @@
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
-import { CameraAlt, Email, LocationOn, Upload } from "@mui/icons-material";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { CameraAlt } from "@mui/icons-material";
 import { updateUserProfile, updateUserAvatar } from "@/app/lib/userActions";
 
 interface ProfileData {
@@ -32,10 +30,18 @@ interface ProfileSectionProps {
 }
 
 export function ProfileSection({ profileData, setProfileData, showToast }: ProfileSectionProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editData, setEditData] = useState({ ...profileData });
+  const [notifications, setNotifications] = useState({
+    emailNotifications: true,
+    travelRecommendations: true,
+    priceAlerts: false,
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dialogFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update editData when profileData changes (e.g., after page refresh)
+  useEffect(() => {
+    setEditData({ ...profileData });
+  }, [profileData]);
 
   const handleSave = async () => {
     const result = await updateUserProfile({
@@ -47,16 +53,10 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
 
     if (result.success && result.user) {
       setProfileData(result.user);
-      setIsDialogOpen(false);
       showToast("Profile updated successfully!", "success", "Your changes have been saved.");
     } else {
       showToast("Update failed", "error", result.error || "Failed to update profile");
     }
-  };
-
-  const handleCancel = () => {
-    setEditData({ ...profileData });
-    setIsDialogOpen(false);
   };
 
   const handleAvatarChange = () => {
@@ -91,37 +91,10 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
     }
   };
 
-  const handleDialogFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        showToast("File too large", "error", "Please select an image smaller than 5MB.");
-        return;
-      }
 
-      if (!file.type.startsWith("image/")) {
-        showToast("Invalid file type", "error", "Please select an image file.");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newAvatarUrl = reader.result as string;
-        setEditData({ ...editData, avatarUrl: newAvatarUrl });
-        showToast("Photo selected!", "success", "Click 'Save Changes' to update your profile.");
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleOpenDialog = () => {
-    setEditData({ ...profileData });
-    setIsDialogOpen(true);
-  };
 
   return (
-    <>
-      <Paper 
+    <Paper 
       elevation={0}
       sx={{ 
         p: 3, 
@@ -129,217 +102,209 @@ export function ProfileSection({ profileData, setProfileData, showToast }: Profi
         border: "1px solid rgba(0,0,0,0.1)",
       }}
     >
-      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 3 }}>
         Profile
       </Typography>
-      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
         <Box sx={{ position: "relative", mb: 2 }}>
           <Avatar
             src={profileData.avatarUrl}
             alt={`${profileData.firstName} ${profileData.lastName} avatar`}
-              className="gradient-background"
-              sx={{
-                width: 120,
-                height: 120,
-              }}
-            >
-              {profileData.firstName[0]}{profileData.lastName[0]}
-            </Avatar>
-            <IconButton
-              onClick={handleAvatarChange}
-              sx={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                bgcolor: "white",
-                border: "1px solid rgba(0,0,0,0.1)",
-                "&:hover": { bgcolor: "grey.50" },
-                width: 32,
-                height: 32,
-              }}
-              aria-label="Change profile photo"
-            >
-              <CameraAlt sx={{ fontSize: 16 }} />
-            </IconButton>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
-          </Box>
-
-          <Typography variant="h6" sx={{ textAlign: "center", mb: 0.5 }}>
-            {profileData.firstName} {profileData.lastName}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", mb: 3 }}>
-            {profileData.bio}
-          </Typography>
-
-          <Box sx={{ width: "100%", mb: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, color: "#4a5565" }}>
-              <Email sx={{ fontSize: 16 }} />
-              <Typography variant="body2">{profileData.email}</Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, color: "#4a5565" }}>
-              <LocationOn sx={{ fontSize: 16 }} />
-              <Typography variant="body2">{profileData.location}</Typography>
-            </Box>
-          </Box>
-
-          <Button
-            onClick={handleOpenDialog}
-            fullWidth
-            variant="contained"
-            className="gradient-button"
+            className="gradient-background"
             sx={{
-              borderRadius: 2,
+              width: 120,
+              height: 120,
             }}
           >
-            Edit Profile
-          </Button>
+            {profileData.firstName[0]}{profileData.lastName[0]}
+          </Avatar>
+          <IconButton
+            onClick={handleAvatarChange}
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              bgcolor: "white",
+              border: "1px solid rgba(0,0,0,0.1)",
+              "&:hover": { bgcolor: "grey.50" },
+              width: 32,
+              height: 32,
+            }}
+            aria-label="Change profile photo"
+          >
+            <CameraAlt sx={{ fontSize: 16 }} />
+          </IconButton>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
         </Box>
+      </Box>
 
-        <Divider sx={{ my: 3 }} />
+      <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 2 }}>
+        <TextField
+          label="First Name"
+          value={editData.firstName}
+          onChange={(e) => setEditData({ ...editData, firstName: e.target.value })}
+          fullWidth
+          sx={{ 
+            "& .MuiOutlinedInput-root": { 
+              bgcolor: "#f3f3f5",
+              "& fieldset": { border: "none" },
+            },
+          }}
+        />
+        <TextField
+          label="Last Name"
+          value={editData.lastName}
+          onChange={(e) => setEditData({ ...editData, lastName: e.target.value })}
+          fullWidth
+          sx={{ 
+            "& .MuiOutlinedInput-root": { 
+              bgcolor: "#f3f3f5",
+              "& fieldset": { border: "none" },
+            },
+          }}
+        />
+      </Box>
 
-        <Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Member since
-          </Typography>
-          <Typography variant="body1">January 2024</Typography>
-        </Box>
-      </Paper>
-
-      <Dialog 
-        open={isDialogOpen} 
-        onClose={handleCancel}
-        maxWidth="sm"
+      <TextField
+        label="Bio"
+        value={editData.bio}
+        onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+        placeholder="e.g., Travel Enthusiast"
         fullWidth
+        sx={{ 
+          mb: 2,
+          "& .MuiOutlinedInput-root": { 
+            bgcolor: "#f3f3f5",
+            "& fieldset": { border: "none" },
+          },
+        }}
+      />
+
+      <TextField
+        label="Email Address"
+        type="email"
+        value={editData.email}
+        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+        fullWidth
+        sx={{ 
+          mb: 2,
+          "& .MuiOutlinedInput-root": { 
+            bgcolor: "#f3f3f5",
+            "& fieldset": { border: "none" },
+          },
+        }}
+      />
+
+      <TextField
+        label="Location"
+        value={editData.location}
+        onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+        fullWidth
+        sx={{ 
+          mb: 2,
+          "& .MuiOutlinedInput-root": { 
+            bgcolor: "#f3f3f5",
+            "& fieldset": { border: "none" },
+          },
+        }}
+      />
+
+      <Button
+        onClick={handleSave}
+        fullWidth
+        variant="contained"
+        className="gradient-button"
+        sx={{
+          borderRadius: 2,
+          mb: 3,
+        }}
       >
-        <DialogTitle>Edit Profile</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Make changes to your profile here. Click save when you're done.
-          </Typography>
+        Save Changes
+      </Button>
 
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
-            <Avatar
-              src={editData.avatarUrl}
-              alt={`${editData.firstName} ${editData.lastName} avatar preview`}
-              className="gradient-background"
-              sx={{
-                width: 100,
-                height: 100,
-                mb: 2,
-              }}
-            >
-              {editData.firstName[0]}{editData.lastName[0]}
-            </Avatar>
-            <Button
-              variant="outlined"
-              startIcon={<Upload />}
-              onClick={() => dialogFileInputRef.current?.click()}
-              aria-label="Upload new profile photo"
-            >
-              Change Photo
-            </Button>
-            <input
-              ref={dialogFileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleDialogFileChange}
-              style={{ display: "none" }}
-            />
+      <Divider sx={{ mb: 3 }} />
+
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Notifications
+      </Typography>
+
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500 }} id='email-notifications'>
+              Email Notifications
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Receive updates about your trips
+            </Typography>
           </Box>
+          <Switch
+            checked={notifications.emailNotifications}
+            onChange={(e) => setNotifications({ ...notifications, emailNotifications: e.target.checked })}
+            slotProps={{
+              input: {
+                "aria-labelledby": "email-notifications"
+              }
+            }}
+          />
+        </Box>
 
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 2 }}>
-            <TextField
-              label="First Name"
-              value={editData.firstName}
-              onChange={(e) => setEditData({ ...editData, firstName: e.target.value })}
-              fullWidth
-              sx={{ 
-                "& .MuiOutlinedInput-root": { 
-                  bgcolor: "#f3f3f5",
-                  "& fieldset": { border: "none" },
-                },
-              }}
-            />
-            <TextField
-              label="Last Name"
-              value={editData.lastName}
-              onChange={(e) => setEditData({ ...editData, lastName: e.target.value })}
-              fullWidth
-              sx={{ 
-                "& .MuiOutlinedInput-root": { 
-                  bgcolor: "#f3f3f5",
-                  "& fieldset": { border: "none" },
-                },
-              }}
-            />
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500 }} id='travel-recommendations'>
+              Travel Recommendations
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Get AI-powered destination suggestions
+            </Typography>
           </Box>
-
-          <TextField
-            label="Bio"
-            value={editData.bio}
-            onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-            fullWidth
-            sx={{ 
-              mb: 2,
-              "& .MuiOutlinedInput-root": { 
-                bgcolor: "#f3f3f5",
-                "& fieldset": { border: "none" },
-              },
+          <Switch
+            checked={notifications.travelRecommendations}
+            onChange={(e) => setNotifications({ ...notifications, travelRecommendations: e.target.checked })}
+            slotProps={{
+              input: {
+                "aria-labelledby": "travel-recommendations"
+              }
             }}
           />
+        </Box>
 
-          <TextField
-            label="Email"
-            type="email"
-            value={editData.email}
-            onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-            fullWidth
-            sx={{ 
-              mb: 2,
-              "& .MuiOutlinedInput-root": { 
-                bgcolor: "#f3f3f5",
-                "& fieldset": { border: "none" },
-              },
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500 }} id='price-alerts'>
+              Price Alerts
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Notify me of price changes
+            </Typography>
+          </Box>
+          <Switch
+            checked={notifications.priceAlerts}
+            onChange={(e) => setNotifications({ ...notifications, priceAlerts: e.target.checked })}
+            slotProps={{
+              input: {
+                "aria-labelledby": "price-alerts"
+              }
             }}
           />
+        </Box>
+      </Box>
 
-          <TextField
-            label="Location"
-            value={editData.location}
-            onChange={(e) => setEditData({ ...editData, location: e.target.value })}
-            fullWidth
-            sx={{ 
-              "& .MuiOutlinedInput-root": { 
-                bgcolor: "#f3f3f5",
-                "& fieldset": { border: "none" },
-              },
-            }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button 
-            onClick={handleCancel}
-            variant="outlined"
-            fullWidth
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            fullWidth
-            className="gradient-button"
-          >
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+      <Divider sx={{ my: 3 }} />
+
+      <Box>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Member since
+        </Typography>
+        <Typography variant="body1">January 2024</Typography>
+      </Box>
+    </Paper>
   );
 }
