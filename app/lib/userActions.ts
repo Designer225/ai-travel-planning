@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma } from './prisma';
-import { getCurrentUser } from './sessionControl';
+import { getCurrentUser, updateSessionUser } from './sessionControl';
 import SiteUser from '@/types';
 
 export async function updateUserProfile(
@@ -39,6 +39,9 @@ export async function updateUserProfile(
       avatarUrl: updatedUser.avatarUrl,
     };
 
+    // Update session with new user data
+    await updateSessionUser(siteUser);
+
     return { success: true, user: siteUser };
   } catch (error) {
     console.error('Update user profile error:', error);
@@ -74,6 +77,9 @@ export async function updateUserAvatar(
       location: updatedUser.location,
       avatarUrl: updatedUser.avatarUrl,
     };
+
+    // Update session with new user data
+    await updateSessionUser(siteUser);
 
     return { success: true, user: siteUser };
   } catch (error) {
